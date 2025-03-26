@@ -6,15 +6,17 @@ import DogProfile from "@/components/DogProfile";
 import PhotoUpload from "@/components/PhotoUpload";
 import PoopCalendar from "@/components/PoopCalendar";
 import AnalysisCard from "@/components/AnalysisCard";
+import AIAnalysisResult from "@/components/AIAnalysisResult";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Dog, PoopEntry, PoopConsistency, PoopColor } from "@/types";
+import { Dog, PoopEntry, PoopConsistency, PoopColor, HealthInsight } from "@/types";
 import { format } from "date-fns";
 import { Camera, Calendar, LineChart, Plus, Save } from "lucide-react";
 import { sampleDogs, getEntriesForDog, getInsightsForDog } from "@/utils/mockData";
+import { analyzePoopImage } from "@/utils/imageAnalysis";
 
 const Dashboard: React.FC = () => {
   const [dogs, setDogs] = useState<Dog[]>(sampleDogs);
@@ -28,6 +30,16 @@ const Dashboard: React.FC = () => {
     date: new Date().toISOString(),
     notes: ""
   });
+  
+  // AI analysis states
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [aiAnalysisResult, setAiAnalysisResult] = useState<{
+    isPoop?: boolean;
+    confidence?: number;
+    color?: PoopColor;
+    consistency?: PoopConsistency;
+    insights: HealthInsight[];
+  }>({ insights: [] });
   
   // Load entries for the selected dog
   useEffect(() => {
@@ -49,9 +61,37 @@ const Dashboard: React.FC = () => {
     }));
   };
   
-  const handlePhotoCapture = (file: File) => {
+  const handlePhotoCapture = async (file: File) => {
     setCapturedPhoto(file);
     toast.success("Photo captured successfully");
+    
+    // Start AI analysis
+    setIsAnalyzing(true);
+    try {
+      const result = await analyzePoopImage(file);
+      setAiAnalysisResult(result);
+      
+      // Auto-fill form based on AI detection if confident enough
+      if (result.isPoop && result.confidence && result.confidence > 0.7) {
+        if (result.color) {
+          setNewEntry(prev => ({ ...prev, color: result.color }));
+        }
+        if (result.consistency) {
+          setNewEntry(prev => ({ ...prev, consistency: result.consistency }));
+        }
+        toast.success("AI analysis complete! Form updated with detected properties.");
+      } else if (!result.isPoop) {
+        toast.info("This doesn't appear to be a poop image. Please try again with a clearer photo.");
+      } else {
+        toast.info("Analysis complete, but we're not entirely sure about some properties.");
+      }
+    } catch (error) {
+      console.error("AI analysis error:", error);
+      toast.error("Failed to analyze the image. Please try again.");
+      setAiAnalysisResult({ insights: [] });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -104,6 +144,7 @@ const Dashboard: React.FC = () => {
       notes: ""
     });
     setCapturedPhoto(null);
+    setAiAnalysisResult({ insights: [] });
     
     toast.success("Entry added successfully");
   };
@@ -172,8 +213,20 @@ const Dashboard: React.FC = () => {
                     <h2 className="text-xl font-semibold mb-4">Record New Entry</h2>
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
+                        <div className="space-y-6">
                           <PhotoUpload onPhotoCapture={handlePhotoCapture} />
+                          
+                          {/* AI Analysis Result */}
+                          {(isAnalyzing || aiAnalysisResult.insights.length > 0) && (
+                            <AIAnalysisResult 
+                              isLoading={isAnalyzing}
+                              isPoop={aiAnalysisResult.isPoop}
+                              confidence={aiAnalysisResult.confidence}
+                              color={aiAnalysisResult.color}
+                              consistency={aiAnalysisResult.consistency}
+                              insights={aiAnalysisResult.insights}
+                            />
+                          )}
                         </div>
                         
                         <div className="space-y-4">
@@ -242,14 +295,14 @@ const Dashboard: React.FC = () => {
                               className="mt-1"
                             />
                           </div>
+                          
+                          <div className="flex justify-end pt-4">
+                            <Button type="submit" className="flex items-center">
+                              <Save className="mr-2 h-4 w-4" />
+                              Save Entry
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className="flex justify-end">
-                        <Button type="submit" className="flex items-center">
-                          <Save className="mr-2 h-4 w-4" />
-                          Save Entry
-                        </Button>
                       </div>
                     </form>
                   </div>
