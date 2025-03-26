@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "sonner";
 import { Dog } from "@/types";
 import { sampleDogs } from "@/utils/mockData";
 import { Dog as DogIcon, User, UserPlus, Settings, Trash2, Upload, Save, PlusCircle } from "lucide-react";
