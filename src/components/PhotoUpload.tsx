@@ -1,0 +1,197 @@
+
+import React, { useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Camera, Upload, X, Image as ImageIcon, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface PhotoUploadProps {
+  onPhotoCapture: (file: File) => void;
+  className?: string;
+}
+
+const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoCapture, className }) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    handleFile(file);
+  };
+
+  const handleFile = (file?: File) => {
+    if (!file) return;
+
+    setIsLoading(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPreviewUrl(reader.result as string);
+      setIsLoading(false);
+    };
+    reader.readAsDataURL(file);
+    onPhotoCapture(file);
+    
+    // Show success indicator briefly
+    setIsSuccess(true);
+    setTimeout(() => setIsSuccess(false), 2000);
+  };
+
+  const activateCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      streamRef.current = stream;
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+        setIsCameraActive(true);
+      }
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+    }
+  };
+
+  const capturePhoto = () => {
+    if (!videoRef.current) return;
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    
+    const context = canvas.getContext('2d');
+    if (context) {
+      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const file = new File([blob], "captured-photo.jpg", { type: "image/jpeg" });
+          handleFile(file);
+          stopCamera();
+        }
+      }, 'image/jpeg');
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+      setIsCameraActive(false);
+    }
+  };
+
+  const clearPreview = () => {
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className={cn("relative", className)}>
+      {!isCameraActive && !previewUrl && (
+        <div className="glass-card p-8 flex flex-col items-center justify-center text-center">
+          <ImageIcon className="h-12 w-12 text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium mb-1">Capture a photo</h3>
+          <p className="text-sm text-gray-500 mb-6">
+            Take a clear photo of your dog's poop for accurate analysis
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
+            <Button 
+              variant="default" 
+              className="flex-1 flex items-center justify-center"
+              onClick={activateCamera}
+            >
+              <Camera className="mr-2 h-4 w-4" />
+              Camera
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="flex-1 flex items-center justify-center"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              Upload
+            </Button>
+            
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+            />
+          </div>
+        </div>
+      )}
+
+      {isCameraActive && (
+        <div className="glass-card p-4 overflow-hidden">
+          <div className="relative rounded-lg overflow-hidden aspect-video">
+            <video
+              ref={videoRef}
+              className="w-full h-full object-cover"
+              autoPlay
+              playsInline
+              muted
+            />
+          </div>
+          
+          <div className="flex justify-center mt-4 gap-3">
+            <Button onClick={capturePhoto} className="animate-pulse">
+              <Camera className="mr-2 h-4 w-4" />
+              Capture
+            </Button>
+            <Button variant="outline" onClick={stopCamera}>
+              <X className="mr-2 h-4 w-4" />
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {previewUrl && (
+        <div className="glass-card p-4">
+          <div className="relative rounded-lg overflow-hidden aspect-video">
+            <img 
+              src={previewUrl} 
+              alt="Preview" 
+              className="w-full h-full object-cover"
+            />
+            <button
+              onClick={clearPreview}
+              className="absolute top-2 right-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            
+            {isSuccess && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                <div className="rounded-full bg-green-500 p-3 animate-scale-in">
+                  <Check className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div className="mt-4 flex justify-center">
+            <Button onClick={() => {
+              setPreviewUrl(null);
+              activateCamera();
+            }}>
+              Retake Photo
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default PhotoUpload;
