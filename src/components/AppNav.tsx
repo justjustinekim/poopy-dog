@@ -8,7 +8,6 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
 import PhotoUpload from "./PhotoUpload";
 import { Button } from "./ui/button";
-import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
 const AppNav: React.FC = () => {
@@ -61,35 +60,35 @@ const AppNav: React.FC = () => {
     // Ask if user wants AI advice
     setTimeout(() => {
       if (confirm("Would you like to get AI advice about this poop image?")) {
-        navigate('/chat');
+        navigate('/chat', { state: { capturedPhoto: URL.createObjectURL(file) } });
       }
     }, 500);
   };
   
   return (
     <>
-      <nav className="tab-bar flex justify-around">
+      <nav className="tab-bar grid grid-cols-5">
         {navItems.map((item) => (
           item.path ? (
             <Link 
               key={item.name}
               to={item.path}
               className={cn(
-                "tab-button flex-1 flex flex-col items-center justify-center",
+                "tab-button flex items-center justify-center p-3",
                 location.pathname === item.path && "active"
               )}
+              aria-label={item.name}
             >
               <item.icon className="h-6 w-6" />
-              <span className="text-xs mt-1">{item.name}</span>
             </Link>
           ) : (
             <button
               key={item.name}
               onClick={item.onClick}
-              className="tab-button flex-1 flex flex-col items-center justify-center"
+              className="tab-button flex items-center justify-center p-3"
+              aria-label={item.name}
             >
               <item.icon className="h-6 w-6" />
-              <span className="text-xs mt-1">{item.name}</span>
             </button>
           )
         ))}

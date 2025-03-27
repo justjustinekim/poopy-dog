@@ -1,9 +1,8 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Send, Bot, User, Image as ImageIcon } from "lucide-react";
 import { useLocation } from "react-router-dom";
@@ -25,6 +24,15 @@ const Chat: React.FC = () => {
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const location = useLocation();
+  const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
+  
+  // Get the image from location state if available
+  useEffect(() => {
+    if (location.state?.capturedPhoto) {
+      setBackgroundImage(location.state.capturedPhoto);
+    }
+  }, [location.state]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,8 +69,24 @@ const Chat: React.FC = () => {
 
   return (
     <Layout>
-      <div className="container max-w-4xl mx-auto px-4 pt-6 pb-20">
-        <Card className="shadow-md">
+      <div 
+        className="container max-w-4xl mx-auto px-4 pt-6 pb-20 relative min-h-screen"
+        style={{
+          backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        {/* Translucent white overlay */}
+        {backgroundImage && (
+          <div 
+            className="absolute inset-0 bg-white/60 backdrop-blur-sm"
+            style={{ zIndex: 1 }}
+          />
+        )}
+        
+        <Card className="shadow-md relative z-10 bg-background/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bot className="h-5 w-5 text-primary" />
