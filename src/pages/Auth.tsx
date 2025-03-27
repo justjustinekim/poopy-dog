@@ -5,7 +5,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Dog, Key, Mail, UserPlus, LogIn } from "lucide-react";
+import { Dog, Key, Mail, UserPlus, LogIn, Apple, Chrome } from "lucide-react";
 
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/Layout";
@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
 // Login form schema
 const loginSchema = z.object({
@@ -43,7 +44,7 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 
 const Auth: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, signIn, signUp } = useAuth();
+  const { user, signIn, signUp, signOut } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>("login");
 
@@ -102,6 +103,28 @@ const Auth: React.FC = () => {
     }
   };
 
+  // Handle social sign in
+  const handleSocialSignIn = async (provider: 'google' | 'apple') => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+          redirectTo: window.location.origin + '/dashboard',
+        },
+      });
+      
+      if (error) {
+        throw error;
+      }
+      // No toast needed here as the redirect will happen automatically
+    } catch (error: any) {
+      console.error(`${provider} login error:`, error);
+      toast.error(error.message || `Error signing in with ${provider}`);
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Layout className="flex items-center justify-center py-16">
       <div className="w-full max-w-md px-4">
@@ -133,9 +156,41 @@ const Auth: React.FC = () => {
               </TabsTrigger>
             </TabsList>
 
+            {/* Social Sign In Buttons - Available on both tabs */}
+            <div className="p-4 pb-0">
+              <div className="flex flex-col space-y-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={() => handleSocialSignIn('google')}
+                  disabled={isLoading}
+                >
+                  <Chrome className="mr-2 h-4 w-4" />
+                  Continue with Google
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={() => handleSocialSignIn('apple')}
+                  disabled={isLoading}
+                >
+                  <Apple className="mr-2 h-4 w-4" />
+                  Continue with Apple
+                </Button>
+              </div>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator />
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-background px-2 text-xs text-muted-foreground">OR</span>
+                </div>
+              </div>
+            </div>
+
             {/* Login Tab */}
             <TabsContent value="login">
-              <CardHeader>
+              <CardHeader className="pb-2">
                 <CardTitle>Login to your account</CardTitle>
                 <CardDescription>
                   Enter your credentials to access your account
@@ -186,7 +241,7 @@ const Auth: React.FC = () => {
 
             {/* Sign Up Tab */}
             <TabsContent value="signup">
-              <CardHeader>
+              <CardHeader className="pb-2">
                 <CardTitle>Create an account</CardTitle>
                 <CardDescription>
                   Sign up to start tracking your dog's health
