@@ -4,7 +4,6 @@ import { useLocation, Link } from "react-router-dom";
 import { Home, Camera, Dog, Trophy, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
 import PhotoUpload from "./PhotoUpload";
 import { Button } from "./ui/button";
@@ -98,6 +97,13 @@ const AppNav: React.FC = () => {
             onPhotoCapture={handlePhotoCapture} 
             className="w-full h-full"
           />
+          <button
+            onClick={() => setCameraOpen(false)}
+            className="absolute top-4 left-4 p-2 rounded-full bg-black/30 text-white z-[101]"
+            aria-label="Close camera"
+          >
+            <X className="h-6 w-6" />
+          </button>
         </div>
       )}
     </>
