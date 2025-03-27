@@ -51,18 +51,16 @@ const AppNav: React.FC = () => {
   ];
 
   const handlePhotoCapture = (file: File) => {
-    // Handle the captured photo
+    // Close camera dialog
     setCameraOpen(false);
     
-    // Navigate to dashboard with the captured photo data
-    navigate('/dashboard', { state: { capturedPhoto: URL.createObjectURL(file) } });
-    
-    // Ask if user wants AI advice
-    setTimeout(() => {
-      if (confirm("Would you like to get AI advice about this poop image?")) {
-        navigate('/chat', { state: { capturedPhoto: URL.createObjectURL(file) } });
-      }
-    }, 500);
+    // Navigate directly to dashboard with the captured photo data for entry creation
+    navigate('/dashboard', { 
+      state: { 
+        capturedPhoto: URL.createObjectURL(file),
+        autoOpenEntryForm: true
+      } 
+    });
   };
   
   return (

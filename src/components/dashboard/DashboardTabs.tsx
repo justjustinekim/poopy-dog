@@ -1,13 +1,16 @@
 
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Camera, Calendar, LineChart } from "lucide-react";
+import { Camera, Calendar, LineChart, MessageSquare } from "lucide-react";
 import { PoopEntry, HealthInsight, Dog } from "@/types";
 import TrackEntryForm from "./TrackEntryForm";
 import PoopCalendar from "@/components/PoopCalendar";
 import AnalysisCard from "@/components/AnalysisCard";
+import { Button } from "@/components/ui/button";
 
 interface DashboardTabsProps {
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
   selectedDog: Dog;
   entries: PoopEntry[];
   healthInsights: HealthInsight[];
@@ -15,19 +18,28 @@ interface DashboardTabsProps {
   onDateSelect: (date: Date) => void;
   photoUrl: string | null;
   newEntry?: Partial<PoopEntry>;
+  onChatWithAI?: () => void;
 }
 
 const DashboardTabs: React.FC<DashboardTabsProps> = ({
+  activeTab = "track",
+  onTabChange = () => {},
   selectedDog,
   entries,
   healthInsights,
   onEntrySubmit,
   onDateSelect,
   photoUrl,
-  newEntry
+  newEntry,
+  onChatWithAI
 }) => {
   return (
-    <Tabs defaultValue="track" className="w-full">
+    <Tabs 
+      defaultValue="track" 
+      value={activeTab} 
+      onValueChange={onTabChange} 
+      className="w-full"
+    >
       <TabsList className="grid grid-cols-3 mb-6">
         <TabsTrigger value="track" className="py-3">
           <Camera className="mr-2 h-4 w-4" />
@@ -49,6 +61,7 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({
           onSubmit={onEntrySubmit}
           photoUrl={photoUrl}
           initialNewEntry={newEntry}
+          onChatWithAI={onChatWithAI}
         />
       </TabsContent>
       

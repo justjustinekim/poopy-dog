@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Save } from "lucide-react";
+import { MapPin, Save, MessageSquare } from "lucide-react";
 import PhotoUpload from "@/components/PhotoUpload";
 import AIAnalysisResult from "@/components/AIAnalysisResult";
 import { PoopEntry, PoopConsistency, PoopColor, HealthInsight } from "@/types";
@@ -15,13 +15,15 @@ interface TrackEntryFormProps {
   onSubmit: (entry: PoopEntry) => void;
   photoUrl: string | null;
   initialNewEntry?: Partial<PoopEntry>;
+  onChatWithAI?: () => void;
 }
 
 const TrackEntryForm: React.FC<TrackEntryFormProps> = ({ 
   selectedDogId, 
   onSubmit,
   photoUrl,
-  initialNewEntry = {}
+  initialNewEntry = {},
+  onChatWithAI
 }) => {
   const [capturedPhoto, setCapturedPhoto] = useState<File | null>(null);
   const [newEntry, setNewEntry] = useState<Partial<PoopEntry>>({
@@ -154,6 +156,19 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
                 colorSpectrum={aiAnalysisResult.colorSpectrum}
                 insights={aiAnalysisResult.insights}
               />
+            )}
+            
+            {/* Chat with AI button */}
+            {(photoUrl || capturedPhoto) && onChatWithAI && (
+              <Button 
+                type="button"
+                variant="secondary"
+                className="w-full mt-4"
+                onClick={onChatWithAI}
+              >
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Get AI Advice on This Sample
+              </Button>
             )}
           </div>
           

@@ -78,15 +78,7 @@ const Chat: React.FC = () => {
           backgroundRepeat: 'no-repeat',
         }}
       >
-        {/* Translucent white overlay */}
-        {backgroundImage && (
-          <div 
-            className="absolute inset-0 bg-white/60 backdrop-blur-sm"
-            style={{ zIndex: 1 }}
-          />
-        )}
-        
-        <Card className="shadow-md relative z-10 bg-background/80 backdrop-blur-sm">
+        <Card className="shadow-md relative z-10 bg-background/95 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bot className="h-5 w-5 text-primary" />
