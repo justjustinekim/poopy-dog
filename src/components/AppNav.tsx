@@ -15,8 +15,8 @@ const AppNav: React.FC = () => {
   const [cameraOpen, setCameraOpen] = useState(false);
   const navigate = useNavigate();
   
-  // Only show on app pages, not on the landing page
-  if (location.pathname === "/" || !isMobile) {
+  // Show on all pages when on mobile
+  if (!isMobile) {
     return null;
   }
   
@@ -24,7 +24,7 @@ const AppNav: React.FC = () => {
     {
       name: "Home",
       icon: Home,
-      path: "/dashboard"
+      path: "/"
     },
     {
       name: "Social",
