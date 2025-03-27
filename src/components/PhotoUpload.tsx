@@ -147,32 +147,32 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoCapture, className, in
       )}
 
       {isCameraActive && (
-        <div className="glass-card p-4 overflow-hidden">
-          <div className="relative rounded-lg overflow-hidden aspect-video">
-            <video
-              ref={videoRef}
-              className="w-full h-full object-cover"
-              autoPlay
-              playsInline
-              muted
-            />
-            <div className="absolute bottom-0 left-0 right-0 flex justify-center p-4">
-              <Button 
-                onClick={capturePhoto} 
-                className="animate-pulse rounded-full w-16 h-16 flex items-center justify-center"
-                size="icon"
-              >
-                <Camera className="h-8 w-8" />
-              </Button>
-            </div>
+        <div className="fixed inset-0 z-[100] bg-black">
+          <video
+            ref={videoRef}
+            className="absolute inset-0 w-full h-full object-cover"
+            autoPlay
+            playsInline
+            muted
+          />
+          
+          <div className="absolute bottom-10 left-0 right-0 flex justify-center">
+            <button 
+              onClick={capturePhoto}
+              className="w-20 h-20 rounded-full bg-white border-4 border-gray-200 flex items-center justify-center shadow-lg transform transition-transform active:scale-95"
+              aria-label="Take photo"
+            >
+              <div className="w-16 h-16 rounded-full bg-white"></div>
+            </button>
           </div>
           
-          <div className="flex justify-center mt-4 gap-3">
-            <Button variant="outline" onClick={stopCamera}>
-              <X className="mr-2 h-4 w-4" />
-              Cancel
-            </Button>
-          </div>
+          <button
+            onClick={stopCamera}
+            className="absolute top-4 left-4 p-2 rounded-full bg-black/30 text-white"
+            aria-label="Close camera"
+          >
+            <X className="h-6 w-6" />
+          </button>
         </div>
       )}
 

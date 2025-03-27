@@ -92,22 +92,14 @@ const AppNav: React.FC = () => {
         ))}
       </nav>
 
-      <Dialog open={cameraOpen} onOpenChange={setCameraOpen}>
-        <DialogContent className="sm:max-w-md">
-          <div className="p-1">
-            <h2 className="text-xl font-semibold mb-4 text-center">Capture Dog Poop</h2>
-            <PhotoUpload 
-              onPhotoCapture={handlePhotoCapture} 
-              className="w-full"
-            />
-            <div className="mt-4 flex justify-end">
-              <Button variant="outline" onClick={() => setCameraOpen(false)}>
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {cameraOpen && (
+        <div className="fixed inset-0 z-50 bg-black">
+          <PhotoUpload 
+            onPhotoCapture={handlePhotoCapture} 
+            className="w-full h-full"
+          />
+        </div>
+      )}
     </>
   );
 };
