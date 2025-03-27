@@ -3,7 +3,7 @@ import React from "react";
 import { HealthInsight, PoopColor, PoopConsistency } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, AlertTriangle, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Brain, AlertTriangle, CheckCircle, AlertCircle, Loader2, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AIAnalysisResultProps {
@@ -12,6 +12,7 @@ interface AIAnalysisResultProps {
   confidence?: number;
   color?: PoopColor;
   consistency?: PoopConsistency;
+  colorSpectrum?: string;
   insights: HealthInsight[];
   className?: string;
 }
@@ -22,6 +23,7 @@ const AIAnalysisResult: React.FC<AIAnalysisResultProps> = ({
   confidence,
   color,
   consistency,
+  colorSpectrum,
   insights,
   className
 }) => {
@@ -106,13 +108,26 @@ const AIAnalysisResult: React.FC<AIAnalysisResultProps> = ({
         {isPoop && (
           <div className="mb-4 p-4 bg-background/50 rounded-lg border">
             <h3 className="text-sm font-medium mb-2">Detected Properties</h3>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-4">
               {color && (
                 <div className="flex flex-col gap-1">
                   <span className="text-xs text-gray-500">Color</span>
-                  <Badge variant="outline" className={getColorBadgeClass(color)}>
-                    {color.charAt(0).toUpperCase() + color.slice(1)}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className={getColorBadgeClass(color)}>
+                      {color.charAt(0).toUpperCase() + color.slice(1)}
+                    </Badge>
+                    
+                    {colorSpectrum && (
+                      <div className="flex items-center gap-1">
+                        <Palette className="h-3 w-3 text-gray-400" />
+                        <div 
+                          className="w-6 h-6 rounded-full border" 
+                          style={{ backgroundColor: colorSpectrum }}
+                          title="Detected color spectrum"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
               

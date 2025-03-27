@@ -21,6 +21,7 @@ export interface PoopEntry {
   notes?: string;
   tags?: string[];
   location?: string;
+  colorSpectrum?: string;
 }
 
 export interface HealthInsight {

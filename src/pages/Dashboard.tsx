@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Dog, PoopEntry, PoopConsistency, PoopColor, HealthInsight } from "@/types";
 import { format } from "date-fns";
-import { Camera, Calendar, LineChart, Plus, Save } from "lucide-react";
+import { Camera, Calendar, LineChart, Plus, Save, MapPin } from "lucide-react";
 import { sampleDogs, getEntriesForDog, getInsightsForDog } from "@/utils/mockData";
 import { analyzePoopImage } from "@/utils/imageAnalysis";
 
@@ -28,7 +28,8 @@ const Dashboard: React.FC = () => {
     consistency: "normal",
     color: "brown",
     date: new Date().toISOString(),
-    notes: ""
+    notes: "",
+    location: ""
   });
   
   // AI analysis states
@@ -38,6 +39,7 @@ const Dashboard: React.FC = () => {
     confidence?: number;
     color?: PoopColor;
     consistency?: PoopConsistency;
+    colorSpectrum?: string;
     insights: HealthInsight[];
   }>({ insights: [] });
   
@@ -125,7 +127,7 @@ const Dashboard: React.FC = () => {
       color: newEntry.color as PoopColor,
       notes: newEntry.notes,
       tags: newEntry.notes?.split(" ").filter(tag => tag.startsWith("#")) || [],
-      location: "Home"
+      location: newEntry.location
     };
     
     if (capturedPhoto) {
@@ -141,7 +143,8 @@ const Dashboard: React.FC = () => {
       consistency: "normal",
       color: "brown",
       date: new Date().toISOString(),
-      notes: ""
+      notes: "",
+      location: ""
     });
     setCapturedPhoto(null);
     setAiAnalysisResult({ insights: [] });
@@ -224,6 +227,7 @@ const Dashboard: React.FC = () => {
                               confidence={aiAnalysisResult.confidence}
                               color={aiAnalysisResult.color}
                               consistency={aiAnalysisResult.consistency}
+                              colorSpectrum={aiAnalysisResult.colorSpectrum}
                               insights={aiAnalysisResult.insights}
                             />
                           )}
@@ -282,6 +286,21 @@ const Dashboard: React.FC = () => {
                                 <SelectItem value="white">White</SelectItem>
                               </SelectContent>
                             </Select>
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="location" className="flex items-center gap-1">
+                              <MapPin className="h-3.5 w-3.5" />
+                              Location (optional)
+                            </Label>
+                            <Input
+                              id="location"
+                              name="location"
+                              value={newEntry.location || ""}
+                              onChange={handleInputChange}
+                              placeholder="Where was the sample found?"
+                              className="mt-1"
+                            />
                           </div>
                           
                           <div>
