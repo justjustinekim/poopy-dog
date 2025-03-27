@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Poop, AlertTriangle, Check } from "lucide-react";
+import { AlertCircle, AlertTriangle, Check } from "lucide-react";
 
 interface HealthAssessmentProps {
   onComplete: (data: any) => void;
@@ -41,7 +41,7 @@ const HealthAssessment: React.FC<HealthAssessmentProps> = ({
       <div className="text-center">
         <div className="flex justify-center mb-4">
           <div className="bg-primary/10 p-3 rounded-full">
-            <Poop className="h-8 w-8 text-primary" />
+            <AlertCircle className="h-8 w-8 text-primary" />
           </div>
         </div>
         <h2 className="text-2xl font-bold">Dog's Digestive Health Check</h2>

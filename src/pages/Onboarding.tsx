@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,9 +5,10 @@ import Layout from "@/components/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import OnboardingStep from "@/components/onboarding/OnboardingStep";
 import DogOnboardingForm from "@/components/onboarding/DogOnboardingForm";
+import HealthAssessment from "@/components/onboarding/HealthAssessment";
 import { Dog } from "@/types";
 import { toast } from "sonner";
-import { Poop, ArrowRight, Dog as DogIcon, Camera, Trophy, Check } from "lucide-react";
+import { AlertCircle, ArrowRight, Dog as DogIcon, Camera, Trophy, Check } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
 
 const Onboarding = () => {
@@ -23,6 +23,7 @@ const Onboarding = () => {
   });
   const [dogAdded, setDogAdded] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [healthData, setHealthData] = useState<any>(null);
 
   useEffect(() => {
     // If user is coming back to onboarding and already has completed it,
@@ -38,7 +39,7 @@ const Onboarding = () => {
       setCompletedSteps([...completedSteps, step]);
     }
     
-    if (step === 5) {
+    if (step === steps.length - 1) {
       // Complete onboarding
       localStorage.setItem("onboardingCompleted", "true");
       
@@ -79,6 +80,24 @@ const Onboarding = () => {
     handleNextStep();
   };
 
+  const handleHealthAssessmentComplete = (data: any) => {
+    setHealthData(data);
+    
+    // In a real app, we would store this data with the dog profile
+    // For demo purposes, we'll just store it in local storage
+    if (dogAdded) {
+      const existingDogs = JSON.parse(localStorage.getItem("dogs") || "[]");
+      const lastDog = existingDogs[existingDogs.length - 1];
+      
+      if (lastDog) {
+        lastDog.healthAssessment = data;
+        localStorage.setItem("dogs", JSON.stringify(existingDogs));
+      }
+    }
+    
+    handleNextStep();
+  };
+
   const welcomeContent = (
     <div className="text-center space-y-6">
       <div className="flex justify-center">
@@ -104,7 +123,7 @@ const Onboarding = () => {
     <div className="text-center space-y-6">
       <div className="flex justify-center">
         <div className="relative">
-          <Poop className="h-20 w-20 text-primary animate-pulse" />
+          <AlertCircle className="h-20 w-20 text-primary animate-pulse" />
           <div className="absolute inset-0 bg-primary/20 rounded-full blur-md -z-10 scale-110"></div>
         </div>
       </div>
@@ -120,7 +139,7 @@ const Onboarding = () => {
           <p className="text-sm text-gray-500 dark:text-gray-400">Easily document your dog's stool with photos</p>
         </div>
         <div className="bg-background p-4 rounded-lg border">
-          <Poop className="h-6 w-6 text-primary mb-2" />
+          <AlertCircle className="h-6 w-6 text-primary mb-2" />
           <h3 className="font-medium">Analyze Health</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">Get insights on stool health and potential issues</p>
         </div>
@@ -171,7 +190,7 @@ const Onboarding = () => {
         
         <div className="bg-background p-6 rounded-lg border flex items-center">
           <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full mr-4">
-            <Poop className="h-6 w-6 text-blue-500" />
+            <AlertCircle className="h-6 w-6 text-blue-500" />
           </div>
           <div className="text-left">
             <h3 className="font-medium">AI Analysis</h3>
@@ -233,6 +252,15 @@ const Onboarding = () => {
     </div>
   );
 
+  const healthAssessmentContent = (
+    <div className="space-y-6">
+      <HealthAssessment 
+        onComplete={handleHealthAssessmentComplete}
+        onSkip={handleNextStep}
+      />
+    </div>
+  );
+
   const steps = [
     {
       title: "Welcome",
@@ -253,6 +281,10 @@ const Onboarding = () => {
     {
       title: "Add Your Dog",
       content: addDog,
+    },
+    {
+      title: "Health Assessment",
+      content: healthAssessmentContent,
     },
     {
       title: "All Set",
