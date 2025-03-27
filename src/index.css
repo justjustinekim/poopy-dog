@@ -14,16 +14,18 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 201 94% 51%;
+    /* More vibrant primary color */
+    --primary: 240 80% 60%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 120 16% 60%;
+    /* More playful secondary color */
+    --secondary: 340 90% 65%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 120 16% 90%;
+    --accent: 130 60% 70%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -33,7 +35,8 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221 83% 53%;
 
-    --radius: 0.8rem;
+    /* Rounder corners for cartoonish look */
+    --radius: 1.2rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -55,16 +58,16 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 201 94% 51%;
+    --primary: 240 80% 60%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 120 16% 40%;
+    --secondary: 340 90% 65%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 120 16% 20%;
+    --accent: 130 60% 40%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -83,6 +86,8 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    /* Add a fun pattern background */
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   }
 }
 
@@ -102,6 +107,66 @@
   .fade-mask {
     mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 85%, rgba(0,0,0,0));
   }
+
+  /* New app-specific styles */
+  .app-container {
+    @apply max-w-md mx-auto min-h-screen flex flex-col;
+  }
+
+  .app-bar {
+    @apply sticky top-0 bg-primary/95 backdrop-blur-md text-white z-50 px-4 py-3 flex items-center justify-between;
+  }
+
+  .tab-bar {
+    @apply fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t flex items-center justify-around py-2 z-50;
+  }
+  
+  .tab-button {
+    @apply flex flex-col items-center justify-center p-2 rounded-lg transition-all;
+  }
+  
+  .tab-button.active {
+    @apply text-primary;
+  }
+  
+  /* Cartoon-style elements */
+  .cartoon-bubble {
+    @apply relative bg-white rounded-2xl p-4 shadow-lg border-2 border-gray-200;
+  }
+  
+  .cartoon-bubble:after {
+    content: '';
+    @apply absolute w-4 h-4 bg-white border-r-2 border-b-2 border-gray-200 transform rotate-45;
+    bottom: -8px;
+    left: 24px;
+  }
+  
+  /* Achievement badge */
+  .achievement-badge {
+    @apply relative inline-flex items-center justify-center;
+  }
+  
+  .achievement-badge::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-tr from-primary/60 to-secondary/60 rounded-full blur-md z-0;
+  }
+  
+  .badge-glow {
+    @apply animate-pulse absolute inset-0 bg-gradient-to-tr from-primary/40 to-secondary/40 rounded-full blur-md;
+  }
+  
+  /* Fun animations */
+  .bounce-in {
+    animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .wiggle {
+    animation: wiggle 1s ease-in-out;
+  }
+  
+  .pop {
+    animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
 }
 
 /* Smooth scrolling */
@@ -118,8 +183,21 @@ html {
   src: url(https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff2) format('woff2');
 }
 
+/* Add a playful cartoon font */
+@font-face {
+  font-family: 'Bubblegum Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/bubblegumsans/v16/AYCSpXb_Z9EORv1M5QTjEzMEtdaH.woff2) format('woff2');
+}
+
 body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+h1, h2, h3, .cartoon-text {
+  font-family: 'Bubblegum Sans', 'Inter', system-ui, sans-serif;
 }
 
 /* Transitions */
@@ -143,4 +221,39 @@ body {
   opacity: 0;
   transform: translateY(-8px);
   transition: opacity 300ms, transform 300ms;
+}
+
+/* Custom animations */
+@keyframes bounce-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-7deg); }
+  75% { transform: rotate(7deg); }
+}
+
+@keyframes pop {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Confetti animation for achievements */
+@keyframes confetti-slow {
+  0% { transform: translate3d(0, 0, 0) rotateX(0) rotateY(0); }
+  100% { transform: translate3d(25px, 105vh, 0) rotateX(360deg) rotateY(180deg); }
+}
+
+@keyframes confetti-medium {
+  0% { transform: translate3d(0, 0, 0) rotateX(0) rotateY(0); }
+  100% { transform: translate3d(100px, 105vh, 0) rotateX(100deg) rotateY(360deg); }
+}
+
+@keyframes confetti-fast {
+  0% { transform: translate3d(0, 0, 0) rotateX(0) rotateY(0); }
+  100% { transform: translate3d(-50px, 105vh, 0) rotateX(10deg) rotateY(250deg); }
 }

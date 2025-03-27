@@ -2,15 +2,19 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Dog, Menu, X } from "lucide-react";
+import { Dog, Menu, X, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Badge } from "@/components/ui/badge";
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   const isHomePage = location.pathname === "/";
+  const isAppPage = !isHomePage;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,6 +33,7 @@ const Header: React.FC = () => {
   const navLinks = [
     { label: "Home", path: "/" },
     { label: "Dashboard", path: "/dashboard" },
+    { label: "Social", path: "/social" },
     { label: "Profile", path: "/profile" },
   ];
 
@@ -36,12 +41,33 @@ const Header: React.FC = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  // App-like header for internal pages on mobile
+  if (isAppPage && isMobile) {
+    return (
+      <header className="app-bar rounded-b-xl">
+        <Link to="/" className="flex items-center space-x-2">
+          <Dog className="h-6 w-6 text-white wiggle" />
+          <span className="text-xl font-bold tracking-tight">PupPoopVision</span>
+        </Link>
+        
+        <div className="flex items-center space-x-2">
+          <Link to="/achievements">
+            <Badge variant="outline" className="bg-yellow-400 text-primary border-none px-2">
+              <Trophy className="h-3 w-3 mr-1" />
+              <span className="text-xs">Level 5</span>
+            </Badge>
+          </Link>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header
       className={cn(
         "fixed w-full top-0 z-50 transition-all duration-300",
         isScrolled || !isHomePage || isMobileMenuOpen
-          ? "bg-white/80 backdrop-blur-lg shadow-sm py-3"
+          ? "bg-white/95 backdrop-blur-lg shadow-md py-3"
           : "bg-transparent py-5"
       )}
     >
@@ -49,8 +75,12 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <Dog className="h-7 w-7 text-primary animate-float" />
-              <span className="text-xl font-semibold tracking-tight">PupPoopVision</span>
+              <div className="relative">
+                <Dog className="h-8 w-8 text-primary animate-float relative z-10" />
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-md -z-10"></div>
+              </div>
+              <span className="text-xl font-bold tracking-tight cartoon-text">PupPoopVision</span>
+              <Badge className="ml-2 hidden md:flex bg-yellow-400 text-primary border-none">BETA</Badge>
             </Link>
           </div>
 
@@ -61,17 +91,18 @@ const Header: React.FC = () => {
                 key={link.path}
                 to={link.path}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
+                  "text-sm font-medium transition-colors hover:text-primary relative group",
                   location.pathname === link.path
                     ? "text-primary"
                     : "text-gray-600"
                 )}
               >
                 {link.label}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
               </Link>
             ))}
-            <Button size="sm" className="ml-4">
-              Get Started
+            <Button size="sm" className="ml-4 rounded-xl font-medium cartoon-text" asChild>
+              <Link to="/dashboard">Get Started</Link>
             </Button>
           </nav>
 
@@ -116,7 +147,7 @@ const Header: React.FC = () => {
             </Link>
           ))}
           <div className="pt-4">
-            <Button className="w-full">Get Started</Button>
+            <Button className="w-full rounded-xl font-medium cartoon-text">Get Started</Button>
           </div>
         </div>
       </div>
