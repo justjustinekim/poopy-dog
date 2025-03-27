@@ -1,17 +1,20 @@
 
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Dog, Menu, X, Trophy } from "lucide-react";
+import { Dog, Menu, X, Trophy, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const isHomePage = location.pathname === "/";
   const isAppPage = !isHomePage;
@@ -41,6 +44,15 @@ const Header: React.FC = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const handleAuthAction = () => {
+    if (user) {
+      signOut();
+      navigate('/');
+    } else {
+      navigate('/auth');
+    }
+  };
+
   // App-like header for internal pages on mobile
   if (isAppPage && isMobile) {
     return (
@@ -57,6 +69,16 @@ const Header: React.FC = () => {
               <span className="text-xs">Level 5</span>
             </Badge>
           </Link>
+          {user && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleAuthAction} 
+              className="ml-2 text-white hover:text-white/80 hover:bg-transparent"
+            >
+              Sign Out
+            </Button>
+          )}
         </div>
       </header>
     );
@@ -101,8 +123,17 @@ const Header: React.FC = () => {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
               </Link>
             ))}
-            <Button size="sm" className="ml-4 rounded-xl font-medium cartoon-text" asChild>
-              <Link to="/dashboard">Get Started</Link>
+            <Button 
+              size="sm" 
+              className="ml-4 rounded-xl font-medium cartoon-text"
+              onClick={handleAuthAction}
+            >
+              {user ? "Sign Out" : (
+                <>
+                  <LogIn className="mr-1 h-4 w-4" />
+                  Sign In
+                </>
+              )}
             </Button>
           </nav>
 
@@ -147,7 +178,12 @@ const Header: React.FC = () => {
             </Link>
           ))}
           <div className="pt-4">
-            <Button className="w-full rounded-xl font-medium cartoon-text">Get Started</Button>
+            <Button 
+              className="w-full rounded-xl font-medium cartoon-text"
+              onClick={handleAuthAction}
+            >
+              {user ? "Sign Out" : "Sign In"}
+            </Button>
           </div>
         </div>
       </div>
