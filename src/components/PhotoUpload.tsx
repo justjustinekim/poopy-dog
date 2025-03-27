@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, Upload, X, Image as ImageIcon, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -7,16 +7,24 @@ import { cn } from "@/lib/utils";
 interface PhotoUploadProps {
   onPhotoCapture: (file: File) => void;
   className?: string;
+  initialPhotoUrl?: string | null;
 }
 
-const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoCapture, className }) => {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoCapture, className, initialPhotoUrl }) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(initialPhotoUrl || null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const streamRef = useRef<MediaStream | null>(null);
+
+  // Update preview if initialPhotoUrl changes
+  useEffect(() => {
+    if (initialPhotoUrl) {
+      setPreviewUrl(initialPhotoUrl);
+    }
+  }, [initialPhotoUrl]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -42,7 +50,13 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoCapture, className }) 
 
   const activateCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        } 
+      });
       streamRef.current = stream;
       
       if (videoRef.current) {
@@ -52,6 +66,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoCapture, className }) 
       }
     } catch (err) {
       console.error("Error accessing camera:", err);
+      alert("Could not access camera. Please check permissions and try again.");
     }
   };
 
@@ -72,7 +87,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoCapture, className }) 
           handleFile(file);
           stopCamera();
         }
-      }, 'image/jpeg');
+      }, 'image/jpeg', 0.9);
     }
   };
 
@@ -141,13 +156,18 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoCapture, className }) 
               playsInline
               muted
             />
+            <div className="absolute bottom-0 left-0 right-0 flex justify-center p-4">
+              <Button 
+                onClick={capturePhoto} 
+                className="animate-pulse rounded-full w-16 h-16 flex items-center justify-center"
+                size="icon"
+              >
+                <Camera className="h-8 w-8" />
+              </Button>
+            </div>
           </div>
           
           <div className="flex justify-center mt-4 gap-3">
-            <Button onClick={capturePhoto} className="animate-pulse">
-              <Camera className="mr-2 h-4 w-4" />
-              Capture
-            </Button>
             <Button variant="outline" onClick={stopCamera}>
               <X className="mr-2 h-4 w-4" />
               Cancel

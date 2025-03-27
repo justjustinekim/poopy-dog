@@ -17,13 +17,19 @@ import { format } from "date-fns";
 import { Camera, Calendar, LineChart, Plus, Save, MapPin } from "lucide-react";
 import { sampleDogs, getEntriesForDog, getInsightsForDog } from "@/utils/mockData";
 import { analyzePoopImage } from "@/utils/imageAnalysis";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Dashboard: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [dogs, setDogs] = useState<Dog[]>(sampleDogs);
   const [selectedDogId, setSelectedDogId] = useState<string>(sampleDogs[0]?.id || "");
   const [entries, setEntries] = useState<PoopEntry[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [capturedPhoto, setCapturedPhoto] = useState<File | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [newEntry, setNewEntry] = useState<Partial<PoopEntry>>({
     consistency: "normal",
     color: "brown",
@@ -42,6 +48,26 @@ const Dashboard: React.FC = () => {
     colorSpectrum?: string;
     insights: HealthInsight[];
   }>({ insights: [] });
+  
+  // Check if we have a photo from camera
+  useEffect(() => {
+    if (location.state?.capturedPhoto) {
+      setPhotoUrl(location.state.capturedPhoto);
+      // Clear state so it doesn't persist on navigation
+      navigate(location.pathname, { replace: true, state: {} });
+      
+      // Fetch the file from URL and analyze
+      fetch(location.state.capturedPhoto)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], "camera-photo.jpg", { type: "image/jpeg" });
+          handlePhotoCapture(file);
+        })
+        .catch(err => {
+          console.error("Error fetching photo:", err);
+        });
+    }
+  }, [location.state]);
   
   // Load entries for the selected dog
   useEffect(() => {
@@ -132,6 +158,8 @@ const Dashboard: React.FC = () => {
     
     if (capturedPhoto) {
       newPoopEntry.imageUrl = URL.createObjectURL(capturedPhoto);
+    } else if (photoUrl) {
+      newPoopEntry.imageUrl = photoUrl;
     }
     
     // Add new entry to the list
@@ -147,13 +175,36 @@ const Dashboard: React.FC = () => {
       location: ""
     });
     setCapturedPhoto(null);
+    setPhotoUrl(null);
     setAiAnalysisResult({ insights: [] });
     
     toast.success("Entry added successfully");
+    
+    // Ask if user wants AI advice
+    setTimeout(() => {
+      if (window.confirm("Would you like to get AI advice about this entry?")) {
+        navigate('/chat');
+      }
+    }, 500);
   };
   
   const selectedDog = dogs.find(dog => dog.id === selectedDogId);
   const healthInsights = selectedDogId ? getInsightsForDog(selectedDogId) : [];
+  
+  // If not authenticated, show login prompt
+  if (!user && process.env.NODE_ENV !== 'development') {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center min-h-[70vh]">
+          <h1 className="text-2xl font-bold mb-4">Please Sign In</h1>
+          <p className="text-gray-600 mb-6">You need to sign in to access the dashboard</p>
+          <Button onClick={() => navigate('/profile')}>
+            Sign In / Register
+          </Button>
+        </div>
+      </Layout>
+    );
+  }
   
   return (
     <Layout>
@@ -217,7 +268,10 @@ const Dashboard: React.FC = () => {
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-6">
-                          <PhotoUpload onPhotoCapture={handlePhotoCapture} />
+                          <PhotoUpload 
+                            onPhotoCapture={handlePhotoCapture} 
+                            initialPhotoUrl={photoUrl}
+                          />
                           
                           {/* AI Analysis Result */}
                           {(isAnalyzing || aiAnalysisResult.insights.length > 0) && (
