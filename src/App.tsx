@@ -15,6 +15,7 @@ import Achievements from "./pages/Achievements";
 import AchievementPopup from "./components/AchievementPopup";
 import { Achievement } from "./types";
 
+// Create query client outside the component
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -41,11 +42,11 @@ const App = () => {
   }, []);
   
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner position="top-right" closeButton />
-        <BrowserRouter>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner position="top-right" closeButton />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/dashboard" element={<Dashboard />} />
@@ -63,9 +64,9 @@ const App = () => {
               onClose={() => setShowAchievement(false)}
             />
           )}
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
   );
 };
 
