@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Home, Camera, Dog, Trophy, MessageSquare } from "lucide-react";
+import { Home, Camera, Dog, Trophy, MessageSquare, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
