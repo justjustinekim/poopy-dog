@@ -136,7 +136,7 @@ const Auth: React.FC = () => {
             </div>
           </div>
           <h1 className="text-3xl font-bold tracking-tight mb-2">
-            Welcome to PupPoopVision
+            Welcome to PoopyDog
           </h1>
           <p className="text-muted-foreground">
             Track your dog's health for a happier pooch
@@ -156,7 +156,6 @@ const Auth: React.FC = () => {
               </TabsTrigger>
             </TabsList>
 
-            {/* Social Sign In Buttons - Available on both tabs */}
             <div className="p-4 pb-0">
               <div className="flex flex-col space-y-3">
                 <Button 
@@ -188,7 +187,6 @@ const Auth: React.FC = () => {
               </div>
             </div>
 
-            {/* Login Tab */}
             <TabsContent value="login">
               <CardHeader className="pb-2">
                 <CardTitle>Login to your account</CardTitle>
@@ -239,7 +237,6 @@ const Auth: React.FC = () => {
               </CardContent>
             </TabsContent>
 
-            {/* Sign Up Tab */}
             <TabsContent value="signup">
               <CardHeader className="pb-2">
                 <CardTitle>Create an account</CardTitle>

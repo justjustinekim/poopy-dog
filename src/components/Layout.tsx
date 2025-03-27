@@ -34,7 +34,7 @@ const Layout: React.FC<LayoutProps> = ({
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
               <p className="text-sm text-gray-500">
-                © {new Date().getFullYear()} Pup Poop Vision. All rights reserved.
+                © {new Date().getFullYear()} PoopyDog. All rights reserved.
               </p>
             </div>
             <div className="flex space-x-6">

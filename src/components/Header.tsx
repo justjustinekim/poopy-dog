@@ -59,7 +59,7 @@ const Header: React.FC = () => {
       <header className="app-bar rounded-b-xl">
         <Link to="/" className="flex items-center space-x-2">
           <Dog className="h-6 w-6 text-white wiggle" />
-          <span className="text-xl font-bold tracking-tight">PupPoopVision</span>
+          <span className="text-xl font-bold tracking-tight">PoopyDog</span>
         </Link>
         
         <div className="flex items-center space-x-2">
@@ -101,7 +101,7 @@ const Header: React.FC = () => {
                 <Dog className="h-8 w-8 text-primary animate-float relative z-10" />
                 <div className="absolute inset-0 bg-primary/20 rounded-full blur-md -z-10"></div>
               </div>
-              <span className="text-xl font-bold tracking-tight cartoon-text">PupPoopVision</span>
+              <span className="text-xl font-bold tracking-tight cartoon-text">PoopyDog</span>
               <Badge className="ml-2 hidden md:flex bg-yellow-400 text-primary border-none">BETA</Badge>
             </Link>
           </div>
