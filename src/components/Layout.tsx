@@ -8,18 +8,20 @@ interface LayoutProps {
   children: React.ReactNode;
   className?: string;
   fullWidth?: boolean;
+  hideHeader?: boolean;
 }
 
 const Layout: React.FC<LayoutProps> = ({ 
   children, 
   className,
-  fullWidth = false
+  fullWidth = false,
+  hideHeader = false
 }) => {
   const isMobile = useIsMobile();
   
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      {!hideHeader && <Header />}
       <main className={cn(
         "flex-1 flex flex-col",
         !fullWidth && "page-container",

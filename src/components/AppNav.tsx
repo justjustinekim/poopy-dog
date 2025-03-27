@@ -77,15 +77,17 @@ const AppNav: React.FC = () => {
               aria-label={item.name}
             >
               <item.icon className="h-6 w-6" />
+              <span className="text-xs mt-1">{item.name}</span>
             </Link>
           ) : (
             <button
               key={item.name}
               onClick={item.onClick}
-              className="tab-button flex items-center justify-center p-3"
+              className="tab-button flex flex-col items-center justify-center p-3"
               aria-label={item.name}
             >
               <item.icon className="h-6 w-6" />
+              <span className="text-xs mt-1">{item.name}</span>
             </button>
           )
         ))}

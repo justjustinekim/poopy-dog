@@ -12,9 +12,9 @@ import NotFound from "./pages/NotFound";
 import Social from "./pages/Social";
 import AppNav from "./components/AppNav";
 import Achievements from "./pages/Achievements";
-import AchievementPopup from "./components/AchievementPopup";
 import Chat from "./pages/Chat";
 import Auth from "./pages/Auth";
+import Onboarding from "./pages/Onboarding";
 import { Achievement } from "./types";
 import AuthProvider from "./contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,7 +34,7 @@ const App = () => {
       setTimeout(() => {
         setCurrentAchievement({
           id: "welcome",
-          title: "Welcome to PupPoopVision",
+          title: "Welcome to PoopyDog",
           description: "You've taken the first step to better dog health!",
           icon: "🐶",
           unlocked: true
@@ -60,6 +60,7 @@ const App = () => {
               <Route path="/achievements" element={<Achievements />} />
               <Route path="/chat" element={<Chat />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/onboarding" element={<Onboarding />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
