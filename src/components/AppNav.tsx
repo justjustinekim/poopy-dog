@@ -71,13 +71,12 @@ const AppNav: React.FC = () => {
               key={item.name}
               to={item.path}
               className={cn(
-                "tab-button flex items-center justify-center p-3",
+                "tab-button flex flex-col items-center justify-center p-3",
                 location.pathname === item.path && "active"
               )}
               aria-label={item.name}
             >
               <item.icon className="h-6 w-6" />
-              <span className="text-xs mt-1">{item.name}</span>
             </Link>
           ) : (
             <button
@@ -87,7 +86,6 @@ const AppNav: React.FC = () => {
               aria-label={item.name}
             >
               <item.icon className="h-6 w-6" />
-              <span className="text-xs mt-1">{item.name}</span>
             </button>
           )
         ))}
