@@ -56,6 +56,7 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
 const AppRoutes = () => {
   const [showAchievement, setShowAchievement] = useState(false);
   const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
+  const { user } = useAuth();
   
   useEffect(() => {
     const hasSeenDemo = localStorage.getItem('hasSeenAchievementDemo');
@@ -78,7 +79,9 @@ const AppRoutes = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
+        <Route path="/" element={
+          user ? <Navigate to="/dashboard" replace /> : <PublicRoute><Index /></PublicRoute>
+        } />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/social" element={<ProtectedRoute><Social /></ProtectedRoute>} />

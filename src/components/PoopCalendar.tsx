@@ -2,10 +2,11 @@
 import React, { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarIcon, AlertCircle, Search } from "lucide-react";
+import { CalendarIcon, AlertCircle, Search, Camera } from "lucide-react";
 import { PoopEntry } from "@/types";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface PoopCalendarProps {
   entries: PoopEntry[];
@@ -81,20 +82,51 @@ const PoopCalendar: React.FC<PoopCalendarProps> = ({ entries, onDateSelect }) =>
               <div className="space-y-3">
                 {selectedDateEntries.map((entry, index) => (
                   <div key={entry.id} className="p-2 bg-background rounded-md border">
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
                       {format(new Date(entry.date), "h:mm a")}
                     </div>
+                    
                     <div className="flex items-center mt-1 text-sm">
                       <div className={cn(
                         "w-3 h-3 rounded-full mr-2",
                         entry.consistency === "normal" && "bg-green-500",
                         entry.consistency === "soft" && "bg-yellow-500",
-                        entry.consistency === "liquid" && "bg-red-500"
+                        entry.consistency === "liquid" && "bg-red-500",
+                        entry.consistency === "solid" && "bg-amber-800"
                       )}></div>
                       <span className="capitalize">{entry.consistency}</span>
+                      
+                      {entry.imageUrl && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="ml-auto">
+                                <Camera className="h-4 w-4 text-gray-400" />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="left">
+                              <div className="w-32 h-32 overflow-hidden rounded-md">
+                                <img 
+                                  src={entry.imageUrl} 
+                                  alt="Poop sample" 
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
                     </div>
+                    
+                    {entry.location && (
+                      <div className="mt-1 text-xs flex items-center text-gray-500 dark:text-gray-400">
+                        <MapPin className="h-3 w-3 mr-1 inline" />
+                        {entry.location}
+                      </div>
+                    )}
+                    
                     {entry.notes && (
-                      <div className="mt-1 text-xs text-gray-500">{entry.notes}</div>
+                      <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">{entry.notes}</div>
                     )}
                   </div>
                 ))}

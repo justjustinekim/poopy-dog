@@ -6,9 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Save, MessageSquare } from "lucide-react";
+import { toast } from "sonner";
 import PhotoUpload from "@/components/PhotoUpload";
 import AIAnalysisResult from "@/components/AIAnalysisResult";
 import { PoopEntry, PoopConsistency, PoopColor, HealthInsight } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
+import { v4 as uuidv4 } from "uuid";
 
 interface TrackEntryFormProps {
   selectedDogId: string;
@@ -26,6 +29,7 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
   onChatWithAI
 }) => {
   const [capturedPhoto, setCapturedPhoto] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   const [newEntry, setNewEntry] = useState<Partial<PoopEntry>>({
     consistency: "normal",
     color: "brown",
@@ -96,42 +100,101 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
     }));
   };
   
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!selectedDogId) {
+      toast.error("Please select a dog first");
       return;
     }
     
-    const newPoopEntry: PoopEntry = {
-      id: `poop-${Date.now()}`,
-      dogId: selectedDogId,
-      date: newEntry.date || new Date().toISOString(),
-      consistency: newEntry.consistency as PoopConsistency,
-      color: newEntry.color as PoopColor,
-      notes: newEntry.notes,
-      tags: newEntry.notes?.split(" ").filter(tag => tag.startsWith("#")) || [],
-      location: newEntry.location
-    };
+    setIsUploading(true);
     
-    if (capturedPhoto) {
-      newPoopEntry.imageUrl = URL.createObjectURL(capturedPhoto);
-    } else if (photoUrl) {
-      newPoopEntry.imageUrl = photoUrl;
+    try {
+      let imagePath = null;
+      
+      // Upload image to Supabase Storage if we have one
+      if (capturedPhoto) {
+        const fileExt = capturedPhoto.name.split('.').pop();
+        const fileName = `${uuidv4()}.${fileExt}`;
+        const filePath = `${selectedDogId}/${fileName}`;
+        
+        const { error: uploadError, data } = await supabase.storage
+          .from('poop_images')
+          .upload(filePath, capturedPhoto, {
+            cacheControl: '3600',
+            upsert: false
+          });
+        
+        if (uploadError) {
+          throw new Error(`Error uploading image: ${uploadError.message}`);
+        }
+        
+        imagePath = filePath;
+      } else if (photoUrl) {
+        // If we have a photoUrl but not a file, it might be a previously uploaded image
+        imagePath = photoUrl.includes('poop_images') ? photoUrl.split('poop_images/')[1] : null;
+      }
+      
+      // Create entry in Supabase database
+      const { error: insertError } = await supabase
+        .from('poop_entries')
+        .insert({
+          dog_id: selectedDogId,
+          image_path: imagePath,
+          consistency: newEntry.consistency as PoopConsistency,
+          color: newEntry.color as PoopColor,
+          date: newEntry.date || new Date().toISOString(),
+          notes: newEntry.notes,
+          location: newEntry.location,
+        });
+      
+      if (insertError) {
+        throw new Error(`Error saving entry: ${insertError.message}`);
+      }
+      
+      // Create local entry object for UI update
+      const newPoopEntry: PoopEntry = {
+        id: `poop-${Date.now()}`,
+        dogId: selectedDogId,
+        date: newEntry.date || new Date().toISOString(),
+        consistency: newEntry.consistency as PoopConsistency,
+        color: newEntry.color as PoopColor,
+        notes: newEntry.notes,
+        tags: newEntry.notes?.split(" ").filter(tag => tag.startsWith("#")) || [],
+        location: newEntry.location
+      };
+      
+      // If we have an image, get the public URL
+      if (imagePath) {
+        const { data } = supabase.storage
+          .from('poop_images')
+          .getPublicUrl(imagePath);
+        
+        newPoopEntry.imageUrl = data.publicUrl;
+      }
+      
+      // Notify parent component
+      onSubmit(newPoopEntry);
+      
+      // Reset form
+      setNewEntry({
+        consistency: "normal",
+        color: "brown",
+        date: new Date().toISOString(),
+        notes: "",
+        location: ""
+      });
+      setCapturedPhoto(null);
+      setAiAnalysisResult({ insights: [] });
+      
+      toast.success("Entry saved successfully!");
+    } catch (error) {
+      console.error("Error saving entry:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to save entry");
+    } finally {
+      setIsUploading(false);
     }
-    
-    onSubmit(newPoopEntry);
-    
-    // Reset form
-    setNewEntry({
-      consistency: "normal",
-      color: "brown",
-      date: new Date().toISOString(),
-      notes: "",
-      location: ""
-    });
-    setCapturedPhoto(null);
-    setAiAnalysisResult({ insights: [] });
   };
   
   return (
@@ -255,9 +318,22 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
             </div>
             
             <div className="flex justify-end pt-4">
-              <Button type="submit" className="flex items-center">
-                <Save className="mr-2 h-4 w-4" />
-                Save Entry
+              <Button 
+                type="submit" 
+                className="flex items-center" 
+                disabled={isUploading}
+              >
+                {isUploading ? (
+                  <>
+                    <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Entry
+                  </>
+                )}
               </Button>
             </div>
           </div>

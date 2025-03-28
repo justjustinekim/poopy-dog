@@ -4,9 +4,10 @@ import Layout from "@/components/Layout";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Dog, PoopEntry } from "@/types";
-import { sampleDogs, getEntriesForDog, getInsightsForDog } from "@/utils/mockData";
+import { sampleDogs, getInsightsForDog } from "@/utils/mockData";
 import { analyzePoopImage } from "@/utils/imageAnalysis";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import DogProfile from "@/components/DogProfile";
 import DogSelector from "@/components/dashboard/DogSelector";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
@@ -22,6 +23,7 @@ const Dashboard: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("track");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [newEntry, setNewEntry] = useState<Partial<PoopEntry>>({
     consistency: "normal",
     color: "brown",
@@ -59,13 +61,62 @@ const Dashboard: React.FC = () => {
     }
   }, [location.state]);
   
-  // Load entries for the selected dog
+  // Load entries for the selected dog from Supabase
   useEffect(() => {
-    if (selectedDogId) {
-      const dogEntries = getEntriesForDog(selectedDogId);
-      setEntries(dogEntries);
-    }
-  }, [selectedDogId]);
+    const fetchEntries = async () => {
+      if (!selectedDogId || !user) return;
+      
+      setIsLoading(true);
+      
+      try {
+        const { data, error } = await supabase
+          .from('poop_entries')
+          .select('*')
+          .eq('dog_id', selectedDogId)
+          .order('date', { ascending: false });
+          
+        if (error) {
+          throw error;
+        }
+        
+        if (data) {
+          // Transform the data to match our PoopEntry type
+          const formattedEntries: PoopEntry[] = data.map(entry => {
+            let imageUrl = null;
+            
+            if (entry.image_path) {
+              const { data: urlData } = supabase.storage
+                .from('poop_images')
+                .getPublicUrl(entry.image_path);
+                
+              imageUrl = urlData.publicUrl;
+            }
+            
+            return {
+              id: entry.id,
+              dogId: entry.dog_id,
+              date: entry.date,
+              imageUrl: imageUrl,
+              consistency: entry.consistency as PoopConsistency,
+              color: entry.color as PoopColor,
+              notes: entry.notes || "",
+              tags: entry.notes?.split(" ").filter((tag: string) => tag.startsWith("#")) || [],
+              location: entry.location || ""
+            };
+          });
+          
+          setEntries(formattedEntries);
+        }
+      } catch (error) {
+        console.error("Error fetching entries:", error);
+        toast.error("Failed to load entries. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchEntries();
+  }, [selectedDogId, user]);
   
   const handleDogChange = (dogId: string) => {
     setSelectedDogId(dogId);
@@ -105,7 +156,7 @@ const Dashboard: React.FC = () => {
   
   const handleEntrySubmit = (poopEntry: PoopEntry) => {
     // Add new entry to the list
-    const updatedEntries = [...entries, poopEntry];
+    const updatedEntries = [poopEntry, ...entries];
     setEntries(updatedEntries);
     
     // Reset state
@@ -118,7 +169,7 @@ const Dashboard: React.FC = () => {
     });
     setPhotoUrl(null);
     
-    toast.success("Entry added successfully");
+    // Switch to calendar tab to see the new entry
     setActiveTab("calendar");
   };
   
@@ -138,7 +189,7 @@ const Dashboard: React.FC = () => {
       <div className="animate-fade-in">
         <header className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Pup Health Dashboard</h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             Track and monitor your dog's digestive health
           </p>
         </header>
@@ -160,18 +211,24 @@ const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="space-y-6">
-                  <DashboardTabs 
-                    activeTab={activeTab}
-                    onTabChange={setActiveTab}
-                    selectedDog={selectedDog}
-                    entries={entries}
-                    healthInsights={healthInsights}
-                    onEntrySubmit={handleEntrySubmit}
-                    onDateSelect={handleDateSelect}
-                    photoUrl={photoUrl}
-                    newEntry={newEntry}
-                    onChatWithAI={handleChatWithAI}
-                  />
+                  {isLoading ? (
+                    <div className="flex items-center justify-center p-12">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    </div>
+                  ) : (
+                    <DashboardTabs 
+                      activeTab={activeTab}
+                      onTabChange={setActiveTab}
+                      selectedDog={selectedDog}
+                      entries={entries}
+                      healthInsights={healthInsights}
+                      onEntrySubmit={handleEntrySubmit}
+                      onDateSelect={handleDateSelect}
+                      photoUrl={photoUrl}
+                      newEntry={newEntry}
+                      onChatWithAI={handleChatWithAI}
+                    />
+                  )}
                 </div>
               </div>
             )}
