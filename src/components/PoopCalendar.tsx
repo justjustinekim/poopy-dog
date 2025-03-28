@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarIcon, AlertCircle, Search, Camera } from "lucide-react";
+import { CalendarIcon, AlertCircle, Search, Camera, MapPin } from "lucide-react";
 import { PoopEntry } from "@/types";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";

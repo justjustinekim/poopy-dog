@@ -3,7 +3,8 @@ import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Dog, PoopEntry } from "@/types";
+import { Dog, PoopEntry, PoopConsistency, PoopColor } from "@/types";
+import { PoopEntryRow } from "@/types/supabase";
 import { sampleDogs, getInsightsForDog } from "@/utils/mockData";
 import { analyzePoopImage } from "@/utils/imageAnalysis";
 import { useAuth } from "@/contexts/AuthContext";
@@ -81,7 +82,7 @@ const Dashboard: React.FC = () => {
         
         if (data) {
           // Transform the data to match our PoopEntry type
-          const formattedEntries: PoopEntry[] = data.map(entry => {
+          const formattedEntries: PoopEntry[] = (data as PoopEntryRow[]).map(entry => {
             let imageUrl = null;
             
             if (entry.image_path) {

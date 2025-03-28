@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -12,6 +11,7 @@ import AIAnalysisResult from "@/components/AIAnalysisResult";
 import { PoopEntry, PoopConsistency, PoopColor, HealthInsight } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from "uuid";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface TrackEntryFormProps {
   selectedDogId: string;
@@ -28,6 +28,7 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
   initialNewEntry = {},
   onChatWithAI
 }) => {
+  const { user } = useAuth();
   const [capturedPhoto, setCapturedPhoto] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [newEntry, setNewEntry] = useState<Partial<PoopEntry>>({
@@ -39,7 +40,6 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
     ...initialNewEntry
   });
   
-  // AI analysis states
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [aiAnalysisResult, setAiAnalysisResult] = useState<{
     isPoop?: boolean;
@@ -53,9 +53,7 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
   const handlePhotoCapture = async (file: File) => {
     setCapturedPhoto(file);
     
-    // Start AI analysis - in a real app, we'd call the API here
     setIsAnalyzing(true);
-    // Mocking AI analysis for demo
     setTimeout(() => {
       setIsAnalyzing(false);
       const mockResult = {
@@ -76,7 +74,6 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
       
       setAiAnalysisResult(mockResult);
       
-      // Auto-fill form based on AI detection
       setNewEntry(prev => ({ 
         ...prev, 
         color: mockResult.color,
@@ -108,12 +105,16 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
       return;
     }
     
+    if (!user) {
+      toast.error("You must be logged in to save entries");
+      return;
+    }
+    
     setIsUploading(true);
     
     try {
       let imagePath = null;
       
-      // Upload image to Supabase Storage if we have one
       if (capturedPhoto) {
         const fileExt = capturedPhoto.name.split('.').pop();
         const fileName = `${uuidv4()}.${fileExt}`;
@@ -132,14 +133,13 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
         
         imagePath = filePath;
       } else if (photoUrl) {
-        // If we have a photoUrl but not a file, it might be a previously uploaded image
         imagePath = photoUrl.includes('poop_images') ? photoUrl.split('poop_images/')[1] : null;
       }
       
-      // Create entry in Supabase database
       const { error: insertError } = await supabase
         .from('poop_entries')
         .insert({
+          user_id: user.id,
           dog_id: selectedDogId,
           image_path: imagePath,
           consistency: newEntry.consistency as PoopConsistency,
@@ -153,7 +153,6 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
         throw new Error(`Error saving entry: ${insertError.message}`);
       }
       
-      // Create local entry object for UI update
       const newPoopEntry: PoopEntry = {
         id: `poop-${Date.now()}`,
         dogId: selectedDogId,
@@ -165,7 +164,6 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
         location: newEntry.location
       };
       
-      // If we have an image, get the public URL
       if (imagePath) {
         const { data } = supabase.storage
           .from('poop_images')
@@ -174,10 +172,8 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
         newPoopEntry.imageUrl = data.publicUrl;
       }
       
-      // Notify parent component
       onSubmit(newPoopEntry);
       
-      // Reset form
       setNewEntry({
         consistency: "normal",
         color: "brown",
@@ -208,7 +204,6 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
               initialPhotoUrl={photoUrl}
             />
             
-            {/* AI Analysis Result */}
             {(isAnalyzing || aiAnalysisResult.insights.length > 0) && (
               <AIAnalysisResult 
                 isLoading={isAnalyzing}
@@ -221,7 +216,6 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
               />
             )}
             
-            {/* Chat with AI button */}
             {(photoUrl || capturedPhoto) && onChatWithAI && (
               <Button 
                 type="button"
