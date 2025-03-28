@@ -1,35 +1,15 @@
-
-import React, { useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import Hero from "@/components/Hero";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
 import { Dog, ArrowRight, Camera, Check, BarChart } from "lucide-react";
 
 const Index = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   
-  useEffect(() => {
-    // Check if the user is already authenticated and has completed onboarding
-    if (user && localStorage.getItem("onboardingCompleted") === "true") {
-      navigate("/dashboard");
-    }
-  }, [user, navigate]);
-  
   const handleGetStarted = () => {
-    if (user) {
-      // If user is authenticated, check if they've completed onboarding
-      if (localStorage.getItem("onboardingCompleted") === "true") {
-        navigate("/dashboard");
-      } else {
-        navigate("/onboarding");
-      }
-    } else {
-      // If not authenticated, go to auth page
-      navigate("/auth");
-    }
+    navigate("/auth");
   };
 
   return (

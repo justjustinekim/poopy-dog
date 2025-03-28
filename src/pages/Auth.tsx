@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -44,16 +44,9 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 
 const Auth: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, signIn, signUp, signOut } = useAuth();
+  const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>("login");
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
-    }
-  }, [user, navigate]);
 
   // Initialize login form
   const loginForm = useForm<LoginFormValues>({
@@ -79,7 +72,13 @@ const Auth: React.FC = () => {
     setIsLoading(true);
     try {
       await signIn(values.email, values.password);
-      // Redirect happens in useEffect when user state updates
+      // The redirect is now handled by the routing system
+      // Navigate to dashboard or onboarding based on onboarding status
+      if (localStorage.getItem("onboardingCompleted") === "true") {
+        navigate('/dashboard');
+      } else {
+        navigate('/onboarding');
+      }
     } catch (error: any) {
       console.error("Login error:", error);
       // Error is already handled in the signIn function
