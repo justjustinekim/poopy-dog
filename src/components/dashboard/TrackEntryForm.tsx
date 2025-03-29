@@ -1,10 +1,7 @@
+
 import React, { useState } from "react";
-import { format } from "date-fns";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Save, MessageSquare } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import PhotoUpload from "@/components/PhotoUpload";
 import AIAnalysisResult from "@/components/AIAnalysisResult";
@@ -12,6 +9,9 @@ import { PoopEntry, PoopConsistency, PoopColor, HealthInsight } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/contexts/AuthContext";
+import PoopEntryForm from "./PoopEntryForm";
+import FormActions from "./FormActions";
+import { PoopEntryRow } from "@/types/supabase";
 
 interface TrackEntryFormProps {
   selectedDogId: string;
@@ -97,9 +97,7 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
     }));
   };
   
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleFormSubmit = async () => {
     if (!selectedDogId) {
       toast.error("Please select a dog first");
       return;
@@ -196,143 +194,46 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
   return (
     <div className="glass-card p-6">
       <h2 className="text-xl font-semibold mb-4">Record New Entry</h2>
-      <form onSubmit={handleFormSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-6">
-            <PhotoUpload 
-              onPhotoCapture={handlePhotoCapture} 
-              initialPhotoUrl={photoUrl}
-            />
-            
-            {(isAnalyzing || aiAnalysisResult.insights.length > 0) && (
-              <AIAnalysisResult 
-                isLoading={isAnalyzing}
-                isPoop={aiAnalysisResult.isPoop}
-                confidence={aiAnalysisResult.confidence}
-                color={aiAnalysisResult.color}
-                consistency={aiAnalysisResult.consistency}
-                colorSpectrum={aiAnalysisResult.colorSpectrum}
-                insights={aiAnalysisResult.insights}
-              />
-            )}
-            
-            {(photoUrl || capturedPhoto) && onChatWithAI && (
-              <Button 
-                type="button"
-                variant="secondary"
-                className="w-full mt-4"
-                onClick={onChatWithAI}
-              >
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Get AI Advice on This Sample
-              </Button>
-            )}
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-6">
+          <PhotoUpload 
+            onPhotoCapture={handlePhotoCapture} 
+            initialPhotoUrl={photoUrl}
+          />
           
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="date">Date and Time</Label>
-              <Input
-                id="date"
-                type="datetime-local"
-                value={format(new Date(newEntry.date || new Date()), "yyyy-MM-dd'T'HH:mm")}
-                onChange={(e) => {
-                  setNewEntry(prev => ({
-                    ...prev,
-                    date: new Date(e.target.value).toISOString()
-                  }));
-                }}
-                className="mt-1"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="consistency">Consistency</Label>
-              <Select 
-                value={newEntry.consistency} 
-                onValueChange={(value) => handleSelectChange("consistency", value)}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select consistency" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="normal">Normal</SelectItem>
-                  <SelectItem value="soft">Soft</SelectItem>
-                  <SelectItem value="liquid">Liquid</SelectItem>
-                  <SelectItem value="solid">Solid</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="color">Color</Label>
-              <Select 
-                value={newEntry.color} 
-                onValueChange={(value) => handleSelectChange("color", value)}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select color" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="brown">Brown</SelectItem>
-                  <SelectItem value="green">Green</SelectItem>
-                  <SelectItem value="yellow">Yellow</SelectItem>
-                  <SelectItem value="red">Red</SelectItem>
-                  <SelectItem value="black">Black</SelectItem>
-                  <SelectItem value="white">White</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="location" className="flex items-center gap-1">
-                <MapPin className="h-3.5 w-3.5" />
-                Location (optional)
-              </Label>
-              <Input
-                id="location"
-                name="location"
-                value={newEntry.location || ""}
-                onChange={handleInputChange}
-                placeholder="Where was the sample found?"
-                className="mt-1"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="notes">Notes</Label>
-              <Input
-                id="notes"
-                name="notes"
-                value={newEntry.notes || ""}
-                onChange={handleInputChange}
-                placeholder="Add notes or use #tags"
-                className="mt-1"
-              />
-            </div>
-            
-            <div className="flex justify-end pt-4">
-              <Button 
-                type="submit" 
-                className="flex items-center" 
-                disabled={isUploading}
-              >
-                {isUploading ? (
-                  <>
-                    <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Entry
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
+          {(isAnalyzing || aiAnalysisResult.insights.length > 0) && (
+            <AIAnalysisResult 
+              isLoading={isAnalyzing}
+              isPoop={aiAnalysisResult.isPoop}
+              confidence={aiAnalysisResult.confidence}
+              color={aiAnalysisResult.color}
+              consistency={aiAnalysisResult.consistency}
+              colorSpectrum={aiAnalysisResult.colorSpectrum}
+              insights={aiAnalysisResult.insights}
+            />
+          )}
+          
+          <FormActions 
+            isUploading={isUploading}
+            hasPhoto={!!(photoUrl || capturedPhoto)}
+            onSubmit={handleFormSubmit}
+            onChatWithAI={onChatWithAI}
+          />
         </div>
-      </form>
+        
+        <PoopEntryForm
+          date={newEntry.date || new Date().toISOString()}
+          consistency={newEntry.consistency as PoopConsistency}
+          color={newEntry.color as PoopColor}
+          location={newEntry.location}
+          notes={newEntry.notes}
+          isUploading={isUploading}
+          onDateChange={(date) => setNewEntry(prev => ({ ...prev, date }))}
+          onConsistencyChange={(value) => handleSelectChange("consistency", value)}
+          onColorChange={(value) => handleSelectChange("color", value)}
+          onInputChange={handleInputChange}
+        />
+      </div>
     </div>
   );
 };
