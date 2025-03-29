@@ -93,6 +93,56 @@ export const sampleHealthInsights: HealthInsight[] = [
   }
 ];
 
+// Function to generate mock health insights
+export const generateMockHealthInsights = (count: number = 3): HealthInsight[] => {
+  const insights: HealthInsight[] = [];
+  
+  const titles = [
+    "Digestive Health",
+    "Diet Assessment",
+    "Hydration Levels",
+    "Fiber Content",
+    "Possible Food Sensitivity",
+    "Stool Consistency Trend"
+  ];
+  
+  const descriptions = [
+    "Based on recent samples, your dog's digestive system appears to be functioning normally.",
+    "Recent stool samples suggest a well-balanced diet with good nutrient absorption.",
+    "Stool consistency indicates proper hydration levels.",
+    "Fiber content appears to be within the normal range for a healthy dog.",
+    "Minor variations in stool consistency may indicate a mild food sensitivity.",
+    "Recent samples show consistent and healthy stool patterns."
+  ];
+  
+  const recommendations = [
+    "Continue with current diet and exercise routine.",
+    "Maintain current feeding schedule and portion sizes.",
+    "Ensure fresh water is always available.",
+    "Consider adding a small amount of pumpkin to their diet for added fiber.",
+    "Monitor for any changes after meals with specific ingredients.",
+    "No changes needed to current care routine."
+  ];
+  
+  const severities: Array<"low" | "medium" | "high"> = ["low", "medium", "high"];
+  
+  for (let i = 0; i < count; i++) {
+    const titleIndex = Math.floor(Math.random() * titles.length);
+    const descIndex = Math.floor(Math.random() * descriptions.length);
+    const recIndex = Math.floor(Math.random() * recommendations.length);
+    const sevIndex = Math.floor(Math.random() * severities.length);
+    
+    insights.push({
+      title: titles[titleIndex],
+      description: descriptions[descIndex],
+      severity: severities[sevIndex],
+      recommendation: recommendations[recIndex]
+    });
+  }
+  
+  return insights;
+};
+
 // Get entries for a specific dog
 export const getEntriesForDog = (dogId: string): PoopEntry[] => {
   return samplePoopEntries.filter(entry => entry.dogId === dogId);
