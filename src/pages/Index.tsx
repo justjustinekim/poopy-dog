@@ -1,17 +1,18 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from 'next/router';
 import Layout from "@/components/Layout";
 import Hero from "@/components/Hero";
 import { Button } from "@/components/ui/button";
 import { Dog, ArrowRight, Camera, Check, BarChart } from "lucide-react";
 
-const Index = () => {
-  const navigate = useNavigate();
-  
-  const handleGetStarted = () => {
-    navigate("/auth");
-  };
 
+const Index = () => {
+  const router = useRouter();
+
+  const handleGetStarted = () => {
+    router.push('/auth');
+  };
+};
   return (
     <Layout>
       <Hero />
