@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Heart } from "lucide-react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
@@ -27,6 +26,14 @@ const dogFoodBrands = [
   { value: "raw", label: "Raw Diet" },
   { value: "homemade", label: "Homemade" },
   { value: "mixed", label: "Mixed Diet" },
+  
+  { value: "farmersDog", label: "The Farmer's Dog (Fresh)" },
+  { value: "nomNom", label: "Nom Nom (Fresh)" },
+  { value: "ollie", label: "Ollie (Fresh)" },
+  { value: "justFoodForDogs", label: "Just Food For Dogs (Fresh)" },
+  { value: "petPlate", label: "Pet Plate (Fresh)" },
+  { value: "spot&tango", label: "Spot & Tango (Fresh)" },
+  
   { value: "royalCanin", label: "Royal Canin" },
   { value: "hillsScience", label: "Hill's Science Diet" },
   { value: "purina", label: "Purina Pro Plan" },
@@ -41,6 +48,13 @@ const dogFoodBrands = [
   { value: "wellness", label: "Wellness" },
   { value: "farmina", label: "Farmina" },
   { value: "zignature", label: "Zignature" },
+  
+  { value: "solidGold", label: "Solid Gold (Holistic)" },
+  { value: "halo", label: "Halo (Holistic)" },
+  { value: "naturalBalance", label: "Natural Balance" },
+  { value: "earthborn", label: "Earthborn Holistic" },
+  { value: "natures", label: "Nature's Variety" },
+  
   { value: "other", label: "Other Brand" },
 ];
 
