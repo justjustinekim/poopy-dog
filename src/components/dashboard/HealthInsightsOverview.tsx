@@ -2,8 +2,9 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { HealthInsight, PoopEntry } from "@/types";
-import { AlertTriangle, CheckCircle, Info, BarChart2 } from "lucide-react";
+import { AlertTriangle, CheckCircle, Info, BarChart2, Stethoscope, Calendar } from "lucide-react";
 import { format, subDays } from "date-fns";
+import { Button } from "@/components/ui/button";
 
 interface HealthInsightsOverviewProps {
   dogName: string;
@@ -34,6 +35,12 @@ const HealthInsightsOverview: React.FC<HealthInsightsOverviewProps> = ({
     return acc;
   }, {} as Record<string, number>);
 
+  // Check for any high severity insights that require vet attention
+  const criticalInsights = insights.filter(insight => insight.severity === 'high');
+  const hasVetRecommendation = insights.some(
+    insight => insight.recommendation?.toLowerCase().includes('vet')
+  );
+
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
       case 'high':
@@ -61,9 +68,32 @@ const HealthInsightsOverview: React.FC<HealthInsightsOverviewProps> = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            {/* Vet Alert Banner - Only show if there are critical insights */}
+            {hasVetRecommendation && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+                <div className="flex items-start">
+                  <div className="mr-3 mt-0.5">
+                    <Stethoscope className="h-5 w-5 text-red-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-red-700 dark:text-red-400">Veterinary Attention Recommended</h3>
+                    <p className="text-sm mt-1 text-red-600 dark:text-red-300">
+                      Some health insights indicate that you should consult a veterinarian about {dogName}'s digestive health.
+                    </p>
+                    <Button variant="destructive" size="sm" className="mt-3">
+                      Find a Vet Near Me
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Recent Activity Summary */}
             <div className="mb-6">
-              <h3 className="text-lg font-medium mb-2">Recent Activity (Last 7 Days)</h3>
+              <h3 className="text-lg font-medium mb-2 flex items-center">
+                <Calendar className="mr-2 h-4 w-4 text-primary" />
+                Recent Activity (Last 7 Days)
+              </h3>
               {recentEntries.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-background/50 p-4 rounded-md">
@@ -106,26 +136,47 @@ const HealthInsightsOverview: React.FC<HealthInsightsOverviewProps> = ({
 
             {/* Health Insights */}
             <div>
-              <h3 className="text-lg font-medium mb-2">Health Insights</h3>
+              <h3 className="text-lg font-medium mb-2 flex items-center">
+                <Info className="mr-2 h-4 w-4 text-primary" />
+                Health Insights
+              </h3>
               {insights.length > 0 ? (
                 <div className="space-y-3">
-                  {insights.map((insight, index) => (
-                    <div key={index} className="bg-background/50 p-4 rounded-md">
-                      <div className="flex items-start gap-3">
-                        <div className="mt-0.5">
-                          {getSeverityIcon(insight.severity)}
-                        </div>
-                        <div>
-                          <h4 className="font-medium">{insight.title}</h4>
-                          <p className="text-sm text-muted-foreground mt-1">{insight.description}</p>
-                          {insight.recommendation && (
-                            <p className="text-sm mt-2 border-l-2 border-primary pl-3">
-                              <span className="font-medium">Recommendation:</span> {insight.recommendation}
-                            </p>
-                          )}
+                  {/* First display high severity insights */}
+                  {insights
+                    .sort((a, b) => {
+                      // Sort by severity: high -> medium -> low
+                      const severityOrder = { high: 0, medium: 1, low: 2 };
+                      return severityOrder[a.severity as keyof typeof severityOrder] - 
+                             severityOrder[b.severity as keyof typeof severityOrder];
+                    })
+                    .map((insight, index) => (
+                      <div 
+                        key={index} 
+                        className={`bg-background/50 p-4 rounded-md ${
+                          insight.severity === 'high' ? 'border-l-4 border-red-500' : 
+                          insight.severity === 'medium' ? 'border-l-4 border-yellow-500' : ''
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5">
+                            {getSeverityIcon(insight.severity)}
+                          </div>
+                          <div>
+                            <h4 className="font-medium">{insight.title}</h4>
+                            <p className="text-sm text-muted-foreground mt-1">{insight.description}</p>
+                            {insight.recommendation && (
+                              <p className={`text-sm mt-2 border-l-2 pl-3 ${
+                                insight.recommendation.toLowerCase().includes('vet') 
+                                  ? 'border-red-500 font-medium' 
+                                  : 'border-primary'
+                              }`}>
+                                <span className="font-medium">Recommendation:</span> {insight.recommendation}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
                   ))}
                 </div>
               ) : (

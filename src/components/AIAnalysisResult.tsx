@@ -3,8 +3,9 @@ import React from "react";
 import { HealthInsight, PoopColor, PoopConsistency } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, AlertTriangle, CheckCircle, AlertCircle, Loader2, Palette } from "lucide-react";
+import { Brain, AlertTriangle, CheckCircle, AlertCircle, Loader2, Palette, Stethoscope } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface AIAnalysisResultProps {
   isLoading: boolean;
@@ -49,6 +50,16 @@ const AIAnalysisResult: React.FC<AIAnalysisResultProps> = ({
       default: return "bg-gray-100 text-gray-800 hover:bg-gray-100";
     }
   };
+
+  // Check if any insight recommends a vet visit
+  const needsVetVisit = insights.some(insight => 
+    insight.recommendation?.toLowerCase().includes('vet') || 
+    (insight.severity === 'high' && (
+      color === 'black' || color === 'red' || color === 'green' || 
+      consistency === 'liquid' || 
+      color === 'white'
+    ))
+  );
 
   if (isLoading) {
     return (
@@ -104,6 +115,26 @@ const AIAnalysisResult: React.FC<AIAnalysisResultProps> = ({
           )}
         </div>
 
+        {/* Vet Visit Alert - Only show if necessary */}
+        {isPoop && needsVetVisit && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+            <div className="flex items-start">
+              <div className="mr-3 mt-0.5">
+                <Stethoscope className="h-5 w-5 text-red-500" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-red-700 dark:text-red-400">Veterinary Attention Recommended</h3>
+                <p className="text-sm mt-1 text-red-600 dark:text-red-300">
+                  Based on this analysis, we recommend consulting a veterinarian about your dog's digestive health.
+                </p>
+                <Button variant="destructive" size="sm" className="mt-3">
+                  Find a Vet Near Me
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Properties section */}
         {isPoop && (
           <div className="mb-4 p-4 bg-background/50 rounded-lg border">
@@ -146,50 +177,67 @@ const AIAnalysisResult: React.FC<AIAnalysisResultProps> = ({
         {/* Insights section */}
         <div className="space-y-3">
           <h3 className="text-sm font-medium">Health Insights</h3>
-          {insights.map((insight, index) => (
-            <div key={index} className="p-3 rounded-lg border bg-background/50">
-              <div className="flex items-start">
-                <div className="mr-3 pt-0.5">
-                  {insight.severity === "low" && (
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                  )}
-                  {insight.severity === "medium" && (
-                    <AlertCircle className="h-4 w-4 text-yellow-500" />
-                  )}
-                  {insight.severity === "high" && (
-                    <AlertTriangle className="h-4 w-4 text-red-500" />
-                  )}
-                </div>
-                
-                <div>
-                  <div className="flex items-center mb-1">
-                    <h3 className="font-medium text-sm">{insight.title}</h3>
-                    <Badge 
-                      variant="outline" 
-                      className={cn(
-                        "ml-2 text-xs",
-                        insight.severity === "low" && "bg-green-100 text-green-800 hover:bg-green-100",
-                        insight.severity === "medium" && "bg-yellow-100 text-yellow-800 hover:bg-yellow-100",
-                        insight.severity === "high" && "bg-red-100 text-red-800 hover:bg-red-100"
-                      )}
-                    >
-                      {insight.severity === "low" && "Normal"}
-                      {insight.severity === "medium" && "Monitor"}
-                      {insight.severity === "high" && "Action needed"}
-                    </Badge>
+          {insights
+            .sort((a, b) => {
+              // Sort by severity: high -> medium -> low
+              const severityOrder = { high: 0, medium: 1, low: 2 };
+              return severityOrder[a.severity as keyof typeof severityOrder] - 
+                    severityOrder[b.severity as keyof typeof severityOrder];
+            })
+            .map((insight, index) => (
+              <div 
+                key={index} 
+                className={`p-3 rounded-lg border bg-background/50 ${
+                  insight.severity === 'high' ? 'border-l-4 border-red-500' : 
+                  insight.severity === 'medium' ? 'border-l-4 border-yellow-500' : ''
+                }`}
+              >
+                <div className="flex items-start">
+                  <div className="mr-3 pt-0.5">
+                    {insight.severity === "low" && (
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                    )}
+                    {insight.severity === "medium" && (
+                      <AlertCircle className="h-4 w-4 text-yellow-500" />
+                    )}
+                    {insight.severity === "high" && (
+                      <AlertTriangle className="h-4 w-4 text-red-500" />
+                    )}
                   </div>
                   
-                  <p className="text-xs text-gray-600">{insight.description}</p>
-                  
-                  {insight.recommendation && (
-                    <div className="mt-1 text-xs">
-                      <span className="font-medium">Recommendation:</span> {insight.recommendation}
+                  <div>
+                    <div className="flex items-center mb-1">
+                      <h3 className="font-medium text-sm">{insight.title}</h3>
+                      <Badge 
+                        variant="outline" 
+                        className={cn(
+                          "ml-2 text-xs",
+                          insight.severity === "low" && "bg-green-100 text-green-800 hover:bg-green-100",
+                          insight.severity === "medium" && "bg-yellow-100 text-yellow-800 hover:bg-yellow-100",
+                          insight.severity === "high" && "bg-red-100 text-red-800 hover:bg-red-100"
+                        )}
+                      >
+                        {insight.severity === "low" && "Normal"}
+                        {insight.severity === "medium" && "Monitor"}
+                        {insight.severity === "high" && "Action needed"}
+                      </Badge>
                     </div>
-                  )}
+                    
+                    <p className="text-xs text-gray-600">{insight.description}</p>
+                    
+                    {insight.recommendation && (
+                      <div className={`mt-1 text-xs ${
+                        insight.recommendation.toLowerCase().includes('vet') 
+                          ? 'font-medium text-red-600 dark:text-red-400' 
+                          : ''
+                      }`}>
+                        <span className="font-medium">Recommendation:</span> {insight.recommendation}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </CardContent>
     </Card>

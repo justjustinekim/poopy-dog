@@ -23,14 +23,25 @@ serve(async (req) => {
     }
 
     console.log("Received image for analysis");
+    console.log("Using OpenAI API key:", openAIApiKey ? "Key exists" : "Key missing");
     
-    // Prepare system prompt for analyzing dog poop
+    // Prepare system prompt for analyzing dog poop with better vet recommendation guidance
     const systemPrompt = `You are a veterinary health assistant specialized in analyzing dog stool samples.
+You are ONLY analyzing dog stool (poop) images - if the image doesn't clearly show dog stool, indicate this clearly.
+
 Analyze the provided dog stool image and provide insights about:
 1. Color classification (brown, green, yellow, red, black, white)
 2. Consistency classification (normal, soft, liquid, solid)
 3. Potential health insights based on appearance
 4. Clear recommendations for the dog owner (diet changes, hydration, vet visit urgency, etc.)
+
+ALWAYS recommend a vet visit for:
+- Black stool (may indicate internal bleeding)
+- Red or bloody stool (indicates bleeding)
+- Persistent diarrhea (liquid) or severe constipation (very hard)
+- White/gray/yellow stool with greasy appearance (potential bile/liver issues)
+- Green stool (may indicate gall bladder issues, infection, or eating toxins)
+- Any foreign objects visible in the stool
 
 ${dogInfo ? `Consider this dog information in your analysis: ${JSON.stringify(dogInfo)}` : ''}
 
@@ -44,7 +55,7 @@ Format your response as a JSON object with these fields:
       "title": "brief insight title",
       "description": "detailed explanation",
       "severity": "one of: low, medium, high",
-      "recommendation": "specific action recommendation"
+      "recommendation": "specific action recommendation - recommend a vet visit for concerning issues"
     }
   ]
 }`;
@@ -63,7 +74,7 @@ Format your response as a JSON object with these fields:
           { 
             role: 'user', 
             content: [
-              { type: 'text', text: 'Please analyze this dog stool sample and provide health insights.' },
+              { type: 'text', text: 'Please analyze this dog stool sample and provide health insights. Be very accurate about whether this is actually a dog stool sample.' },
               { 
                 type: 'image_url', 
                 image_url: {
@@ -100,9 +111,9 @@ Format your response as a JSON object with these fields:
       isPoop: false,
       insights: [{
         title: "Analysis Error",
-        description: "There was an error analyzing this image. Please try again with a clearer photo.",
+        description: "There was an error analyzing this image. Please try again with a clearer photo of your dog's stool.",
         severity: "medium",
-        recommendation: "Take another photo with better lighting and focus."
+        recommendation: "Take another photo with better lighting and focus, ensuring the stool sample is clearly visible."
       }]
     }), {
       status: 500,
