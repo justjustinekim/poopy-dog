@@ -20,11 +20,9 @@ import AuthProvider from "./contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import AchievementPopup from "./components/AchievementPopup";
 import { useAuth } from "./contexts/AuthContext";
-import type { Database } from "./integrations/supabase/types";
 
 const queryClient = new QueryClient();
 
-// Protected route component that redirects to auth page if not logged in
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   
@@ -39,7 +37,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Public route component that redirects to dashboard if logged in
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   
@@ -109,7 +106,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider supabase={supabase}>
+        <AuthProvider supabase={supabase as any}>
           <TooltipProvider>
             <Toaster />
             <Sonner position="top-right" closeButton />

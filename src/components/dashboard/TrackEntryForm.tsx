@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MessageSquare } from "lucide-react";
@@ -134,19 +133,18 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
         imagePath = photoUrl.includes('poop_images') ? photoUrl.split('poop_images/')[1] : null;
       }
       
-      // Fixing the type issue with the insert call by using the correct properties
       const { error: insertError } = await supabase
         .from('poop_entries')
         .insert({
           user_id: user.id,
           dog_id: selectedDogId,
           image_path: imagePath,
-          consistency: newEntry.consistency as PoopConsistency,
-          color: newEntry.color as PoopColor,
+          consistency: newEntry.consistency as any,
+          color: newEntry.color as any,
           date: newEntry.date || new Date().toISOString(),
           notes: newEntry.notes || null,
           location: newEntry.location || null,
-        });
+        } as any);
       
       if (insertError) {
         throw new Error(`Error saving entry: ${insertError.message}`);

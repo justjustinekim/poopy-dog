@@ -25,7 +25,8 @@ export const useAuth = () => {
 
 interface AuthProviderProps {
   children: ReactNode;
-  supabase: SupabaseClient<Database>;
+  // Update the type to use any for the schema to avoid type conflicts
+  supabase: SupabaseClient<Database, any, any>;
 }
 
 const AuthProvider: React.FC<AuthProviderProps> = ({ children, supabase }) => {

@@ -24,15 +24,16 @@ export const usePoopEntries = (selectedDog: Dog | null) => {
       const { data, error } = await supabase
         .from('poop_entries')
         .select('*')
-        .eq('user_id', user.id)
-        .eq('dog_id', selectedDog.id)
+        // Use type assertions to fix type errors with user.id and selectedDog.id
+        .eq('user_id', user.id as any)
+        .eq('dog_id', selectedDog.id as any)
         .order('date', { ascending: false });
 
       if (error) throw error;
 
       if (data) {
         const formattedEntries: PoopEntry[] = await Promise.all(
-          data.map(async (entry) => {
+          data.map(async (entry: any) => {
             let imageUrl = null;
             
             if (entry.image_path) {
