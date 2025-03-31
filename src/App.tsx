@@ -21,6 +21,8 @@ import AuthProvider from "./contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import AchievementPopup from "./components/AchievementPopup";
 import { useAuth } from "./contexts/AuthContext";
+import type { Database } from "./integrations/supabase/types";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 const queryClient = new QueryClient();
 

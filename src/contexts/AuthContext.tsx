@@ -1,7 +1,7 @@
-
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { SupabaseClient, User, Session } from '@supabase/supabase-js';
 import { toast } from "sonner";
+import { Database } from '@/integrations/supabase/types';
 
 type AuthContextType = {
   user: User | null;
@@ -24,7 +24,7 @@ export const useAuth = () => {
 
 interface AuthProviderProps {
   children: ReactNode;
-  supabase: SupabaseClient;
+  supabase: SupabaseClient<Database>;
 }
 
 const AuthProvider: React.FC<AuthProviderProps> = ({ children, supabase }) => {
@@ -33,14 +33,12 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, supabase }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // Set up auth subscription
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
@@ -76,7 +74,10 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, supabase }) => {
       setLoading(true);
       const { error } = await supabase.auth.signUp({ 
         email, 
-        password
+        password,
+        options: {
+          emailRedirectTo: "https://poopydog.app/log"
+        }
       });
       if (error) throw error;
       toast.success("Check your email for the confirmation link!");

@@ -4,6 +4,7 @@ import { PoopEntry, Dog } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { PoopEntryRow } from "@/types/supabase";
+import { PostgrestError } from "@supabase/supabase-js";
 
 export const usePoopEntries = (selectedDog: Dog | null) => {
   const { user } = useAuth();
@@ -23,36 +24,38 @@ export const usePoopEntries = (selectedDog: Dog | null) => {
       const { data, error } = await supabase
         .from('poop_entries')
         .select('*')
-        .eq('user_id', user.id)
-        .eq('dog_id', selectedDog.id)
+        .eq('user_id', user.id as string)
+        .eq('dog_id', selectedDog.id as string)
         .order('date', { ascending: false });
 
       if (error) throw error;
 
       if (data) {
-        const formattedEntries: PoopEntry[] = await Promise.all(data.map(async (entry: PoopEntryRow) => {
-          let imageUrl = null;
-          
-          if (entry.image_path) {
-            const { data: urlData } = supabase.storage
-              .from('poop_images')
-              .getPublicUrl(entry.image_path);
+        const formattedEntries: PoopEntry[] = await Promise.all(
+          data.map(async (entry) => {
+            let imageUrl = null;
             
-            imageUrl = urlData.publicUrl;
-          }
-          
-          return {
-            id: entry.id,
-            dogId: entry.dog_id,
-            date: entry.date,
-            imageUrl: imageUrl,
-            consistency: entry.consistency as any,
-            color: entry.color as any,
-            notes: entry.notes || undefined,
-            tags: entry.notes?.split(" ").filter(tag => tag.startsWith("#")) || [],
-            location: entry.location || undefined,
-          };
-        }));
+            if (entry.image_path) {
+              const { data: urlData } = supabase.storage
+                .from('poop_images')
+                .getPublicUrl(entry.image_path);
+              
+              imageUrl = urlData.publicUrl;
+            }
+            
+            return {
+              id: entry.id,
+              dogId: entry.dog_id,
+              date: entry.date,
+              imageUrl: imageUrl,
+              consistency: entry.consistency as any,
+              color: entry.color as any,
+              notes: entry.notes || undefined,
+              tags: entry.notes?.split(" ").filter(tag => tag.startsWith("#")) || [],
+              location: entry.location || undefined,
+            };
+          })
+        );
         
         setEntries(formattedEntries);
       }

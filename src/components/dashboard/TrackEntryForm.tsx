@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MessageSquare } from "lucide-react";
@@ -143,8 +142,8 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
           consistency: newEntry.consistency as PoopConsistency,
           color: newEntry.color as PoopColor,
           date: newEntry.date || new Date().toISOString(),
-          notes: newEntry.notes,
-          location: newEntry.location,
+          notes: newEntry.notes || null,
+          location: newEntry.location || null,
         });
       
       if (insertError) {
