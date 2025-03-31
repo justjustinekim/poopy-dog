@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, ArrowRight, Paw, DogBowl, Heart, Clock, MapPin, Utensils, X } from "lucide-react";
+import { Check, ArrowRight, Dog, BowlFood, Heart, Clock, MapPin, Utensils, X } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";

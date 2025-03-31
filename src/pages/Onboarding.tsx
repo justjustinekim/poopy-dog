@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,6 @@ import {
   Camera, 
   Trophy, 
   Check, 
-  Paw, 
   Heart, 
   Star 
 } from "lucide-react";
@@ -171,7 +169,7 @@ const Onboarding = () => {
       </div>
     </div>
   );
-  
+
   const infoContent = (
     <div className="text-center space-y-6 animate-fade-in">
       <div className="flex justify-center">
@@ -287,8 +285,8 @@ const Onboarding = () => {
       <div className="pt-6 flex justify-center space-x-2">
         <span className="inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-700"></span>
         <span className="inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-700"></span>
-        <span className="inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-700"></span>
         <span className="inline-block w-2 h-2 rounded-full bg-primary"></span>
+        <span className="inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-700"></span>
       </div>
     </div>
   );
@@ -367,7 +365,7 @@ const Onboarding = () => {
     {
       title: "About PoopyDog",
       content: infoContent,
-      icon: <Paw className="h-5 w-5" />,
+      icon: <DogIcon className="h-5 w-5" />,
     },
     {
       title: "Health Statement",
@@ -387,7 +385,7 @@ const Onboarding = () => {
     {
       title: "Lifestyle Questions",
       content: lifestyleAssessmentContent,
-      icon: <Paw className="h-5 w-5" />,
+      icon: <DogIcon className="h-5 w-5" />,
     },
     {
       title: "Health Assessment",

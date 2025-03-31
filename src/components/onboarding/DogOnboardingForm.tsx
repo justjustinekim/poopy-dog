@@ -30,7 +30,6 @@ import {
   X, 
   Camera, 
   Heart, 
-  Paw, 
   Trophy,
   Plus 
 } from "lucide-react";
@@ -253,7 +252,7 @@ const DogOnboardingForm: React.FC<DogOnboardingFormProps> = ({
           <Card className="animate-fade-in">
             <CardContent className="pt-6">
               <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <Paw className="h-5 w-5 mr-2 text-primary" />
+                <DogIcon className="h-5 w-5 mr-2 text-primary" />
                 Basic Details
               </h2>
               
@@ -610,7 +609,8 @@ const DogOnboardingForm: React.FC<DogOnboardingFormProps> = ({
         </div>
       </form>
 
-      <style jsx>{`
+      <style>
+        {`
         @keyframes confetti-fall {
           0% { transform: translateY(-100vh) rotate(0deg); }
           100% { transform: translateY(100vh) rotate(360deg); }
@@ -633,7 +633,8 @@ const DogOnboardingForm: React.FC<DogOnboardingFormProps> = ({
           height: 10px;
           animation: confetti-fall 5s linear forwards;
         }
-      `}</style>
+        `}
+      </style>
     </Form>
   );
 };
