@@ -24,8 +24,8 @@ export const usePoopEntries = (selectedDog: Dog | null) => {
       const { data, error } = await supabase
         .from('poop_entries')
         .select('*')
-        .eq('user_id', user.id as string)
-        .eq('dog_id', selectedDog.id as string)
+        .eq('user_id', user.id)
+        .eq('dog_id', selectedDog.id)
         .order('date', { ascending: false });
 
       if (error) throw error;

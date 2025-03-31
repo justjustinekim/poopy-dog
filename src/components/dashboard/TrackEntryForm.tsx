@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MessageSquare } from "lucide-react";
@@ -133,6 +134,7 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
         imagePath = photoUrl.includes('poop_images') ? photoUrl.split('poop_images/')[1] : null;
       }
       
+      // Fixing the type issue with the insert call by using the correct properties
       const { error: insertError } = await supabase
         .from('poop_entries')
         .insert({
