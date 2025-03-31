@@ -1,68 +1,19 @@
 
+// This file has been refactored into smaller components
 import React, { useState } from "react";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Dog } from "@/types";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormDescription,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
-  Dog as DogIcon, 
-  Save, 
-  X, 
-  Camera, 
-  Heart, 
-  Trophy,
-  Plus 
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
+import { Dog } from "@/types";
 
-// Define the form schema
-const dogSchema = z.object({
-  name: z.string().min(1, { message: "Dog name is required" }),
-  breed: z.string().min(1, { message: "Breed is required" }),
-  age: z.coerce.number().min(0, { message: "Age must be a positive number" }),
-  weight: z.coerce.number().min(0, { message: "Weight must be a positive number" }),
-  imageUrl: z.string().optional(),
-  foodSensitivity: z.string().optional(),
-  digestiveIssues: z.array(z.string()).optional(),
-  poopFrequency: z.string().optional(),
-  digestiveHealth: z.string().optional(),
-  dietType: z.string().optional(),
-  personalityTraits: z.array(z.string()).optional(),
-  favoriteTreats: z.string().optional(),
-  birthdate: z.string().optional(),
-  microchipped: z.boolean().optional(),
-  adoptionStory: z.string().optional(),
-});
-
-type DogFormValues = z.infer<typeof dogSchema>;
-
-interface DogOnboardingFormProps {
-  initialValues?: Partial<Dog>;
-  onSubmit: (dog: Dog) => void;
-  onCancel: () => void;
-}
+// Import the refactored components
+import BasicDetailsStep from "./dog-profile/BasicDetailsStep";
+import DietDigestionStep from "./dog-profile/DietDigestionStep";
+import PersonalityStoryStep from "./dog-profile/PersonalityStoryStep";
+import ConfettiAnimation from "./dog-profile/ConfettiAnimation";
+import FormNavigation from "./dog-profile/FormNavigation";
+import { dogSchema, DogFormValues, DogOnboardingFormProps } from "./dog-profile/types";
 
 const DogOnboardingForm: React.FC<DogOnboardingFormProps> = ({
   initialValues = {},
@@ -95,7 +46,9 @@ const DogOnboardingForm: React.FC<DogOnboardingFormProps> = ({
     },
   });
 
-  const handleSubmit = (values: DogFormValues) => {
+  const handleSubmitForm = () => {
+    const values = form.getValues();
+    
     // Show confetti animation on submission
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 3000);
@@ -167,474 +120,42 @@ const DogOnboardingForm: React.FC<DogOnboardingFormProps> = ({
     }
   };
 
-  const renderProfilePhoto = () => {
-    return (
-      <div className="flex justify-center mb-6">
-        <div className="relative group">
-          {profilePhoto ? (
-            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-primary/40">
-              <img 
-                src={profilePhoto} 
-                alt="Dog profile" 
-                className="w-full h-full object-cover" 
-              />
-            </div>
-          ) : (
-            <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center border-4 border-primary/20">
-              <DogIcon className="h-16 w-16 text-primary/40" />
-            </div>
-          )}
-          
-          <label className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full cursor-pointer hover:bg-primary/80 transition-colors">
-            <input 
-              type="file" 
-              accept="image/*" 
-              className="hidden" 
-              onChange={handleProfilePhotoUpload}
-            />
-            <Camera className="h-4 w-4" />
-          </label>
-          
-          <div className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <span className="text-white text-sm font-medium">Change Photo</span>
-          </div>
-        </div>
-      </div>
-    );
+  // Render the current step
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <BasicDetailsStep 
+            form={form} 
+            profilePhoto={profilePhoto} 
+            onPhotoUpload={handleProfilePhotoUpload} 
+          />
+        );
+      case 2:
+        return <DietDigestionStep form={form} />;
+      case 3:
+        return <PersonalityStoryStep form={form} />;
+      default:
+        return null;
+    }
   };
-
-  const personalityTraits = [
-    { value: "playful", label: "Playful", emoji: "🎾" },
-    { value: "calm", label: "Calm", emoji: "😌" },
-    { value: "energetic", label: "Energetic", emoji: "⚡" },
-    { value: "friendly", label: "Friendly", emoji: "😊" },
-    { value: "protective", label: "Protective", emoji: "🛡️" },
-    { value: "shy", label: "Shy", emoji: "🙈" },
-    { value: "stubborn", label: "Stubborn", emoji: "😤" },
-    { value: "smart", label: "Smart", emoji: "🧠" },
-    { value: "lazy", label: "Lazy", emoji: "💤" },
-    { value: "affectionate", label: "Affectionate", emoji: "❤️" },
-  ];
-
-  const digestiveIssueOptions = [
-    { value: "vomiting", label: "Occasional vomiting", description: "Throws up food sometimes" },
-    { value: "diarrhea", label: "Diarrhea", description: "Loose stool" },
-    { value: "constipation", label: "Constipation", description: "Difficulty passing stool" },
-    { value: "gas", label: "Excessive gas", description: "Flatulence or bloating" },
-    { value: "poorAppetite", label: "Poor appetite", description: "Doesn't seem interested in food" },
-    { value: "eatingNonFood", label: "Eats non-food items", description: "Grass, paper, etc." },
-    { value: "none", label: "No digestive issues", description: "Healthy digestion" },
-  ];
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        {showConfetti && (
-          <div className="fixed inset-0 pointer-events-none z-50">
-            {/* CSS-based confetti animation */}
-            <div className="confetti-container">
-              {Array.from({ length: 50 }).map((_, i) => (
-                <div 
-                  key={i}
-                  className="confetti"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 3}s`,
-                    backgroundColor: ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f'][Math.floor(Math.random() * 6)]
-                  }}
-                ></div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {currentStep === 1 && (
-          <Card className="animate-fade-in">
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <DogIcon className="h-5 w-5 mr-2 text-primary" />
-                Basic Details
-              </h2>
-              
-              {renderProfilePhoto()}
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Dog's Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Buddy" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="breed"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Breed</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Labrador Retriever" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                <FormField
-                  control={form.control}
-                  name="age"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Age (years)</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={0} step={0.5} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="weight"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Weight (lbs)</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={0} step={0.5} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                <FormField
-                  control={form.control}
-                  name="birthdate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Birthdate (optional)</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        We'll celebrate your dog's birthday!
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="microchipped"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 border rounded-md mt-6">
-                      <FormControl>
-                        <Checkbox 
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>Microchipped</FormLabel>
-                        <FormDescription>
-                          Is your dog microchipped?
-                        </FormDescription>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {currentStep === 2 && (
-          <Card className="animate-fade-in">
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <Heart className="h-5 w-5 mr-2 text-primary" />
-                Diet & Digestion
-              </h2>
-              
-              <FormField
-                control={form.control}
-                name="dietType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Primary Diet</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a diet type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="kibble">Dry Kibble</SelectItem>
-                        <SelectItem value="wet">Wet Food</SelectItem>
-                        <SelectItem value="raw">Raw Diet</SelectItem>
-                        <SelectItem value="homemade">Homemade</SelectItem>
-                        <SelectItem value="mixed">Mixed Diet</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="favoriteTreats"
-                render={({ field }) => (
-                  <FormItem className="mt-6">
-                    <FormLabel>Favorite Treats</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Cheese, chicken, peanut butter..." {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      What treats does your dog love the most?
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="poopFrequency"
-                render={({ field }) => (
-                  <FormItem className="mt-6">
-                    <FormLabel>How many times does your dog poop per day?</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select frequency" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="1">Once daily</SelectItem>
-                        <SelectItem value="2-3">2-3 times daily</SelectItem>
-                        <SelectItem value="4+">4+ times daily</SelectItem>
-                        <SelectItem value="irregular">Irregular</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="digestiveIssues"
-                render={({ field }) => (
-                  <FormItem className="mt-6">
-                    <FormLabel>Digestive Issues (Select all that apply)</FormLabel>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-                      {digestiveIssueOptions.map((option) => (
-                        <div key={option.value} className="flex items-start space-x-2 rounded-md border p-3">
-                          <Checkbox
-                            checked={field.value?.includes(option.value)}
-                            onCheckedChange={(checked) => {
-                              const currentValues = field.value || [];
-                              return checked
-                                ? field.onChange([...currentValues, option.value])
-                                : field.onChange(currentValues.filter((value) => value !== option.value));
-                            }}
-                          />
-                          <div>
-                            <label className="text-sm font-medium leading-none cursor-pointer">
-                              {option.label}
-                            </label>
-                            <p className="text-xs text-gray-500">{option.description}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-        )}
-
-        {currentStep === 3 && (
-          <Card className="animate-fade-in">
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <Trophy className="h-5 w-5 mr-2 text-primary" />
-                Personality & Story
-              </h2>
-              
-              <FormField
-                control={form.control}
-                name="personalityTraits"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Personality Traits (Select all that apply)</FormLabel>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-2">
-                      {personalityTraits.map((trait) => (
-                        <div 
-                          key={trait.value}
-                          className={`flex flex-col items-center justify-center p-2 border rounded-md cursor-pointer transition-all hover:bg-primary/10 ${
-                            field.value?.includes(trait.value) ? 'bg-primary/20 border-primary' : ''
-                          }`}
-                          onClick={() => {
-                            const currentValues = field.value || [];
-                            return currentValues.includes(trait.value)
-                              ? field.onChange(currentValues.filter((value) => value !== trait.value))
-                              : field.onChange([...currentValues, trait.value]);
-                          }}
-                        >
-                          <span className="text-2xl mb-1">{trait.emoji}</span>
-                          <span className="text-xs font-medium">{trait.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <FormDescription className="mt-2">
-                      Choose traits that best describe your dog's personality
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="adoptionStory"
-                render={({ field }) => (
-                  <FormItem className="mt-6">
-                    <FormLabel>Adoption Story (optional)</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Share how your dog came into your life..." 
-                        className="min-h-[120px]"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Tell us a bit about your journey with your furry friend
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="digestiveHealth"
-                render={({ field }) => (
-                  <FormItem className="space-y-3 mt-6">
-                    <FormLabel>Current Digestive Health</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex flex-col space-y-1"
-                      >
-                        <div className="flex items-center space-x-2 rounded-md border p-3">
-                          <RadioGroupItem value="excellent" id="excellent" />
-                          <label htmlFor="excellent" className="flex flex-col">
-                            <span className="font-medium">Excellent</span>
-                            <span className="text-sm text-gray-500">No digestive issues at all</span>
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2 rounded-md border p-3">
-                          <RadioGroupItem value="normal" id="normal" />
-                          <label htmlFor="normal" className="flex flex-col">
-                            <span className="font-medium">Normal</span>
-                            <span className="text-sm text-gray-500">Occasional minor issues</span>
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2 rounded-md border p-3">
-                          <RadioGroupItem value="concerns" id="concerns" />
-                          <label htmlFor="concerns" className="flex flex-col">
-                            <span className="font-medium">Some Concerns</span>
-                            <span className="text-sm text-gray-500">Regular but manageable issues</span>
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2 rounded-md border p-3">
-                          <RadioGroupItem value="issues" id="issues" />
-                          <label htmlFor="issues" className="flex flex-col">
-                            <span className="font-medium">Serious Issues</span>
-                            <span className="text-sm text-gray-500">Frequent digestive problems</span>
-                          </label>
-                        </div>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-        )}
-
-        <div className="pt-6 flex justify-between">
-          {currentStep > 1 ? (
-            <Button type="button" variant="outline" onClick={handlePrevious}>
-              <X className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-          ) : (
-            <Button type="button" variant="outline" onClick={onCancel}>
-              <X className="h-4 w-4 mr-2" />
-              Cancel
-            </Button>
-          )}
-          
-          {currentStep < 3 ? (
-            <Button type="button" onClick={handleNext}>
-              <Plus className="h-4 w-4 mr-2" />
-              Continue
-            </Button>
-          ) : (
-            <Button type="submit">
-              <Save className="h-4 w-4 mr-2" />
-              Save Dog Profile
-            </Button>
-          )}
-        </div>
+      <form onSubmit={form.handleSubmit(handleSubmitForm)} className="space-y-6">
+        <ConfettiAnimation show={showConfetti} />
+        
+        {renderStep()}
+        
+        <FormNavigation 
+          currentStep={currentStep}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+          onCancel={onCancel}
+          onSubmit={handleSubmitForm}
+          isLastStep={currentStep === 3}
+        />
       </form>
-
-      <style>
-        {`
-        @keyframes confetti-fall {
-          0% { transform: translateY(-100vh) rotate(0deg); }
-          100% { transform: translateY(100vh) rotate(360deg); }
-        }
-        
-        .confetti-container {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          overflow: hidden;
-          z-index: 1000;
-          pointer-events: none;
-        }
-        
-        .confetti {
-          position: absolute;
-          width: 10px;
-          height: 10px;
-          animation: confetti-fall 5s linear forwards;
-        }
-        `}
-      </style>
     </Form>
   );
 };
