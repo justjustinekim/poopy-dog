@@ -1,29 +1,29 @@
 
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Camera, Calendar, LineChart, MessageSquare } from "lucide-react";
-import { PoopEntry, HealthInsight, Dog } from "@/types";
-import TrackEntryForm from "./TrackEntryForm";
+import { Dog, HealthInsight, PoopEntry } from "@/types";
+import { Calendar, AreaChart, PlusCircle } from "lucide-react";
+import HealthInsightsOverview from "./HealthInsightsOverview";
 import PoopCalendar from "@/components/PoopCalendar";
-import AnalysisCard from "@/components/AnalysisCard";
-import { Button } from "@/components/ui/button";
+import TrackEntryForm from "./TrackEntryForm";
 
 interface DashboardTabsProps {
-  activeTab?: string;
-  onTabChange?: (tab: string) => void;
+  activeTab: string;
+  onTabChange: (value: string) => void;
   selectedDog: Dog;
   entries: PoopEntry[];
   healthInsights: HealthInsight[];
   onEntrySubmit: (entry: PoopEntry) => void;
-  onDateSelect: (date: Date) => void;
-  photoUrl: string | null;
+  onDateSelect?: (date: Date) => void;
+  photoUrl?: string | null;
   newEntry?: Partial<PoopEntry>;
   onChatWithAI?: () => void;
+  dogInfo?: Dog; // Add the dogInfo prop
 }
 
 const DashboardTabs: React.FC<DashboardTabsProps> = ({
-  activeTab = "track",
-  onTabChange = () => {},
+  activeTab,
+  onTabChange,
   selectedDog,
   entries,
   healthInsights,
@@ -31,49 +31,53 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({
   onDateSelect,
   photoUrl,
   newEntry,
-  onChatWithAI
+  onChatWithAI,
+  dogInfo // Add the dogInfo prop parameter
 }) => {
   return (
-    <Tabs 
-      defaultValue="track" 
-      value={activeTab} 
-      onValueChange={onTabChange} 
-      className="w-full"
-    >
-      <TabsList className="grid grid-cols-3 mb-6">
-        <TabsTrigger value="track" className="py-3">
-          <Camera className="mr-2 h-4 w-4" />
+    <Tabs value={activeTab} onValueChange={onTabChange} className="mt-6">
+      <TabsList className="grid grid-cols-3 w-full max-w-md">
+        <TabsTrigger value="track" className="flex items-center gap-2">
+          <PlusCircle className="h-4 w-4" />
           <span>Track</span>
         </TabsTrigger>
-        <TabsTrigger value="calendar" className="py-3">
-          <Calendar className="mr-2 h-4 w-4" />
+        <TabsTrigger value="calendar" className="flex items-center gap-2">
+          <Calendar className="h-4 w-4" />
           <span>Calendar</span>
         </TabsTrigger>
-        <TabsTrigger value="analysis" className="py-3">
-          <LineChart className="mr-2 h-4 w-4" />
-          <span>Analysis</span>
+        <TabsTrigger value="insights" className="flex items-center gap-2">
+          <AreaChart className="h-4 w-4" />
+          <span>Insights</span>
         </TabsTrigger>
       </TabsList>
       
-      <TabsContent value="track" className="animate-slide-up">
+      <TabsContent value="track" className="mt-6 animate-fade-in">
         <TrackEntryForm 
           selectedDogId={selectedDog.id}
           onSubmit={onEntrySubmit}
-          photoUrl={photoUrl}
+          photoUrl={photoUrl || null}
           initialNewEntry={newEntry}
           onChatWithAI={onChatWithAI}
+          dogInfo={dogInfo} // Pass the dogInfo prop
         />
       </TabsContent>
       
-      <TabsContent value="calendar" className="animate-slide-up">
-        <PoopCalendar 
+      <TabsContent value="calendar" className="mt-6 animate-fade-in">
+        <div className="glass-card p-6">
+          <h2 className="text-xl font-semibold mb-4">Health History</h2>
+          <PoopCalendar 
+            entries={entries} 
+            onDateSelect={onDateSelect}
+          />
+        </div>
+      </TabsContent>
+      
+      <TabsContent value="insights" className="mt-6 animate-fade-in">
+        <HealthInsightsOverview 
+          dogName={selectedDog.name} 
           entries={entries} 
-          onDateSelect={onDateSelect} 
+          insights={healthInsights}
         />
-      </TabsContent>
-      
-      <TabsContent value="analysis" className="animate-slide-up">
-        <AnalysisCard insights={healthInsights} />
       </TabsContent>
     </Tabs>
   );
