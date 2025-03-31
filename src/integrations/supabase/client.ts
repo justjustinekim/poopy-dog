@@ -17,7 +17,5 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
     flowType: 'pkce',
     detectSessionInUrl: true,
-    // Fix for redirectTo property - it's at the auth object level, not inside options
-    redirectTo: REDIRECT_URL
   }
 });
