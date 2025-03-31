@@ -1,4 +1,6 @@
 
+// This file also needs to be updated to use the dynamic redirect URL
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { SupabaseClient, User, Session } from '@supabase/supabase-js';
 import { toast } from "sonner";
@@ -33,6 +35,11 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, supabase }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Generate a proper redirect URL based on the current window location
+  const getRedirectUrl = () => {
+    return `${window.location.origin}/dashboard`;
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -78,7 +85,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, supabase }) => {
         email, 
         password,
         options: {
-          emailRedirectTo: "https://poopydog.app/log"
+          emailRedirectTo: getRedirectUrl()
         }
       });
       if (error) throw error;

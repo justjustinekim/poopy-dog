@@ -67,6 +67,12 @@ const Auth: React.FC = () => {
     },
   });
 
+  // Generate a proper redirect URL based on the current window location
+  const getRedirectUrl = () => {
+    // Use window.location.origin which gives the protocol + domain
+    return `${window.location.origin}/dashboard`;
+  };
+
   // Handle login submission
   const onLoginSubmit = async (values: LoginFormValues) => {
     setIsLoading(true);
@@ -91,12 +97,19 @@ const Auth: React.FC = () => {
   const onSignupSubmit = async (values: SignupFormValues) => {
     setIsLoading(true);
     try {
-      await signUp(values.email, values.password);
+      // Use the getRedirectUrl function to ensure correct redirection
+      await supabase.auth.signUp({ 
+        email: values.email, 
+        password: values.password,
+        options: {
+          emailRedirectTo: getRedirectUrl()
+        }
+      });
       toast.success("Check your email for the confirmation link!");
       setActiveTab("login");
     } catch (error: any) {
       console.error("Signup error:", error);
-      // Error is already handled in the signUp function
+      toast.error(error.message || "Error signing up");
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +122,7 @@ const Auth: React.FC = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: provider,
         options: {
-          redirectTo: window.location.origin + '/dashboard',
+          redirectTo: getRedirectUrl()
         },
       });
       
