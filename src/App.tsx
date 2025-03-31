@@ -15,6 +15,7 @@ import Achievements from "./pages/Achievements";
 import Chat from "./pages/Chat";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
+import Log from "./pages/Log";
 import { Achievement } from "./types";
 import AuthProvider from "./contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -87,6 +88,7 @@ const AppRoutes = () => {
         <Route path="/social" element={<ProtectedRoute><Social /></ProtectedRoute>} />
         <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
         <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+        <Route path="/log" element={<ProtectedRoute><Log /></ProtectedRoute>} />
         <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
         <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
