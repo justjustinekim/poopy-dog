@@ -1,8 +1,7 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, ArrowRight, Dog, BowlFood, Heart, Clock, MapPin, Utensils, X } from "lucide-react";
+import { Check, ArrowRight, Dog, Utensils, Heart, Clock, MapPin, X } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,7 +26,6 @@ const LifestyleAssessment: React.FC<LifestyleAssessmentProps> = ({
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const dogNameDisplay = dogName || "your dog";
 
-  // Fun emojis to use in questions
   const emojis = ["🐕", "🦴", "🥩", "🥬", "🛏️", "🏞️", "🎾", "⛹️‍♂️", "🚶‍♀️", "🏃‍♀️"];
 
   const questions = [
@@ -88,7 +86,7 @@ const LifestyleAssessment: React.FC<LifestyleAssessmentProps> = ({
       question: `${emojis[4]} Where does ${dogNameDisplay} usually sleep?`,
       type: "radio",
       options: [
-        { value: "ownBed", label: "Dog bed", emoji: "🛏️" },
+        { value: "ownBed", label: "Dog bed", emoji: "��️" },
         { value: "yourBed", label: "Your bed", emoji: "👤" },
         { value: "crate", label: "Crate", emoji: "📦" },
         { value: "couch", label: "Couch", emoji: "🛋️" },
@@ -159,7 +157,6 @@ const LifestyleAssessment: React.FC<LifestyleAssessmentProps> = ({
   ];
 
   const handleNext = () => {
-    // Check if current question has been answered
     const currentQuestion = questions[currentQuestionIndex];
     if (!answers[currentQuestion.id] && currentQuestion.type !== "multiCheckbox" && currentQuestion.type !== "textarea") {
       toast.error("Please answer the question before proceeding");
@@ -171,7 +168,6 @@ const LifestyleAssessment: React.FC<LifestyleAssessmentProps> = ({
       return;
     }
 
-    // If it's the last question, complete the assessment
     if (currentQuestionIndex === questions.length - 1) {
       const achievementUnlocked = Math.random() > 0.5;
       
@@ -183,7 +179,6 @@ const LifestyleAssessment: React.FC<LifestyleAssessmentProps> = ({
       
       onComplete(answers);
     } else {
-      // Move to the next question
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
   };
