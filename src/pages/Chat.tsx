@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Send, Bot, User, Image as ImageIcon } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   role: "user" | "assistant";
@@ -25,12 +26,32 @@ const Chat: React.FC = () => {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
+  const [dogInfo, setDogInfo] = useState<any | null>(null);
   
-  // Get the image from location state if available
+  // Get the image and dog info from location state if available
   useEffect(() => {
     if (location.state?.capturedPhoto) {
       setBackgroundImage(location.state.capturedPhoto);
+      
+      // If we have a photo, add an initial analysis message
+      if (!messages.some(m => m.content.includes("I've analyzed the photo"))) {
+        setIsLoading(true);
+        
+        setTimeout(() => {
+          setMessages(prev => [...prev, {
+            role: "assistant",
+            content: "I've analyzed the photo of your dog's stool sample. What would you like to know about it?",
+            timestamp: new Date(),
+          }]);
+          setIsLoading(false);
+        }, 1000);
+      }
+    }
+    
+    if (location.state?.dogInfo) {
+      setDogInfo(location.state.dogInfo);
     }
   }, [location.state]);
 
@@ -49,22 +70,49 @@ const Chat: React.FC = () => {
     setInput("");
     setIsLoading(true);
 
-    // Simulate AI response (in production, this would call OpenAI API)
-    setTimeout(() => {
+    try {
+      // Call Supabase edge function to get AI response
+      const { data, error } = await supabase.functions.invoke('analyze-poop-chat', {
+        body: { 
+          message: input, 
+          imageBase64: backgroundImage ? backgroundImage.split(',')[1] : null,
+          dogInfo: dogInfo,
+          conversation: messages.map(msg => ({ role: msg.role, content: msg.content }))
+        }
+      });
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
       const aiResponse: Message = {
         role: "assistant",
-        content: "Based on what you've shared, your dog's stool appears normal. The brown color and solid consistency are good signs of healthy digestion. Make sure your dog stays hydrated and maintains a balanced diet. If you notice any significant changes in frequency, consistency, or color, it might be worth consulting with your veterinarian.",
+        content: data?.response || "I'm sorry, I'm having trouble generating a response right now.",
         timestamp: new Date(),
       };
       
       setMessages((prev) => [...prev, aiResponse]);
+    } catch (error) {
+      console.error("Error getting AI response:", error);
+      toast.error("Failed to get response. Please try again.");
+      
+      // Fallback response
+      const fallbackResponse: Message = {
+        role: "assistant",
+        content: "I apologize, but I'm having trouble connecting to the server. Please try again in a moment.",
+        timestamp: new Date(),
+      };
+      
+      setMessages((prev) => [...prev, fallbackResponse]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const uploadImage = () => {
-    // In a real implementation, this would open a file selector
-    toast.info("Image upload functionality would be implemented with OpenAI integration");
+    // Navigate back to dashboard to capture a new image
+    navigate("/dashboard");
+    toast.info("Please capture a new photo on the dashboard");
   };
 
   return (

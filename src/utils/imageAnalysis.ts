@@ -1,63 +1,99 @@
-
 import { HealthInsight, PoopColor, PoopConsistency } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
 
-// Helper function to analyze color from image data (simulated)
-const extractColorFromImage = (imageFile: File): Promise<PoopColor> => {
-  return new Promise((resolve) => {
-    // In a real implementation, this would analyze the image pixel data
-    // For now, we'll simulate with random selection weighted toward brown
-    const colorOptions: PoopColor[] = ["brown", "green", "yellow", "red", "black", "white"];
-    const weights = [0.6, 0.1, 0.1, 0.05, 0.05, 0.1]; // 60% chance of brown
-    
-    // Create weighted random selection
-    let random = Math.random();
-    let color: PoopColor = "brown";
-    
-    // Find color based on weight distribution
-    let accumulatedWeight = 0;
-    for (let i = 0; i < colorOptions.length; i++) {
-      accumulatedWeight += weights[i];
-      if (random <= accumulatedWeight) {
-        color = colorOptions[i];
-        break;
+// Function to convert File to base64
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        // Remove the data URL prefix and extract just the base64 content
+        const base64Content = reader.result.split(',')[1];
+        resolve(base64Content);
+      } else {
+        reject(new Error('Failed to convert file to base64'));
       }
-    }
-    
-    // Return the selected color
-    setTimeout(() => resolve(color), 100);
+    };
+    reader.onerror = error => reject(error);
   });
 };
 
-// Helper function to analyze consistency from image (simulated)
-const extractConsistencyFromImage = (imageFile: File): Promise<PoopConsistency> => {
-  return new Promise((resolve) => {
-    // In a real implementation, this would analyze the image shape and texture
-    // Currently simulated with improved algorithm that detects consistency better
-    const consistencyOptions: PoopConsistency[] = ["normal", "soft", "liquid", "solid"];
+// Real AI image analysis function using OpenAI
+export async function analyzePoopImage(imageFile: File, dogInfo?: any): Promise<{
+  isPoop: boolean;
+  confidence: number;
+  color?: PoopColor;
+  consistency?: PoopConsistency;
+  colorSpectrum?: string;
+  insights: HealthInsight[];
+}> {
+  try {
+    console.log("Converting image to base64...");
+    const imageBase64 = await fileToBase64(imageFile);
     
-    // In a real ML model, we'd analyze texture, edges, and shape
-    // For now, weighted toward normal for better simulation
-    const weights = [0.5, 0.2, 0.15, 0.15]; // 50% chance of normal consistency
+    console.log("Calling OpenAI analysis function...");
+    const { data, error } = await supabase.functions.invoke('analyze-poop', {
+      body: { imageBase64, dogInfo },
+    });
     
-    let random = Math.random();
-    let consistency: PoopConsistency = "normal";
-    
-    // Find consistency based on weight distribution
-    let accumulatedWeight = 0;
-    for (let i = 0; i < consistencyOptions.length; i++) {
-      accumulatedWeight += weights[i];
-      if (random <= accumulatedWeight) {
-        consistency = consistencyOptions[i];
-        break;
-      }
+    if (error) {
+      console.error("Error calling analysis function:", error);
+      throw new Error(`Function error: ${error.message}`);
     }
     
-    setTimeout(() => resolve(consistency), 100);
-  });
-};
+    if (!data) {
+      throw new Error("No data returned from analysis");
+    }
+    
+    console.log("Analysis result:", data);
+    
+    // Map the response to our expected format
+    const result = {
+      isPoop: data.error ? false : true,
+      confidence: data.confidence || 0.8,
+      color: data.color as PoopColor,
+      consistency: data.consistency as PoopConsistency,
+      colorSpectrum: getColorForPoopColor(data.color as PoopColor),
+      insights: data.insights || [],
+    };
+    
+    return result;
+  } catch (error) {
+    console.error("Error in analyzePoopImage:", error);
+    
+    // Return a fallback response
+    return {
+      isPoop: false,
+      confidence: 0.5,
+      insights: [{
+        title: "Analysis Error",
+        description: "There was an error analyzing this image. Please try again with a clearer photo.",
+        severity: "medium",
+        recommendation: "Try taking another photo with better lighting and focus."
+      }]
+    };
+  }
+}
+
+// Helper function to get color hex based on poop color
+function getColorForPoopColor(color?: PoopColor): string | undefined {
+  if (!color) return undefined;
+  
+  const colorMap: Record<PoopColor, string> = {
+    "brown": "#8B4513",
+    "green": "#228B22",
+    "yellow": "#FFD700",
+    "red": "#B22222",
+    "black": "#2F2F2F",
+    "white": "#F5F5F5"
+  };
+  
+  return colorMap[color];
+}
 
 // Mock AI image analysis function (in a real app, this would connect to an AI API)
-export async function analyzePoopImage(imageFile: File): Promise<{
+export async function mockAnalyzePoopImage(imageFile: File): Promise<{
   isPoop: boolean;
   confidence: number;
   color?: PoopColor;
@@ -215,3 +251,58 @@ export async function analyzePoopImage(imageFile: File): Promise<{
     }, 1500); // Simulate 1.5 second processing time
   });
 }
+
+// Helper function to analyze color from image data (simulated)
+const extractColorFromImage = (imageFile: File): Promise<PoopColor> => {
+  return new Promise((resolve) => {
+    // In a real implementation, this would analyze the image pixel data
+    // For now, we'll simulate with random selection weighted toward brown
+    const colorOptions: PoopColor[] = ["brown", "green", "yellow", "red", "black", "white"];
+    const weights = [0.6, 0.1, 0.1, 0.05, 0.05, 0.1]; // 60% chance of brown
+    
+    // Create weighted random selection
+    let random = Math.random();
+    let color: PoopColor = "brown";
+    
+    // Find color based on weight distribution
+    let accumulatedWeight = 0;
+    for (let i = 0; i < colorOptions.length; i++) {
+      accumulatedWeight += weights[i];
+      if (random <= accumulatedWeight) {
+        color = colorOptions[i];
+        break;
+      }
+    }
+    
+    // Return the selected color
+    setTimeout(() => resolve(color), 100);
+  });
+};
+
+// Helper function to analyze consistency from image (simulated)
+const extractConsistencyFromImage = (imageFile: File): Promise<PoopConsistency> => {
+  return new Promise((resolve) => {
+    // In a real implementation, this would analyze the image shape and texture
+    // Currently simulated with improved algorithm that detects consistency better
+    const consistencyOptions: PoopConsistency[] = ["normal", "soft", "liquid", "solid"];
+    
+    // In a real ML model, we'd analyze texture, edges, and shape
+    // For now, weighted toward normal for better simulation
+    const weights = [0.5, 0.2, 0.15, 0.15]; // 50% chance of normal consistency
+    
+    let random = Math.random();
+    let consistency: PoopConsistency = "normal";
+    
+    // Find consistency based on weight distribution
+    let accumulatedWeight = 0;
+    for (let i = 0; i < consistencyOptions.length; i++) {
+      accumulatedWeight += weights[i];
+      if (random <= accumulatedWeight) {
+        consistency = consistencyOptions[i];
+        break;
+      }
+    }
+    
+    setTimeout(() => resolve(consistency), 100);
+  });
+};

@@ -1,11 +1,14 @@
 
 import { useState } from "react";
 import { PoopEntry, PoopConsistency, PoopColor, HealthInsight } from "@/types";
+import { analyzePoopImage } from "@/utils/imageAnalysis";
+import { toast } from "sonner";
 
 interface UsePoopEntryFormProps {
   initialValues?: Partial<PoopEntry>;
   onSubmit: (entry: PoopEntry) => void;
   selectedDogId: string;
+  dogInfo?: any;
 }
 
 interface AIAnalysisResult {
@@ -20,7 +23,8 @@ interface AIAnalysisResult {
 export const usePoopEntryForm = ({
   initialValues = {},
   onSubmit,
-  selectedDogId
+  selectedDogId,
+  dogInfo
 }: UsePoopEntryFormProps) => {
   const [capturedPhoto, setCapturedPhoto] = useState<File | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
@@ -58,10 +62,35 @@ export const usePoopEntryForm = ({
     }));
   };
   
-  const handlePhotoCapture = (file: File, url?: string) => {
+  const handlePhotoCapture = async (file: File, url?: string) => {
     setCapturedPhoto(file);
     if (url) {
       setPhotoUrl(url);
+    }
+    
+    // Automatically analyze the photo with AI
+    try {
+      setIsAnalyzing(true);
+      const result = await analyzePoopImage(file, dogInfo);
+      setAiAnalysisResult(result);
+      
+      // Update form data with AI analysis results
+      if (result.isPoop && result.color && result.consistency) {
+        setFormData(prev => ({
+          ...prev,
+          color: result.color,
+          consistency: result.consistency
+        }));
+        
+        toast.success("Photo analyzed successfully!");
+      } else if (!result.isPoop) {
+        toast.warning("The image doesn't appear to contain a stool sample.");
+      }
+    } catch (error) {
+      console.error("Error analyzing photo:", error);
+      toast.error("Failed to analyze the photo. Please try again.");
+    } finally {
+      setIsAnalyzing(false);
     }
   };
   

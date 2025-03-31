@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import PhotoUpload from "@/components/PhotoUpload";
 import AIAnalysisResult from "@/components/AIAnalysisResult";
-import { PoopEntry, PoopConsistency, PoopColor, HealthInsight } from "@/types";
+import { PoopEntry } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/contexts/AuthContext";
 import PoopEntryForm from "./PoopEntryForm";
 import FormActions from "./FormActions";
-import { PoopEntryRow } from "@/types/supabase";
+import { usePoopEntryForm } from "@/hooks/usePoopEntryForm";
 
 interface TrackEntryFormProps {
   selectedDogId: string;
@@ -18,6 +18,7 @@ interface TrackEntryFormProps {
   photoUrl: string | null;
   initialNewEntry?: Partial<PoopEntry>;
   onChatWithAI?: () => void;
+  dogInfo?: any; // Dog information for better AI analysis
 }
 
 const TrackEntryForm: React.FC<TrackEntryFormProps> = ({ 
@@ -25,76 +26,27 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
   onSubmit,
   photoUrl,
   initialNewEntry = {},
-  onChatWithAI
+  onChatWithAI,
+  dogInfo
 }) => {
   const { user } = useAuth();
-  const [capturedPhoto, setCapturedPhoto] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [newEntry, setNewEntry] = useState<Partial<PoopEntry>>({
-    consistency: "normal",
-    color: "brown",
-    date: new Date().toISOString(),
-    notes: "",
-    location: "",
-    ...initialNewEntry
+  
+  const {
+    formData: newEntry,
+    capturedPhoto,
+    isAnalyzing,
+    aiAnalysisResult,
+    handleInputChange,
+    handleSelectChange,
+    handlePhotoCapture,
+    handleDateChange
+  } = usePoopEntryForm({
+    initialValues: initialNewEntry,
+    onSubmit: () => {}, // We'll handle submission separately
+    selectedDogId,
+    dogInfo
   });
-  
-  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
-  const [aiAnalysisResult, setAiAnalysisResult] = useState<{
-    isPoop?: boolean;
-    confidence?: number;
-    color?: PoopColor;
-    consistency?: PoopConsistency;
-    colorSpectrum?: string;
-    insights: HealthInsight[];
-  }>({ insights: [] });
-  
-  const handlePhotoCapture = async (file: File) => {
-    setCapturedPhoto(file);
-    
-    setIsAnalyzing(true);
-    setTimeout(() => {
-      setIsAnalyzing(false);
-      const mockResult = {
-        isPoop: true,
-        confidence: 0.92,
-        color: "brown" as PoopColor,
-        consistency: "normal" as PoopConsistency,
-        colorSpectrum: "#654321",
-        insights: [
-          {
-            title: "Healthy Consistency",
-            description: "The stool appears to have normal consistency.",
-            severity: "low" as "low" | "medium" | "high",
-            recommendation: "Continue with current diet and exercise routine."
-          }
-        ]
-      };
-      
-      setAiAnalysisResult(mockResult);
-      
-      setNewEntry(prev => ({ 
-        ...prev, 
-        color: mockResult.color,
-        consistency: mockResult.consistency 
-      }));
-    }, 1500);
-  };
-  
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setNewEntry(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-  
-  const handleSelectChange = (name: string, value: string) => {
-    setNewEntry(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
   
   const handleFormSubmit = async () => {
     if (!selectedDogId) {
@@ -154,8 +106,8 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
         id: `poop-${Date.now()}`,
         dogId: selectedDogId,
         date: newEntry.date || new Date().toISOString(),
-        consistency: newEntry.consistency as PoopConsistency,
-        color: newEntry.color as PoopColor,
+        consistency: newEntry.consistency,
+        color: newEntry.color,
         notes: newEntry.notes,
         tags: newEntry.notes?.split(" ").filter(tag => tag.startsWith("#")) || [],
         location: newEntry.location
@@ -170,16 +122,6 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
       }
       
       onSubmit(newPoopEntry);
-      
-      setNewEntry({
-        consistency: "normal",
-        color: "brown",
-        date: new Date().toISOString(),
-        notes: "",
-        location: ""
-      });
-      setCapturedPhoto(null);
-      setAiAnalysisResult({ insights: [] });
       
       toast.success("Entry saved successfully!");
     } catch (error) {
@@ -222,12 +164,12 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
         
         <PoopEntryForm
           date={newEntry.date || new Date().toISOString()}
-          consistency={newEntry.consistency as PoopConsistency}
-          color={newEntry.color as PoopColor}
+          consistency={newEntry.consistency}
+          color={newEntry.color}
           location={newEntry.location}
           notes={newEntry.notes}
           isUploading={isUploading}
-          onDateChange={(date) => setNewEntry(prev => ({ ...prev, date }))}
+          onDateChange={(date) => handleDateChange(new Date(date))}
           onConsistencyChange={(value) => handleSelectChange("consistency", value)}
           onColorChange={(value) => handleSelectChange("color", value)}
           onInputChange={handleInputChange}

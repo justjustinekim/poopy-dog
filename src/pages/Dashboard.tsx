@@ -8,8 +8,10 @@ import AuthCheck from "@/components/dashboard/AuthCheck";
 import DogSelector from "@/components/dashboard/DogSelector";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
 import { usePoopEntries } from "@/hooks/usePoopEntries";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("track");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -87,8 +89,13 @@ const Dashboard = () => {
   };
   
   const handleChatWithAI = () => {
-    // For now, just navigate to the chat page
-    window.location.href = "/chat";
+    // Navigate to the chat page with photo URL if available
+    navigate("/chat", { 
+      state: { 
+        capturedPhoto: photoUrl,
+        dogInfo: selectedDog
+      }
+    });
   };
   
   if (loading) {
@@ -119,6 +126,7 @@ const Dashboard = () => {
           photoUrl={photoUrl}
           newEntry={newEntry}
           onChatWithAI={handleChatWithAI}
+          dogInfo={selectedDog}
         />
       </div>
     </Container>
