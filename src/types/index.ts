@@ -6,6 +6,16 @@ export interface Dog {
   age: number;
   weight: number;
   imageUrl?: string;
+  dietType?: string;
+  digestiveHealth?: string;
+  poopFrequency?: string;
+  foodSensitivity?: string;
+  digestiveIssues?: string[];
+  personalityTraits?: string[];
+  favoriteTreats?: string;
+  birthdate?: string;
+  microchipped?: boolean;
+  adoptionStory?: string;
 }
 
 export type PoopConsistency = 'solid' | 'soft' | 'liquid' | 'normal';

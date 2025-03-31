@@ -9,13 +9,18 @@ interface OnboardingStepProps {
   totalSteps: number;
   completedSteps: number[];
   onBack: () => void;
+  steps?: Array<{
+    title: string;
+    icon: React.ReactNode;
+  }>;
 }
 
 const OnboardingStep: React.FC<OnboardingStepProps> = ({
   currentStep,
   totalSteps,
   completedSteps,
-  onBack
+  onBack,
+  steps = []
 }) => {
   // Calculate progress percentage
   const progressPercentage = Math.floor((currentStep / totalSteps) * 100);
@@ -49,6 +54,7 @@ const OnboardingStep: React.FC<OnboardingStepProps> = ({
           const stepNumber = index + 1;
           const isCompleted = completedSteps.includes(stepNumber) || stepNumber < currentStep;
           const isCurrent = stepNumber === currentStep;
+          const stepInfo = steps[index];
           
           return (
             <div 
@@ -60,14 +66,19 @@ const OnboardingStep: React.FC<OnboardingStepProps> = ({
             >
               <div 
                 className={cn(
-                  "w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium",
+                  "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium",
                   isCompleted ? "bg-primary text-white" : 
                   isCurrent ? "border-2 border-primary text-primary" : 
                   "bg-gray-200 dark:bg-gray-700 text-gray-500"
                 )}
               >
-                {stepNumber}
+                {stepInfo?.icon || stepNumber}
               </div>
+              {stepInfo && (
+                <span className="text-xs mt-1 max-w-[50px] text-center truncate">
+                  {stepInfo.title}
+                </span>
+              )}
             </div>
           );
         })}
