@@ -20,6 +20,30 @@ const digestiveIssueOptions = [
   { value: "none", label: "No digestive issues", description: "Healthy digestion" },
 ];
 
+// Common dog food brands
+const dogFoodBrands = [
+  { value: "kibble", label: "Dry Kibble (Generic)" },
+  { value: "wet", label: "Wet Food (Generic)" },
+  { value: "raw", label: "Raw Diet" },
+  { value: "homemade", label: "Homemade" },
+  { value: "mixed", label: "Mixed Diet" },
+  { value: "royalCanin", label: "Royal Canin" },
+  { value: "hillsScience", label: "Hill's Science Diet" },
+  { value: "purina", label: "Purina Pro Plan" },
+  { value: "blueBuff", label: "Blue Buffalo" },
+  { value: "iams", label: "IAMS" },
+  { value: "nutro", label: "Nutro" },
+  { value: "merrick", label: "Merrick" },
+  { value: "acana", label: "Acana" },
+  { value: "orijen", label: "Orijen" },
+  { value: "tasteOfTheWild", label: "Taste of the Wild" },
+  { value: "canidae", label: "Canidae" },
+  { value: "wellness", label: "Wellness" },
+  { value: "farmina", label: "Farmina" },
+  { value: "zignature", label: "Zignature" },
+  { value: "other", label: "Other Brand" },
+];
+
 interface DietDigestionStepProps {
   form: UseFormReturn<DogFormValues>;
 }
@@ -45,12 +69,14 @@ const DietDigestionStep: React.FC<DietDigestionStepProps> = ({ form }) => {
                     <SelectValue placeholder="Select a diet type" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
-                  <SelectItem value="kibble">Dry Kibble</SelectItem>
-                  <SelectItem value="wet">Wet Food</SelectItem>
-                  <SelectItem value="raw">Raw Diet</SelectItem>
-                  <SelectItem value="homemade">Homemade</SelectItem>
-                  <SelectItem value="mixed">Mixed Diet</SelectItem>
+                <SelectContent className="max-h-[300px]">
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {dogFoodBrands.map((brand) => (
+                      <SelectItem key={brand.value} value={brand.value}>
+                        {brand.label}
+                      </SelectItem>
+                    ))}
+                  </div>
                 </SelectContent>
               </Select>
               <FormMessage />
