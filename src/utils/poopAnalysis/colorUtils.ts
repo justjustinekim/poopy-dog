@@ -11,7 +11,8 @@ export function getColorForPoopColor(color?: PoopColor): string | undefined {
     "yellow": "#FFD700",
     "red": "#B22222",
     "black": "#2F2F2F",
-    "white": "#F5F5F5"
+    "white": "#F5F5F5",
+    "other": "#A9A9A9" // Default to grey for "other" color
   };
   
   return colorMap[color];

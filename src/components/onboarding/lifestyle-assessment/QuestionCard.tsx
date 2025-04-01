@@ -15,6 +15,7 @@ interface QuestionCardProps {
   onTextareaChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onCheckboxChange: (option: string) => void;
+  onCustomValueChange: (questionId: string, value: string) => void;
   onNext: () => void;
   onPrevious: () => void;
   onSkip: () => void;
@@ -31,6 +32,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   onTextareaChange,
   onInputChange,
   onCheckboxChange,
+  onCustomValueChange,
   onNext,
   onPrevious,
   onSkip,
@@ -54,6 +56,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           onTextareaChange={onTextareaChange}
           onInputChange={onInputChange}
           onCheckboxChange={onCheckboxChange}
+          onCustomValueChange={onCustomValueChange}
         />
 
         <div className="flex justify-between mt-8">

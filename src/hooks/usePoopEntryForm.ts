@@ -28,12 +28,14 @@ export const usePoopEntryForm = ({
 }: UsePoopEntryFormProps) => {
   const [capturedPhoto, setCapturedPhoto] = useState<File | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Partial<PoopEntry>>({
+  const [formData, setFormData] = useState<Partial<PoopEntry> & { customColor?: string, customConsistency?: string }>({
     consistency: "normal",
     color: "brown",
     date: new Date().toISOString(),
     notes: "",
     location: "",
+    customColor: "",
+    customConsistency: "",
     ...initialValues
   });
   
@@ -45,6 +47,13 @@ export const usePoopEntryForm = ({
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+  
+  const handleCustomInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
     }));
   };
   
@@ -112,6 +121,15 @@ export const usePoopEntryForm = ({
       location: formData.location
     };
     
+    // If custom values are used, add them to notes
+    if (formData.consistency === 'other' && formData.customConsistency) {
+      newPoopEntry.notes = `${newPoopEntry.notes || ''} [Custom consistency: ${formData.customConsistency}]`.trim();
+    }
+    
+    if (formData.color === 'other' && formData.customColor) {
+      newPoopEntry.notes = `${newPoopEntry.notes || ''} [Custom color: ${formData.customColor}]`.trim();
+    }
+    
     if (capturedPhoto) {
       newPoopEntry.imageUrl = URL.createObjectURL(capturedPhoto);
     } else if (photoUrl) {
@@ -126,7 +144,9 @@ export const usePoopEntryForm = ({
       color: "brown",
       date: new Date().toISOString(),
       notes: "",
-      location: ""
+      location: "",
+      customColor: "",
+      customConsistency: ""
     });
     setCapturedPhoto(null);
     setPhotoUrl(null);
@@ -142,6 +162,7 @@ export const usePoopEntryForm = ({
     setAiAnalysisResult,
     setIsAnalyzing,
     handleInputChange,
+    handleCustomInputChange,
     handleSelectChange,
     handleDateChange,
     handlePhotoCapture,

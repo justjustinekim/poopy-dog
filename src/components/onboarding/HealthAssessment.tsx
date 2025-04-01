@@ -1,10 +1,11 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, AlertTriangle, Check } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface HealthAssessmentProps {
   onComplete: (data: any) => void;
@@ -15,17 +16,35 @@ const HealthAssessment: React.FC<HealthAssessmentProps> = ({
   onComplete,
   onSkip
 }) => {
-  const [consistency, setConsistency] = React.useState("normal");
-  const [frequency, setFrequency] = React.useState("normal");
-  const [issues, setIssues] = React.useState<string[]>([]);
+  const [consistency, setConsistency] = useState("normal");
+  const [frequency, setFrequency] = useState("normal");
+  const [issues, setIssues] = useState<string[]>([]);
+  const [customConsistency, setCustomConsistency] = useState("");
+  const [customFrequency, setCustomFrequency] = useState("");
+  const [customIssue, setCustomIssue] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onComplete({
+    const data = {
       consistency,
       frequency,
-      issues
-    });
+      issues,
+    };
+    
+    // Add custom values to the data if they exist
+    if (consistency === "other" && customConsistency) {
+      data.customConsistency = customConsistency;
+    }
+    
+    if (frequency === "other" && customFrequency) {
+      data.customFrequency = customFrequency;
+    }
+    
+    if (issues.includes("other") && customIssue) {
+      data.customIssue = customIssue;
+    }
+    
+    onComplete(data);
   };
 
   const toggleIssue = (issue: string) => {
@@ -88,6 +107,23 @@ const HealthAssessment: React.FC<HealthAssessmentProps> = ({
                     <span className="text-sm text-gray-500">Watery, no solid form</span>
                   </Label>
                 </div>
+                
+                <div className="flex items-center space-x-2 rounded-md border p-3">
+                  <RadioGroupItem value="other" id="other-consistency" />
+                  <Label htmlFor="other-consistency" className="flex flex-col cursor-pointer">
+                    <span className="font-medium">Other</span>
+                    <span className="text-sm text-gray-500">Different from options above</span>
+                  </Label>
+                </div>
+                
+                {consistency === "other" && (
+                  <Input
+                    className="mt-2"
+                    placeholder="Describe the consistency"
+                    value={customConsistency}
+                    onChange={(e) => setCustomConsistency(e.target.value)}
+                  />
+                )}
               </RadioGroup>
             </div>
           </CardContent>
@@ -130,6 +166,23 @@ const HealthAssessment: React.FC<HealthAssessmentProps> = ({
                     <span className="text-sm text-gray-500">Varies significantly day to day</span>
                   </Label>
                 </div>
+                
+                <div className="flex items-center space-x-2 rounded-md border p-3">
+                  <RadioGroupItem value="other" id="other-frequency" />
+                  <Label htmlFor="other-frequency" className="flex flex-col cursor-pointer">
+                    <span className="font-medium">Other</span>
+                    <span className="text-sm text-gray-500">Different from options above</span>
+                  </Label>
+                </div>
+                
+                {frequency === "other" && (
+                  <Input
+                    className="mt-2"
+                    placeholder="Describe the frequency"
+                    value={customFrequency}
+                    onChange={(e) => setCustomFrequency(e.target.value)}
+                  />
+                )}
               </RadioGroup>
             </div>
           </CardContent>
@@ -147,6 +200,7 @@ const HealthAssessment: React.FC<HealthAssessmentProps> = ({
                   { id: "vomit", label: "Occasional Vomiting" },
                   { id: "bloat", label: "Bloating or Discomfort" },
                   { id: "eating", label: "Eating Non-Food Items" },
+                  { id: "other", label: "Other Issue" },
                   { id: "none", label: "None of the Above" }
                 ].map(item => (
                   <div 
@@ -164,6 +218,15 @@ const HealthAssessment: React.FC<HealthAssessmentProps> = ({
                     <Label className="cursor-pointer">{item.label}</Label>
                   </div>
                 ))}
+                
+                {issues.includes("other") && (
+                  <Input
+                    className="mt-2"
+                    placeholder="Describe the issue"
+                    value={customIssue}
+                    onChange={(e) => setCustomIssue(e.target.value)}
+                  />
+                )}
               </div>
             </div>
           </CardContent>

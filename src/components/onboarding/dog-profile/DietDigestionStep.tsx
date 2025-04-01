@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { Heart } from "lucide-react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ const digestiveIssueOptions = [
   { value: "gas", label: "Excessive gas", description: "Flatulence or bloating" },
   { value: "poorAppetite", label: "Poor appetite", description: "Doesn't seem interested in food" },
   { value: "eatingNonFood", label: "Eats non-food items", description: "Grass, paper, etc." },
+  { value: "other", label: "Other issue", description: "Specify another issue" },
   { value: "none", label: "No digestive issues", description: "Healthy digestion" },
 ];
 
@@ -63,6 +65,32 @@ interface DietDigestionStepProps {
 }
 
 const DietDigestionStep: React.FC<DietDigestionStepProps> = ({ form }) => {
+  const [showCustomDiet, setShowCustomDiet] = useState(form.getValues().dietType === "other");
+  const [showCustomIssue, setShowCustomIssue] = useState(false);
+  const [customIssue, setCustomIssue] = useState("");
+  
+  const handleDietTypeChange = (value: string) => {
+    form.setValue("dietType", value);
+    setShowCustomDiet(value === "other");
+  };
+
+  // Check if "other" is included in digestive issues
+  const digestiveIssues = form.watch("digestiveIssues") || [];
+  React.useEffect(() => {
+    setShowCustomIssue(digestiveIssues.includes("other"));
+  }, [digestiveIssues]);
+  
+  // Handle adding custom digestive issue
+  const handleCustomIssueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCustomIssue(e.target.value);
+    
+    // Store the custom issue value in the notes or a specific field
+    const currentFavoriteTreats = form.getValues().favoriteTreats || "";
+    if (e.target.value && !currentFavoriteTreats.includes("[Custom issue:")) {
+      form.setValue("favoriteTreats", `${currentFavoriteTreats} [Custom issue: ${e.target.value}]`.trim());
+    }
+  };
+
   return (
     <Card className="animate-fade-in">
       <CardContent className="pt-6">
@@ -77,7 +105,7 @@ const DietDigestionStep: React.FC<DietDigestionStepProps> = ({ form }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Primary Diet</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={handleDietTypeChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a diet type" />
@@ -93,6 +121,26 @@ const DietDigestionStep: React.FC<DietDigestionStepProps> = ({ form }) => {
                   </div>
                 </SelectContent>
               </Select>
+              {showCustomDiet && (
+                <Input 
+                  className="mt-2" 
+                  placeholder="Specify your dog's diet"
+                  value={(form.getValues().favoriteTreats?.match(/\[Custom diet: (.*?)\]/) || ['', ''])[1]}
+                  onChange={(e) => {
+                    const currentFavoriteTreats = form.getValues().favoriteTreats || "";
+                    const customDietRegex = /\[Custom diet: (.*?)\]/;
+                    
+                    if (customDietRegex.test(currentFavoriteTreats)) {
+                      form.setValue("favoriteTreats", currentFavoriteTreats.replace(
+                        customDietRegex, 
+                        `[Custom diet: ${e.target.value}]`
+                      ));
+                    } else {
+                      form.setValue("favoriteTreats", `${currentFavoriteTreats} [Custom diet: ${e.target.value}]`.trim());
+                    }
+                  }}
+                />
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -132,8 +180,19 @@ const DietDigestionStep: React.FC<DietDigestionStepProps> = ({ form }) => {
                   <SelectItem value="2-3">2-3 times daily</SelectItem>
                   <SelectItem value="4+">4+ times daily</SelectItem>
                   <SelectItem value="irregular">Irregular</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
+              {field.value === "other" && (
+                <Input 
+                  className="mt-2" 
+                  placeholder="Specify frequency"
+                  onChange={(e) => {
+                    const currentNotes = form.getValues().adoptionStory || "";
+                    form.setValue("adoptionStory", `${currentNotes} [Custom poop frequency: ${e.target.value}]`.trim());
+                  }}
+                />
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -166,6 +225,14 @@ const DietDigestionStep: React.FC<DietDigestionStepProps> = ({ form }) => {
                   </div>
                 ))}
               </div>
+              {showCustomIssue && (
+                <Input 
+                  className="mt-2" 
+                  placeholder="Specify digestive issue"
+                  value={customIssue}
+                  onChange={handleCustomIssueChange}
+                />
+              )}
               <FormMessage />
             </FormItem>
           )}

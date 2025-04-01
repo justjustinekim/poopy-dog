@@ -18,8 +18,8 @@ export interface Dog {
   adoptionStory?: string;
 }
 
-export type PoopConsistency = 'solid' | 'soft' | 'liquid' | 'normal';
-export type PoopColor = 'brown' | 'green' | 'yellow' | 'red' | 'black' | 'white';
+export type PoopConsistency = 'solid' | 'soft' | 'liquid' | 'normal' | 'other';
+export type PoopColor = 'brown' | 'green' | 'yellow' | 'red' | 'black' | 'white' | 'other';
 
 export interface PoopEntry {
   id: string;

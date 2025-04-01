@@ -33,14 +33,16 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
   const [isUploading, setIsUploading] = useState<boolean>(false);
   
   const {
-    formData: newEntry,
+    formData,
     capturedPhoto,
     isAnalyzing,
     aiAnalysisResult,
     handleInputChange,
+    handleCustomInputChange,
     handleSelectChange,
     handlePhotoCapture,
-    handleDateChange
+    handleDateChange,
+    handleSubmit
   } = usePoopEntryForm({
     initialValues: initialNewEntry,
     onSubmit: () => {}, // We'll handle submission separately
@@ -84,6 +86,17 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
       } else if (photoUrl) {
         imagePath = photoUrl.includes('poop_images') ? photoUrl.split('poop_images/')[1] : null;
       }
+
+      // Add custom values to notes if they exist
+      let notes = formData.notes || null;
+      
+      if (formData.consistency === 'other' && formData.customConsistency) {
+        notes = `${notes || ''} [Custom consistency: ${formData.customConsistency}]`.trim();
+      }
+      
+      if (formData.color === 'other' && formData.customColor) {
+        notes = `${notes || ''} [Custom color: ${formData.customColor}]`.trim();
+      }
       
       const { error: insertError } = await supabase
         .from('poop_entries')
@@ -91,11 +104,11 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
           user_id: user.id,
           dog_id: selectedDogId,
           image_path: imagePath,
-          consistency: newEntry.consistency as any,
-          color: newEntry.color as any,
-          date: newEntry.date || new Date().toISOString(),
-          notes: newEntry.notes || null,
-          location: newEntry.location || null,
+          consistency: formData.consistency as any,
+          color: formData.color as any,
+          date: formData.date || new Date().toISOString(),
+          notes: notes,
+          location: formData.location || null,
         } as any);
       
       if (insertError) {
@@ -105,12 +118,12 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
       const newPoopEntry: PoopEntry = {
         id: `poop-${Date.now()}`,
         dogId: selectedDogId,
-        date: newEntry.date || new Date().toISOString(),
-        consistency: newEntry.consistency,
-        color: newEntry.color,
-        notes: newEntry.notes,
-        tags: newEntry.notes?.split(" ").filter(tag => tag.startsWith("#")) || [],
-        location: newEntry.location
+        date: formData.date || new Date().toISOString(),
+        consistency: formData.consistency,
+        color: formData.color,
+        notes: notes,
+        tags: notes?.split(" ").filter(tag => tag.startsWith("#")) || [],
+        location: formData.location
       };
       
       if (imagePath) {
@@ -163,16 +176,19 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
         </div>
         
         <PoopEntryForm
-          date={newEntry.date || new Date().toISOString()}
-          consistency={newEntry.consistency}
-          color={newEntry.color}
-          location={newEntry.location}
-          notes={newEntry.notes}
+          date={formData.date || new Date().toISOString()}
+          consistency={formData.consistency}
+          color={formData.color}
+          location={formData.location}
+          notes={formData.notes}
           isUploading={isUploading}
+          customConsistency={formData.customConsistency}
+          customColor={formData.customColor}
           onDateChange={(date) => handleDateChange(new Date(date))}
           onConsistencyChange={(value) => handleSelectChange("consistency", value)}
           onColorChange={(value) => handleSelectChange("color", value)}
           onInputChange={handleInputChange}
+          onCustomInputChange={handleCustomInputChange}
         />
       </div>
     </div>
