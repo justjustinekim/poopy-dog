@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Home, Camera, Dog, Trophy, MessageSquare, X } from "lucide-react";
+import { Home, Camera, Dog, Trophy, MessageSquare, X, PawPrint } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
@@ -35,7 +35,8 @@ const AppNav: React.FC = () => {
       name: "Track",
       icon: Camera,
       onClick: () => setCameraOpen(true),
-      path: null
+      path: null,
+      badge: "💩"
     },
     {
       name: "Achievements",
@@ -64,28 +65,39 @@ const AppNav: React.FC = () => {
   
   return (
     <>
-      <nav className="tab-bar grid grid-cols-5">
+      <nav className="tab-bar grid grid-cols-5 rounded-t-xl">
         {navItems.map((item) => (
           item.path ? (
             <Link 
               key={item.name}
               to={item.path}
               className={cn(
-                "tab-button flex flex-col items-center justify-center p-3",
+                "tab-button flex flex-col items-center justify-center p-3 relative",
                 location.pathname === item.path && "active"
               )}
               aria-label={item.name}
             >
               <item.icon className="h-6 w-6" />
+              {item.badge && (
+                <span className="absolute -top-1 -right-1 text-lg scale-130">{item.badge}</span>
+              )}
             </Link>
           ) : (
             <button
               key={item.name}
               onClick={item.onClick}
-              className="tab-button flex flex-col items-center justify-center p-3"
+              className="tab-button flex flex-col items-center justify-center p-3 relative"
               aria-label={item.name}
             >
               <item.icon className="h-6 w-6" />
+              {item.badge && (
+                <span className="absolute top-1 -right-1 text-lg scale-130">{item.badge}</span>
+              )}
+              {item.name === "Track" && (
+                <div className="absolute -top-1 -right-1 bg-primary/10 rounded-full p-1">
+                  <PawPrint size={12} className="text-primary fill-primary/20" />
+                </div>
+              )}
             </button>
           )
         ))}
@@ -104,6 +116,13 @@ const AppNav: React.FC = () => {
           >
             <X className="h-6 w-6" />
           </button>
+          
+          {/* Playful elements in camera view */}
+          <div className="absolute bottom-24 right-6 z-[101] animate-float">
+            <div className="bg-white/90 rounded-full p-3 shadow-lg">
+              <span className="text-2xl">💩</span>
+            </div>
+          </div>
         </div>
       )}
     </>

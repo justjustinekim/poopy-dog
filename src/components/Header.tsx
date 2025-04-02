@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Dog, Menu, X, Trophy, LogIn } from "lucide-react";
+import { Dog, Menu, X, Trophy, LogIn, PawPrint } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
@@ -63,7 +63,10 @@ const Header: React.FC = () => {
     return (
       <header className="app-bar rounded-b-xl">
         <Link to="/" className="flex items-center space-x-2">
-          <Dog className="h-6 w-6 text-white wiggle" />
+          <div className="relative">
+            <Dog className="h-6 w-6 text-white wiggle" />
+            <span className="absolute -top-1 -right-1 scale-130">💩</span>
+          </div>
           <span className="text-xl font-bold tracking-tight">PoopyDog</span>
         </Link>
         
@@ -105,6 +108,7 @@ const Header: React.FC = () => {
               <div className="relative">
                 <Dog className="h-8 w-8 text-primary animate-float relative z-10" />
                 <div className="absolute inset-0 bg-primary/20 rounded-full blur-md -z-10"></div>
+                <span className="absolute -top-2 -right-2 poop-emoji-small">💩</span>
               </div>
               <span className="text-xl font-bold tracking-tight cartoon-text">PoopyDog</span>
               <Badge className="ml-2 hidden md:flex bg-yellow-400 text-primary border-none">BETA</Badge>
@@ -130,7 +134,7 @@ const Header: React.FC = () => {
             ))}
             <Button 
               size="sm" 
-              className="ml-4 rounded-xl font-medium cartoon-text"
+              className="ml-4 rounded-xl font-medium cartoon-text relative"
               onClick={handleAuthAction}
             >
               {user ? "Sign Out" : (
@@ -139,6 +143,9 @@ const Header: React.FC = () => {
                   Sign In
                 </>
               )}
+              <div className="absolute -top-2 -right-1 paw-stamp w-5 h-5">
+                <PawPrint size={14} className="text-black fill-black transform rotate-225" />
+              </div>
             </Button>
           </nav>
 
@@ -184,10 +191,13 @@ const Header: React.FC = () => {
           ))}
           <div className="pt-4">
             <Button 
-              className="w-full rounded-xl font-medium cartoon-text"
+              className="w-full rounded-xl font-medium cartoon-text relative"
               onClick={handleAuthAction}
             >
               {user ? "Sign Out" : "Sign In"}
+              <div className="absolute -top-2 -right-1 paw-stamp w-5 h-5">
+                <PawPrint size={14} className="text-black fill-black transform rotate-225" />
+              </div>
             </Button>
           </div>
         </div>
