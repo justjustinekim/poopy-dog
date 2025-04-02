@@ -7,7 +7,7 @@ import { useUserRewards } from "@/hooks/useUserRewards";
 import AchievementStats from "@/components/achievements/AchievementStats";
 import AchievementList from "@/components/achievements/AchievementList";
 import RewardsShopDialog from "@/components/achievements/RewardsShopDialog";
-import Challenges from "@/components/Challenges";
+import Challenges from "@/components/challenges/Challenges";
 
 const Achievements: React.FC = () => {
   const {
