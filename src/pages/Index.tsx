@@ -1,7 +1,7 @@
 
-// Updated landing page with cute dog graphic as main element
+// Updated landing page with cute dog graphic as main element and playful UI elements
 import React from "react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, PawPrint } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -59,15 +59,19 @@ const Index: React.FC = () => {
               />
             </div>
             
-            {/* Floating poop emoji decorations */}
+            {/* Floating poop emoji decorations - now 30% bigger */}
             <div className="absolute -top-6 -right-4 animate-float delay-300">
-              <div className="w-10 h-10 bg-brown-300 rounded-full flex items-center justify-center">
-                <span role="img" aria-label="poop" className="text-xl">💩</span>
+              <div className="w-13 h-13 bg-brown-300 rounded-full flex items-center justify-center scale-130">
+                <span role="img" aria-label="poop" className="text-2xl">💩</span>
+                {/* Score bubble */}
+                <div className="absolute -top-2 -right-2 bg-yellow-400 text-primary text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-white dark:border-gray-800 animate-pulse">
+                  +5
+                </div>
               </div>
             </div>
             <div className="absolute top-12 -left-6 animate-float delay-700">
-              <div className="w-8 h-8 bg-brown-200 rounded-full flex items-center justify-center">
-                <span role="img" aria-label="poop" className="text-lg">💩</span>
+              <div className="w-10 h-10 bg-brown-200 rounded-full flex items-center justify-center scale-130">
+                <span role="img" aria-label="poop" className="text-xl">💩</span>
               </div>
             </div>
             
@@ -97,13 +101,20 @@ const Index: React.FC = () => {
         
         {/* Bottom section with buttons */}
         <div className="px-4 sm:px-8 space-y-4 mt-auto">
-          <Button 
-            size="lg" 
-            onClick={handleGetStarted} 
-            className="w-full py-6 rounded-full text-lg font-semibold shadow-lg"
-          >
-            Get started
-          </Button>
+          <div className="relative">
+            <Button 
+              size="lg" 
+              onClick={handleGetStarted} 
+              className="w-full py-6 rounded-full text-lg font-semibold shadow-lg"
+            >
+              Get started
+            </Button>
+            
+            {/* Paw print on top right corner of button */}
+            <div className="absolute -top-3 -right-2 z-10 transform rotate-12 animate-float">
+              <PawPrint size={32} className="text-primary fill-primary/20" />
+            </div>
+          </div>
           
           <div className="text-center">
             <button 
