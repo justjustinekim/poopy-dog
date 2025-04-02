@@ -15,6 +15,8 @@ export interface Dog {
   birthdate?: string;
   microchipped?: boolean;
   adoptionStory?: string;
+  healthAssessment?: any;
+  lifestyleData?: any;
 }
 
 export type PoopConsistency = 'solid' | 'soft' | 'liquid' | 'normal' | 'other';
