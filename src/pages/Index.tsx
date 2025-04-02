@@ -50,45 +50,52 @@ const Index: React.FC = () => {
         {/* Middle section with cute dog illustration */}
         <div className="flex-1 flex items-center justify-center relative mb-6">
           <div className="w-64 h-64 sm:w-80 sm:h-80 relative">
-            {/* Cute dog illustration */}
+            {/* Cute dog illustration - updated to look more like a Golden Retriever */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-full h-full flex items-center justify-center">
                 <svg viewBox="0 0 200 200" className="w-full h-full">
-                  {/* Dog body - round and cute */}
+                  {/* Dog body - golden retriever style */}
                   <ellipse cx="100" cy="110" rx="70" ry="65" className="fill-[#F9D7A2]" />
                   
-                  {/* Dog ears */}
-                  <ellipse cx="50" cy="60" rx="25" ry="30" className="fill-[#E8C28F] transform -rotate-12" />
-                  <ellipse cx="150" cy="60" rx="25" ry="30" className="fill-[#E8C28F] transform rotate-12" />
-                  
-                  {/* Dog inner ears */}
-                  <ellipse cx="50" cy="60" rx="16" ry="20" className="fill-[#EB9A87] transform -rotate-12" />
-                  <ellipse cx="150" cy="60" rx="16" ry="20" className="fill-[#EB9A87] transform rotate-12" />
+                  {/* Dog ears - floppy golden retriever style */}
+                  <ellipse cx="55" cy="65" rx="28" ry="32" className="fill-[#F0C171] transform -rotate-15" />
+                  <ellipse cx="145" cy="65" rx="28" ry="32" className="fill-[#F0C171] transform rotate-15" />
                   
                   {/* Dog head */}
-                  <circle cx="100" cy="80" r="50" className="fill-[#F9D7A2]" />
+                  <circle cx="100" cy="80" r="48" className="fill-[#F9D7A2]" />
                   
                   {/* Dog snout */}
-                  <ellipse cx="100" cy="95" rx="25" ry="20" className="fill-[#FCEECF]" />
-                  <ellipse cx="100" cy="103" rx="15" ry="10" className="fill-[#D19271]" />
+                  <ellipse cx="100" cy="98" rx="28" ry="22" className="fill-[#F5E2B8]" />
+                  <ellipse cx="100" cy="105" rx="16" ry="10" className="fill-[#8B5A2B]" />
+                  
+                  {/* Dog tongue */}
+                  <ellipse cx="100" cy="110" rx="8" ry="4" className="fill-[#FF9999]" />
                   
                   {/* Dog eyes */}
-                  <circle cx="80" cy="75" r="6" className="fill-[#4A4A4A]" />
-                  <circle cx="120" cy="75" r="6" className="fill-[#4A4A4A]" />
+                  <circle cx="82" cy="75" r="5" className="fill-[#4A4A4A]" />
+                  <circle cx="118" cy="75" r="5" className="fill-[#4A4A4A]" />
                   
                   {/* Dog eyes shine */}
-                  <circle cx="82" cy="73" r="2" className="fill-white" />
-                  <circle cx="122" cy="73" r="2" className="fill-white" />
+                  <circle cx="84" cy="73" r="2" className="fill-white" />
+                  <circle cx="120" cy="73" r="2" className="fill-white" />
+                  
+                  {/* Dog eyebrows */}
+                  <path d="M76,68 Q82,66 88,68" stroke="#A87D42" strokeWidth="1.5" fill="none" />
+                  <path d="M112,68 Q118,66 124,68" stroke="#A87D42" strokeWidth="1.5" fill="none" />
                   
                   {/* Dog smile */}
-                  <path d="M90,90 Q100,100 110,90" stroke="#4A4A4A" strokeWidth="2.5" fill="none" />
+                  <path d="M88,95 Q100,102 112,95" stroke="#4A4A4A" strokeWidth="2" fill="none" />
                   
                   {/* Dog blush */}
                   <circle cx="75" cy="90" r="8" className="fill-[#FFA6A6] opacity-40" />
                   <circle cx="125" cy="90" r="8" className="fill-[#FFA6A6] opacity-40" />
                   
-                  {/* Dog spot on back */}
-                  <ellipse cx="120" cy="130" rx="20" ry="15" className="fill-[#E8C28F]" />
+                  {/* Darker fur patches */}
+                  <ellipse cx="130" cy="125" rx="25" ry="20" className="fill-[#E8B05F]" />
+                  <ellipse cx="70" cy="125" rx="20" ry="15" className="fill-[#E8B05F]" />
+                  
+                  {/* Tail */}
+                  <path d="M35,100 Q25,80 35,60" stroke="#F0C171" strokeWidth="12" fill="none" strokeLinecap="round" />
                 </svg>
               </div>
             </div>

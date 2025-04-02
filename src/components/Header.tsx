@@ -19,6 +19,11 @@ const Header: React.FC = () => {
   const isHomePage = location.pathname === "/";
   const isAppPage = !isHomePage;
 
+  // If user is not logged in and on the homepage, don't show header
+  if (!user && isHomePage) {
+    return null;
+  }
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
