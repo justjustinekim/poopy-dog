@@ -113,7 +113,7 @@ const Index: React.FC = () => {
             {/* Paw print stamp */}
             <div className="absolute -top-3 -right-2 z-10">
               <div className="bg-white dark:bg-white rounded-full w-9 h-9 flex items-center justify-center shadow-md transform rotate-12 animate-float">
-                <PawPrint size={28} className="text-black fill-black/20" />
+                <PawPrint size={28} className="text-black fill-black transform rotate-225" />
               </div>
             </div>
           </div>
