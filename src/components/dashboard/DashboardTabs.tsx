@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dog, HealthInsight, PoopEntry } from "@/types";
@@ -6,6 +7,9 @@ import HealthInsightsOverview from "./HealthInsightsOverview";
 import PoopCalendar from "@/components/PoopCalendar";
 import TrackEntryForm from "./TrackEntryForm";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import LeaderboardCard from "@/components/social/LeaderboardCard";
 
 interface DashboardTabsProps {
   activeTab: string;
