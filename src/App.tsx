@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -71,7 +70,8 @@ const AppRoutes = () => {
           title: "Welcome to PoopyDog",
           description: "You've taken the first step to better dog health!",
           icon: "🐶",
-          unlocked: true
+          unlocked: true,
+          achievementType: "standard"
         });
         setShowAchievement(true);
         localStorage.setItem('hasSeenAchievementDemo', 'true');
@@ -87,7 +87,8 @@ const AppRoutes = () => {
           icon: "💔",
           isNegative: true,
           unlocked: true,
-          penaltyPoints: 50
+          penaltyPoints: 50,
+          achievementType: "standard"
         });
         setShowAchievement(true);
         localStorage.setItem('hasSeenNegativeAchievementDemo', 'true');
@@ -95,12 +96,11 @@ const AppRoutes = () => {
     }
   }, [achievements, loading]);
   
-  // Check for newly unlocked achievements
   useEffect(() => {
     if (!loading && achievements.length > 0) {
       const newlyUnlocked = achievements.find(
         a => a.unlocked && a.dateUnlocked && 
-        new Date(a.dateUnlocked).getTime() > (Date.now() - 1000 * 10) // Unlocked in last 10 seconds
+        new Date(a.dateUnlocked).getTime() > (Date.now() - 1000 * 10)
       );
       
       if (newlyUnlocked && !showAchievement) {
