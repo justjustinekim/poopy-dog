@@ -222,21 +222,13 @@ const LifestyleAssessment: React.FC<LifestyleAssessmentProps> = ({
           onInputChange={handleInputChange}
           onCheckboxChange={handleCheckboxChange}
           onCustomValueChange={handleCustomValueChange}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+          onSkip={onSkip}
+          isFirstQuestion={currentQuestionIndex === 0}
+          isLastQuestion={currentQuestionIndex === questions.length - 1}
         />
       </Card>
-      
-      <div className="flex justify-between">
-        <Button
-          variant="outline"
-          onClick={currentQuestionIndex === 0 ? onSkip : handlePrevious}
-        >
-          {currentQuestionIndex === 0 ? "Skip Assessment" : "Previous"}
-        </Button>
-        
-        <Button onClick={handleNext}>
-          {currentQuestionIndex < questions.length - 1 ? "Next" : "Complete"}
-        </Button>
-      </div>
     </div>
   );
 };
