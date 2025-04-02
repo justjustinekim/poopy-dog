@@ -53,7 +53,7 @@ const Index: React.FC = () => {
             {/* Puppy image with poop */}
             <div className="absolute inset-0 flex items-center justify-center">
               <img 
-                src="/public/lovable-uploads/cd27b7ca-bdf1-4c2c-88e6-e8f78a5bb6e1.png" 
+                src="/public/lovable-uploads/6efeee09-4adc-467d-8637-8973c5cef9fa.png" 
                 alt="Cute cartoon puppy with poop" 
                 className="w-full h-full object-contain"
               />
