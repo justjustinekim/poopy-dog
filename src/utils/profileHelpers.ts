@@ -16,6 +16,7 @@ export async function fetchProfileWithFallback(userId: string) {
       throw error;
     }
     
+    // Safely cast the data to Profile type after confirming it's valid
     return { data: data as Profile, error: null };
   } catch (error) {
     console.error('Error in profile fallback:', error);
