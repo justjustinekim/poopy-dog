@@ -1,20 +1,9 @@
-
 import React, { useState } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-
-// Fix for Hero component propTypes
-declare module "@/components/Hero" {
-  interface HeroProps {
-    title: string;
-    subtitle: string;
-    ctaText: string;
-    onCtaClick: () => void;
-  }
-}
 
 const Index: React.FC = () => {
   const navigate = useNavigate();
