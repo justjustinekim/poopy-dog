@@ -1,4 +1,5 @@
 
+// Updated landing page with better styling and no reference image
 import React from "react";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -46,14 +47,21 @@ const Index: React.FC = () => {
           </p>
         </div>
         
-        {/* Middle section with illustration */}
+        {/* Middle section with illustrated elements */}
         <div className="flex-1 flex items-center justify-center relative mb-6">
-          <div className="relative w-64 h-64 sm:w-80 sm:h-80">
-            <img 
-              src="/lovable-uploads/d51274d1-b282-4318-af16-70114321f351.png" 
-              alt="Happy dog with poop chart" 
-              className="w-full h-full object-contain"
-            />
+          <div className="w-64 h-64 sm:w-80 sm:h-80 relative">
+            {/* Dog silhouette illustration */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-full h-full bg-[#91AE84]/20 rounded-full flex items-center justify-center">
+                <svg viewBox="0 0 200 200" className="w-3/4 h-3/4 fill-[#768F6A]">
+                  <path d="M140,60 C160,50 180,50 190,70 C200,90 190,110 180,120 C170,130 160,140 160,160 C160,180 140,190 120,190 C100,190 80,180 80,160 C80,140 70,130 60,120 C50,110 40,90 50,70 C60,50 80,50 100,60 C120,70 130,70 140,60 Z" />
+                  <circle cx="80" cy="80" r="10" className="fill-black" />
+                  <circle cx="130" cy="80" r="10" className="fill-black" />
+                  <path d="M90,110 C100,120 110,120 120,110" stroke="black" strokeWidth="3" fill="none" />
+                </svg>
+              </div>
+            </div>
+            
             {/* Floating poop emoji decorations */}
             <div className="absolute -top-6 -right-4 animate-float delay-300">
               <div className="w-10 h-10 bg-brown-300 rounded-full flex items-center justify-center">
@@ -68,6 +76,17 @@ const Index: React.FC = () => {
             <div className="absolute bottom-8 -right-8 animate-float">
               <div className="w-12 h-12 bg-brown-400 rounded-full flex items-center justify-center">
                 <span role="img" aria-label="poop" className="text-2xl">💩</span>
+              </div>
+            </div>
+            
+            {/* Chart illustration */}
+            <div className="absolute -bottom-4 -left-4 bg-white dark:bg-gray-800 p-2 rounded-lg shadow-md transform rotate-3">
+              <div className="flex items-end h-16 gap-1">
+                <div className="w-3 bg-primary h-5 rounded-t"></div>
+                <div className="w-3 bg-primary h-8 rounded-t"></div>
+                <div className="w-3 bg-primary h-12 rounded-t"></div>
+                <div className="w-3 bg-primary h-7 rounded-t"></div>
+                <div className="w-3 bg-primary h-10 rounded-t"></div>
               </div>
             </div>
           </div>
