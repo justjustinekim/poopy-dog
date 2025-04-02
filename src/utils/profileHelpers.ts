@@ -7,7 +7,7 @@ export async function fetchProfileWithFallback(userId: string) {
   try {
     // Use type assertions to handle 'profiles' table not being in type definitions
     const { data, error } = await supabase
-      .from('profiles')
+      .from('profiles' as any)
       .select('*')
       .eq('id', userId)
       .single();
@@ -28,7 +28,7 @@ export async function updateProfileWithFallback(userId: string, updates: Partial
   try {
     // Use type assertions to handle 'profiles' table not being in type definitions
     const { error } = await supabase
-      .from('profiles')
+      .from('profiles' as any)
       .update(updates)
       .eq('id', userId);
       
