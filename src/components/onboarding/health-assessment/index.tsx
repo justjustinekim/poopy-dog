@@ -2,6 +2,7 @@
 import React from "react";
 import { HealthAssessmentData } from "@/types";
 import HealthAssessmentForm from "./HealthAssessmentForm";
+import { AlertCircle } from "lucide-react";
 
 interface HealthAssessmentProps {
   onComplete: (data: HealthAssessmentData) => void;
@@ -32,5 +33,3 @@ const HealthAssessment: React.FC<HealthAssessmentProps> = ({
 };
 
 export default HealthAssessment;
-
-import { AlertCircle } from "lucide-react";

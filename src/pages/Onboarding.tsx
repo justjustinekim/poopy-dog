@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -5,8 +6,8 @@ import Layout from "@/components/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import OnboardingStep from "@/components/onboarding/OnboardingStep";
 import DogOnboardingForm from "@/components/onboarding/DogOnboardingForm";
-import LifestyleAssessment from "@/components/onboarding/LifestyleAssessment";
-import HealthAssessment from "@/components/onboarding/HealthAssessment";
+import LifestyleAssessment from "@/components/onboarding/lifestyle-assessment";
+import HealthAssessment from "@/components/onboarding/health-assessment";
 import { Dog } from "@/types";
 import { toast } from "sonner";
 import { 
