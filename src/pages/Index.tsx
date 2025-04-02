@@ -1,4 +1,3 @@
-
 // Updated landing page with cute dog graphic as main element and playful UI elements
 import React from "react";
 import { Sparkles, PawPrint } from "lucide-react";
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Container } from "@/components/ui/Container";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Index: React.FC = () => {
   const navigate = useNavigate();
@@ -21,9 +21,10 @@ const Index: React.FC = () => {
   
   return (
     <div className="relative min-h-screen bg-[#d6f7eb] dark:bg-gray-900 flex flex-col">
-      {/* Header with AI badge */}
+      {/* Header with AI badge and theme toggle */}
       <header className="pt-6 px-6">
-        <div className="flex justify-end">
+        <div className="flex justify-between items-center">
+          <ThemeToggle />
           <div className="bg-primary/10 text-primary px-4 py-1 rounded-full flex items-center gap-1">
             <span className="text-sm font-medium">AI Powered</span>
             <Sparkles size={16} className="animate-pulse" />

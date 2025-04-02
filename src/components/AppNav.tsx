@@ -65,7 +65,7 @@ const AppNav: React.FC = () => {
   
   return (
     <>
-      <nav className="tab-bar grid grid-cols-5 rounded-t-xl">
+      <nav className="tab-bar grid grid-cols-5 rounded-t-xl bg-white/95 dark:bg-gray-800/95 border-t border-gray-100 dark:border-gray-700">
         {navItems.map((item) => (
           item.path ? (
             <Link 
