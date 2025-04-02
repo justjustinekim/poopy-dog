@@ -5,7 +5,7 @@ import { useAchievements } from "@/hooks/useAchievements";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Trophy, Award, Flame, Calendar, AlertCircle, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -110,6 +110,10 @@ const Achievements: React.FC = () => {
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl p-6">
+              <DialogTitle className="sr-only">Rewards Shop</DialogTitle>
+              <DialogDescription className="sr-only">
+                Spend your Poop Coins on rewards and special items
+              </DialogDescription>
               <RewardsShop onClose={() => setShowRewardsShop(false)} />
             </DialogContent>
           </Dialog>

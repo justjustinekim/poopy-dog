@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { RewardItem } from "@/types";
-import { Award, Gift, ThumbsUp } from "lucide-react";
+import { Award, Gift, ThumbsUp, X } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface RewardsShopProps {
   onClose?: () => void;
@@ -14,6 +15,7 @@ interface RewardsShopProps {
 
 const RewardsShop: React.FC<RewardsShopProps> = ({ onClose }) => {
   const { rewards, availableItems, purchaseRewardItem, loading } = useUserRewards();
+  const isMobile = useIsMobile();
 
   const filterItemsByType = (type: RewardItem['type']) => {
     return availableItems.filter(item => item.type === type);
@@ -55,11 +57,30 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ onClose }) => {
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-2xl font-bold">Rewards Shop</h2>
         {onClose && (
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            Close
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onClose}
+            className="flex items-center gap-1"
+            aria-label="Close rewards shop"
+          >
+            <X className="h-4 w-4" />
+            <span className={isMobile ? "sr-only" : ""}>Close</span>
           </Button>
         )}
       </div>
+      
+      {/* Fixed close button for mobile */}
+      {isMobile && onClose && (
+        <Button
+          className="fixed bottom-20 right-4 z-50 rounded-full shadow-lg"
+          size="icon"
+          onClick={onClose}
+          aria-label="Close rewards shop"
+        >
+          <X className="h-6 w-6" />
+        </Button>
+      )}
       
       <div className="flex gap-4 p-4 bg-background rounded-lg border mb-6">
         <div className="flex-1 flex items-center gap-2">
@@ -115,7 +136,7 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ onClose }) => {
         ))}
       </Tabs>
       
-      <div className="border-t pt-4 mt-6">
+      <div className="border-t pt-4 mt-6 pb-16">
         <p className="text-sm text-gray-500 text-center">
           Complete challenges and track consistently to earn more Poop Coins!
         </p>
