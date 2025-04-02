@@ -67,12 +67,12 @@ export async function mockAnalyzePoopImage(imageFile: File): Promise<{
       }
       
       // Generate insights based on color and consistency
-      const insights = isPoop 
+      const insights: HealthInsight[] = isPoop 
         ? generateInsightsFromAnalysis(color, consistency)
         : [{
             title: "Unidentified Sample",
             description: "The image doesn't appear to contain a stool sample, or the quality is insufficient for analysis.",
-            severity: "medium",
+            severity: "medium" as "medium", // Fix: explicitly cast to the union type
             recommendation: "Please take another clear photo of the stool sample."
           }];
       
