@@ -2,6 +2,18 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/contexts/ProfileContext';
 
+// Helper function to check if the data matches the Profile structure
+function isProfile(data: any): data is Profile {
+  return (
+    data &&
+    typeof data.id === 'string' &&
+    (data.username === null || typeof data.username === 'string') &&
+    (data.avatar_url === null || typeof data.avatar_url === 'string') &&
+    typeof data.created_at === 'string' &&
+    typeof data.updated_at === 'string'
+  );
+}
+
 // Fallback function to get a profile when the RPC function isn't available
 export async function fetchProfileWithFallback(userId: string) {
   try {
@@ -16,8 +28,13 @@ export async function fetchProfileWithFallback(userId: string) {
       throw error;
     }
     
-    // Safely cast the data to Profile type after confirming it's valid
-    return { data: data as Profile, error: null };
+    // Verify the data is a Profile before returning it
+    if (isProfile(data)) {
+      return { data, error: null };
+    } else {
+      console.error('Data returned does not match Profile structure:', data);
+      return { data: null, error: new Error('Invalid profile data structure') };
+    }
   } catch (error) {
     console.error('Error in profile fallback:', error);
     return { data: null, error };
