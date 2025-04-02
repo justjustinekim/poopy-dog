@@ -4,6 +4,7 @@ import { Achievement, Challenge } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { AchievementRow, UserAchievementRow, ChallengeRow, UserChallengeRow } from "@/types/supabase";
 
 export const useAchievements = () => {
   const { user } = useAuth();
@@ -42,9 +43,9 @@ export const useAchievements = () => {
       if (userAchievementsError) throw userAchievementsError;
       
       // Map achievements with user progress
-      const mappedAchievements: Achievement[] = achievementsData.map((achievement: any) => {
-        const userAchievement = userAchievementsData?.find(
-          (ua: any) => ua.achievement_id === achievement.id
+      const mappedAchievements: Achievement[] = (achievementsData as AchievementRow[]).map((achievement) => {
+        const userAchievement = (userAchievementsData as UserAchievementRow[])?.find(
+          (ua) => ua.achievement_id === achievement.id
         );
         
         return {
@@ -111,9 +112,9 @@ export const useAchievements = () => {
       if (userChallengesError) throw userChallengesError;
       
       // Map challenges with user progress
-      const mappedChallenges: Challenge[] = challengesData.map((challenge: any) => {
-        const userChallenge = userChallengesData?.find(
-          (uc: any) => uc.challenge_id === challenge.id
+      const mappedChallenges: Challenge[] = (challengesData as ChallengeRow[]).map((challenge) => {
+        const userChallenge = (userChallengesData as UserChallengeRow[])?.find(
+          (uc) => uc.challenge_id === challenge.id
         );
         
         return {
@@ -140,10 +141,10 @@ export const useAchievements = () => {
         .filter(a => a.unlocked && !a.isNegative)
         .length * 50;
       
-      const challengeXP = userChallengesData
-        ?.filter((uc: any) => uc.completed)
-        .reduce((total: number, uc: any) => {
-          const challenge = challengesData.find((c: any) => c.id === uc.challenge_id);
+      const challengeXP = (userChallengesData as UserChallengeRow[])
+        ?.filter((uc) => uc.completed)
+        .reduce((total: number, uc) => {
+          const challenge = (challengesData as ChallengeRow[]).find((c) => c.id === uc.challenge_id);
           return total + (challenge?.points || 0);
         }, 0) || 0;
       
