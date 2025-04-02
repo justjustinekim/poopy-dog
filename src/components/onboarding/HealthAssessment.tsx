@@ -6,9 +6,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, AlertTriangle, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { HealthAssessmentData } from "@/types";
 
 interface HealthAssessmentProps {
-  onComplete: (data: any) => void;
+  onComplete: (data: HealthAssessmentData) => void;
   onSkip: () => void;
 }
 
@@ -25,7 +26,7 @@ const HealthAssessment: React.FC<HealthAssessmentProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const data = {
+    const data: HealthAssessmentData = {
       consistency,
       frequency,
       issues,

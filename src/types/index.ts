@@ -1,4 +1,3 @@
-
 export interface Dog {
   id: string;
   name: string;
@@ -41,7 +40,15 @@ export interface HealthInsight {
   recommendation?: string;
 }
 
-// New types for gamification and social features
+export interface HealthAssessmentData {
+  consistency: string;
+  frequency: string;
+  issues: string[];
+  customConsistency?: string;
+  customFrequency?: string;
+  customIssue?: string;
+}
+
 export interface Achievement {
   id: string;
   title: string;

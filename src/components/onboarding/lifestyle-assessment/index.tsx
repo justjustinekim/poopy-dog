@@ -94,6 +94,13 @@ const LifestyleAssessment: React.FC<LifestyleAssessmentProps> = ({
     });
   };
 
+  const handleCustomValueChange = (questionId: string, value: string) => {
+    setAnswers({
+      ...answers,
+      [questionId]: value,
+    });
+  };
+
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
@@ -120,6 +127,7 @@ const LifestyleAssessment: React.FC<LifestyleAssessmentProps> = ({
         onTextareaChange={handleTextareaChange}
         onInputChange={handleInputChange}
         onCheckboxChange={handleCheckboxChange}
+        onCustomValueChange={handleCustomValueChange}
         onNext={handleNext}
         onPrevious={handlePrevious}
         onSkip={onSkip}
