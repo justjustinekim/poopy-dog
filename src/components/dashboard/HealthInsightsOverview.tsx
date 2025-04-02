@@ -229,7 +229,8 @@ const HealthInsightsOverview: React.FC<HealthInsightsOverviewProps> = ({
                         key={index} 
                         className={`bg-background/50 p-4 rounded-md ${
                           insight.severity === 'high' ? 'border-l-4 border-red-500' : 
-                          insight.severity === 'medium' ? 'border-l-4 border-yellow-500' : ''
+                          insight.severity === 'medium' ? 'border-l-4 border-yellow-500' : 
+                          'border-l-4 border-green-500'
                         }`}
                       >
                         <div className="flex items-start gap-3">
@@ -243,7 +244,11 @@ const HealthInsightsOverview: React.FC<HealthInsightsOverviewProps> = ({
                               <p className={`text-sm mt-2 border-l-2 pl-3 ${
                                 insight.recommendation.toLowerCase().includes('vet') 
                                   ? 'border-red-500 font-medium' 
-                                  : 'border-primary'
+                                  : insight.severity === 'low'
+                                    ? 'border-green-500'
+                                    : insight.severity === 'medium'
+                                      ? 'border-yellow-500'
+                                      : 'border-red-500'
                               }`}>
                                 <span className="font-medium">Recommendation:</span> {insight.recommendation}
                               </p>

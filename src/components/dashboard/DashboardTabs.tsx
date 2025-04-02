@@ -1,16 +1,11 @@
-
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dog, HealthInsight, PoopEntry } from "@/types";
-import { Calendar, AreaChart, PlusCircle, Trophy, Stethoscope } from "lucide-react";
+import { Calendar, AreaChart, PlusCircle } from "lucide-react";
 import HealthInsightsOverview from "./HealthInsightsOverview";
 import PoopCalendar from "@/components/PoopCalendar";
 import TrackEntryForm from "./TrackEntryForm";
-import LeaderboardCard from "@/components/social/LeaderboardCard";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import GutHealthVisualization from "./GutHealthVisualization";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -41,14 +36,10 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({
 }) => {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="mt-6">
-      <TabsList className="grid grid-cols-4 w-full max-w-md">
+      <TabsList className="grid grid-cols-3 w-full max-w-md">
         <TabsTrigger value="insights" className="flex items-center gap-2">
           <AreaChart className="h-4 w-4" />
           <span>Insights</span>
-        </TabsTrigger>
-        <TabsTrigger value="visualization" className="flex items-center gap-2">
-          <Stethoscope className="h-4 w-4" />
-          <span>Gut View</span>
         </TabsTrigger>
         <TabsTrigger value="calendar" className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
@@ -64,14 +55,6 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({
         <HealthInsightsOverview 
           dogName={selectedDog.name} 
           entries={entries} 
-          insights={healthInsights}
-        />
-      </TabsContent>
-      
-      <TabsContent value="visualization" className="mt-6 animate-fade-in">
-        <GutHealthVisualization
-          dog={selectedDog}
-          entries={entries}
           insights={healthInsights}
         />
       </TabsContent>

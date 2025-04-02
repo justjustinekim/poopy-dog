@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useOnboarding } from "../OnboardingProvider";
 import WelcomeStep from "./WelcomeStep";
 import InfoStep from "./InfoStep";
@@ -87,6 +87,11 @@ export const useStepConfig = () => {
 const OnboardingSteps: React.FC = () => {
   const { step } = useOnboarding();
   const steps = useStepConfig();
+  
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
 
   return (
     <div className="min-h-[60vh] flex items-center">

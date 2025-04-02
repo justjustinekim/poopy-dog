@@ -16,7 +16,7 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { dogs, loading: dogsLoading } = useDogs();
   
-  // Change default tab to insights instead of track
+  // Set default tab to insights
   const [activeTab, setActiveTab] = useState("insights");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedDog, setSelectedDog] = useState<Dog | null>(null);
@@ -31,7 +31,7 @@ const Dashboard = () => {
     }
   }, [dogs, selectedDog]);
   
-  const { entries, loading: entriesLoading, addEntry } = usePoopEntries(selectedDog || undefined);
+  const { entries, loading: entriesLoading, addEntry } = usePoopEntries(selectedDog);
   
   useEffect(() => {
     if (selectedDog) {

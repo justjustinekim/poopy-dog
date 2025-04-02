@@ -86,15 +86,18 @@ export const useLifestyleAssessment = (
   const progress = ((currentQuestionIndex) / questions.length) * 100;
   
   const handleNext = () => {
-    // Check if required question is answered
-    if (!answers[currentQuestion.id] && currentQuestion.type !== "multiCheckbox") {
+    // Check if required question is answered, except for last question
+    if (!answers[currentQuestion.id] && 
+        currentQuestion.type !== "multiCheckbox" && 
+        currentQuestionIndex !== questions.length - 1) {
       toast.warning("Please answer the question before proceeding");
       return;
     }
     
-    // Handle multi-select without any selection
+    // Handle multi-select without any selection, except for last question
     if (currentQuestion.type === "multiCheckbox" && 
-        (!selectedOptions[currentQuestion.id] || selectedOptions[currentQuestion.id].length === 0)) {
+        (!selectedOptions[currentQuestion.id] || selectedOptions[currentQuestion.id].length === 0) &&
+        currentQuestionIndex !== questions.length - 1) {
       toast.warning("Please select at least one option");
       return;
     }

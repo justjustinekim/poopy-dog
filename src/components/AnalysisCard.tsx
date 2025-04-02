@@ -78,7 +78,7 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({ insights, className }) => {
                     </Badge>
                   </div>
                   
-                  <p className="text-sm text-gray-600">{insight.description}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{insight.description}</p>
                   
                   {insight.recommendation && (
                     <div className="mt-2 text-sm">
