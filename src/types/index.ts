@@ -1,4 +1,3 @@
-
 export interface Dog {
   id: string;
   name: string;
@@ -61,7 +60,7 @@ export interface Achievement {
   maxProgress?: number;
   dateUnlocked?: string;
   penaltyPoints?: number;
-  achievementType?: 'standard' | 'daily' | 'weekly' | 'monthly';
+  achievementType: 'standard' | 'daily' | 'weekly' | 'monthly' | string;
 }
 
 export interface Challenge {
@@ -76,7 +75,7 @@ export interface Challenge {
   maxProgress: number;
   completed?: boolean;
   dateCompleted?: string;
-  challengeType: 'daily' | 'weekly' | 'monthly';
+  challengeType: 'daily' | 'weekly' | 'monthly' | string;
 }
 
 export interface BadgeType {

@@ -59,7 +59,7 @@ export const useAchievements = () => {
           progress: userAchievement?.progress || 0,
           unlocked: userAchievement?.unlocked || false,
           dateUnlocked: userAchievement?.unlocked_at,
-          achievementType: achievement.achievement_type
+          achievementType: achievement.achievement_type as Achievement['achievementType']
         };
       });
       
@@ -129,7 +129,7 @@ export const useAchievements = () => {
           maxProgress: challenge.condition_value,
           completed: userChallenge?.completed || false,
           dateCompleted: userChallenge?.completed_at,
-          challengeType: challenge.challenge_type
+          challengeType: challenge.challenge_type as Challenge['challengeType']
         };
       });
       
