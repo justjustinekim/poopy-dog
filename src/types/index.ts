@@ -55,9 +55,11 @@ export interface Achievement {
   description: string;
   icon: string;
   unlocked: boolean;
+  isNegative?: boolean;
   progress?: number;
   maxProgress?: number;
   dateUnlocked?: string;
+  penaltyPoints?: number;
 }
 
 export interface BadgeType {

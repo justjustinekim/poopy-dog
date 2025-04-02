@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -58,7 +59,9 @@ const AppRoutes = () => {
   
   useEffect(() => {
     const hasSeenDemo = localStorage.getItem('hasSeenAchievementDemo');
+    const hasSeenNegativeDemo = localStorage.getItem('hasSeenNegativeAchievementDemo');
     
+    // Show welcome achievement first
     if (!hasSeenDemo) {
       setTimeout(() => {
         setCurrentAchievement({
@@ -71,6 +74,22 @@ const AppRoutes = () => {
         setShowAchievement(true);
         localStorage.setItem('hasSeenAchievementDemo', 'true');
       }, 2000);
+    } 
+    // Show negative achievement demo after welcome
+    else if (!hasSeenNegativeDemo) {
+      setTimeout(() => {
+        setCurrentAchievement({
+          id: "streak-breaker",
+          title: "Streak Breaker",
+          description: "You've missed tracking for 3 days in a row after having a streak.",
+          icon: "💔",
+          isNegative: true,
+          unlocked: true,
+          penaltyPoints: 50
+        });
+        setShowAchievement(true);
+        localStorage.setItem('hasSeenNegativeAchievementDemo', 'true');
+      }, 3000);
     }
   }, []);
   

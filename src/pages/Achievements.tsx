@@ -1,15 +1,14 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { Trophy, Star, Gift, Check } from "lucide-react";
+import { Trophy, Star, Gift, Check, AlertCircle, Skull } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Achievement, BadgeType } from "@/types";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 
-// Mock achievements data
 const mockAchievements: Achievement[] = [
   {
     id: "1",
@@ -37,6 +36,35 @@ const mockAchievements: Achievement[] = [
     maxProgress: 5
   },
   {
+    id: "neg-1",
+    title: "Streak Breaker",
+    description: "Missed tracking for 3 days in a row after having a streak",
+    icon: "💔",
+    isNegative: true,
+    unlocked: true,
+    dateUnlocked: "2023-05-20",
+    penaltyPoints: 50
+  },
+  {
+    id: "neg-2",
+    title: "Neglectful Owner",
+    description: "Didn't respond to a health warning for over 48 hours",
+    icon: "😓",
+    isNegative: true,
+    unlocked: false,
+    penaltyPoints: 75
+  },
+  {
+    id: "neg-3",
+    title: "Tardy Tracker",
+    description: "Consistently logged poop data more than 5 hours after the event",
+    icon: "⏰",
+    isNegative: true,
+    unlocked: true,
+    dateUnlocked: "2023-06-01",
+    penaltyPoints: 25
+  },
+  {
     id: "4",
     title: "Social Butterfly",
     description: "Share 3 posts on PupSocial",
@@ -54,7 +82,6 @@ const mockAchievements: Achievement[] = [
   }
 ];
 
-// Mock badges data
 const mockBadges: BadgeType[] = [
   {
     id: "1",
@@ -97,10 +124,10 @@ const Achievements: React.FC = () => {
   const [achievements, setAchievements] = useState<Achievement[]>(mockAchievements);
   const [badges, setBadges] = useState<BadgeType[]>(mockBadges);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showNegative, setShowNegative] = useState(true);
   const { toast } = useToast();
   
   const handleUnlockAchievement = (id: string) => {
-    // In a real app, this would be handled by proper game logic
     setAchievements(prev => 
       prev.map(a => 
         a.id === id 
@@ -135,7 +162,10 @@ const Achievements: React.FC = () => {
     }
   };
   
-  // Render confetti
+  const totalPenaltyPoints = achievements
+    .filter(a => a.isNegative && a.unlocked)
+    .reduce((total, achievement) => total + (achievement.penaltyPoints || 0), 0);
+  
   const renderConfetti = () => {
     if (!showConfetti) return null;
     
@@ -168,6 +198,10 @@ const Achievements: React.FC = () => {
     );
   };
   
+  const filteredAchievements = achievements.filter(achievement => 
+    showNegative ? true : !achievement.isNegative
+  );
+  
   return (
     <Layout className="pb-20">
       {renderConfetti()}
@@ -194,9 +228,21 @@ const Achievements: React.FC = () => {
               <Progress value={expPercentage} className="h-3 mb-4" />
             </div>
             
+            {totalPenaltyPoints > 0 && (
+              <div className="mt-3 mb-4">
+                <Badge variant="destructive" className="text-xs px-2 py-1">
+                  <Skull className="h-3 w-3 mr-1" /> 
+                  -{totalPenaltyPoints} penalty points
+                </Badge>
+                <p className="text-xs text-gray-500 mt-1">
+                  You've lost points from negative achievements!
+                </p>
+              </div>
+            )}
+            
             <div className="flex justify-center gap-3 mt-4">
               <div className="text-center">
-                <div className="text-2xl font-bold">{achievements.filter(a => a.unlocked).length}</div>
+                <div className="text-2xl font-bold">{achievements.filter(a => a.unlocked && !a.isNegative).length}</div>
                 <div className="text-xs text-gray-500">Achievements</div>
               </div>
               <div className="text-center">
@@ -212,10 +258,14 @@ const Achievements: React.FC = () => {
         </Card>
         
         <Tabs defaultValue="achievements" className="mb-10">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="achievements" className="gap-2">
               <Trophy className="h-4 w-4" />
               <span>Achievements</span>
+            </TabsTrigger>
+            <TabsTrigger value="negatives" className="gap-2">
+              <AlertCircle className="h-4 w-4" />
+              <span>Setbacks</span>
             </TabsTrigger>
             <TabsTrigger value="badges" className="gap-2">
               <Star className="h-4 w-4" />
@@ -224,66 +274,133 @@ const Achievements: React.FC = () => {
           </TabsList>
           
           <TabsContent value="achievements" className="space-y-4">
-            {achievements.map((achievement) => (
-              <Card 
-                key={achievement.id} 
-                className={cn(
-                  "transition-all hover:shadow-md",
-                  achievement.unlocked ? "border-green-200" : "border-gray-200",
-                  !achievement.unlocked && "opacity-75"
-                )}
-              >
-                <CardHeader className="p-4 flex flex-row items-center space-y-0 gap-4">
-                  <div 
-                    className={cn(
-                      "h-12 w-12 flex items-center justify-center rounded-full text-xl",
-                      achievement.unlocked 
-                        ? "bg-green-100 text-green-600" 
-                        : "bg-gray-100 text-gray-500"
-                    )}
-                  >
-                    {achievement.icon}
-                  </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-base flex items-center">
-                      {achievement.title}
-                      {achievement.unlocked && (
-                        <Check className="h-4 w-4 ml-2 text-green-500" />
-                      )}
-                    </CardTitle>
-                    <CardDescription>{achievement.description}</CardDescription>
-                    
-                    {achievement.progress !== undefined && achievement.maxProgress && !achievement.unlocked && (
-                      <div className="mt-2">
-                        <div className="flex justify-between text-xs mb-1">
-                          <span>Progress</span>
-                          <span>{achievement.progress}/{achievement.maxProgress}</span>
-                        </div>
-                        <Progress 
-                          value={(achievement.progress / achievement.maxProgress) * 100} 
-                          className="h-2" 
-                        />
-                      </div>
-                    )}
-                    
-                    {achievement.unlocked && achievement.dateUnlocked && (
-                      <div className="text-xs text-green-600 mt-1">
-                        Unlocked on {new Date(achievement.dateUnlocked).toLocaleDateString()}
-                      </div>
-                    )}
-                  </div>
-                  
-                  {!achievement.unlocked && achievement.id === "3" && (
-                    <button 
-                      className="text-xs bg-primary text-white px-2 py-1 rounded hover:bg-primary/90"
-                      onClick={() => handleUnlockAchievement(achievement.id)}
-                    >
-                      Unlock
-                    </button>
+            {filteredAchievements
+              .filter(achievement => !achievement.isNegative)
+              .map((achievement) => (
+                <Card 
+                  key={achievement.id} 
+                  className={cn(
+                    "transition-all hover:shadow-md",
+                    achievement.unlocked ? "border-green-200" : "border-gray-200",
+                    !achievement.unlocked && "opacity-75"
                   )}
-                </CardHeader>
-              </Card>
+                >
+                  <CardHeader className="p-4 flex flex-row items-center space-y-0 gap-4">
+                    <div 
+                      className={cn(
+                        "h-12 w-12 flex items-center justify-center rounded-full text-xl",
+                        achievement.unlocked 
+                          ? "bg-green-100 text-green-600" 
+                          : "bg-gray-100 text-gray-500"
+                      )}
+                    >
+                      {achievement.icon}
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="text-base flex items-center">
+                        {achievement.title}
+                        {achievement.unlocked && (
+                          <Check className="h-4 w-4 ml-2 text-green-500" />
+                        )}
+                      </CardTitle>
+                      <CardDescription>{achievement.description}</CardDescription>
+                      
+                      {achievement.progress !== undefined && achievement.maxProgress && !achievement.unlocked && (
+                        <div className="mt-2">
+                          <div className="flex justify-between text-xs mb-1">
+                            <span>Progress</span>
+                            <span>{achievement.progress}/{achievement.maxProgress}</span>
+                          </div>
+                          <Progress 
+                            value={(achievement.progress / achievement.maxProgress) * 100} 
+                            className="h-2" 
+                          />
+                        </div>
+                      )}
+                      
+                      {achievement.unlocked && achievement.dateUnlocked && (
+                        <div className="text-xs text-green-600 mt-1">
+                          Unlocked on {new Date(achievement.dateUnlocked).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {!achievement.unlocked && achievement.id === "3" && (
+                      <button 
+                        className="text-xs bg-primary text-white px-2 py-1 rounded hover:bg-primary/90"
+                        onClick={() => handleUnlockAchievement(achievement.id)}
+                      >
+                        Unlock
+                      </button>
+                    )}
+                  </CardHeader>
+                </Card>
             ))}
+          </TabsContent>
+          
+          <TabsContent value="negatives" className="space-y-4">
+            {achievements
+              .filter(achievement => achievement.isNegative)
+              .map((achievement) => (
+                <Card 
+                  key={achievement.id} 
+                  className={cn(
+                    "transition-all hover:shadow-md",
+                    achievement.unlocked ? "border-red-200" : "border-gray-200",
+                    !achievement.unlocked && "opacity-75"
+                  )}
+                >
+                  <CardHeader className="p-4 flex flex-row items-center space-y-0 gap-4">
+                    <div 
+                      className={cn(
+                        "h-12 w-12 flex items-center justify-center rounded-full text-xl",
+                        achievement.unlocked 
+                          ? "bg-red-100 text-red-600" 
+                          : "bg-gray-100 text-gray-500"
+                      )}
+                    >
+                      {achievement.icon}
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="text-base flex items-center">
+                        {achievement.title}
+                        {achievement.unlocked && (
+                          <AlertCircle className="h-4 w-4 ml-2 text-red-500" />
+                        )}
+                      </CardTitle>
+                      <CardDescription>{achievement.description}</CardDescription>
+                      
+                      {achievement.unlocked && achievement.dateUnlocked && (
+                        <div className="text-xs text-red-600 mt-1">
+                          Occurred on {new Date(achievement.dateUnlocked).toLocaleDateString()}
+                        </div>
+                      )}
+                      
+                      {achievement.unlocked && achievement.penaltyPoints && (
+                        <div className="text-xs text-red-600 mt-1 font-medium">
+                          Penalty: -{achievement.penaltyPoints} points
+                        </div>
+                      )}
+                    </div>
+                    
+                    {!achievement.unlocked && achievement.id === "neg-2" && (
+                      <button 
+                        className="text-xs bg-destructive text-white px-2 py-1 rounded hover:bg-destructive/90"
+                        onClick={() => handleUnlockAchievement(achievement.id)}
+                      >
+                        Simulate
+                      </button>
+                    )}
+                  </CardHeader>
+                </Card>
+            ))}
+            
+            <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <p className="text-sm text-center text-gray-600 dark:text-gray-300">
+                Setbacks are negative achievements that occur when you miss tracking or don't respond to issues.
+                They can penalize your score but can be remedied by consistent tracking habits!
+              </p>
+            </div>
           </TabsContent>
           
           <TabsContent value="badges" className="grid grid-cols-2 gap-4">

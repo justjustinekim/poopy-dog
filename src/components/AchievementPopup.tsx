@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Achievement } from "@/types";
-import { Trophy, X } from "lucide-react";
+import { Trophy, X, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AchievementPopupProps {
@@ -25,26 +25,45 @@ const AchievementPopup: React.FC<AchievementPopupProps> = ({ achievement, onClos
     return () => clearTimeout(timer);
   }, [onClose]);
   
+  const isNegative = achievement.isNegative;
+  
   return (
     <div className="fixed bottom-20 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
       <div 
         className={cn(
-          "bg-background border border-border rounded-lg shadow-lg w-full max-w-sm overflow-hidden transform transition-all duration-300 pointer-events-auto",
-          isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+          "bg-background border rounded-lg shadow-lg w-full max-w-sm overflow-hidden transform transition-all duration-300 pointer-events-auto",
+          isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0",
+          isNegative 
+            ? "border-red-200" 
+            : "border-border"
         )}
       >
-        <div className="flex items-center p-4 bg-primary/10">
+        <div className={cn(
+          "flex items-center p-4",
+          isNegative 
+            ? "bg-red-50 dark:bg-red-900/20" 
+            : "bg-primary/10"
+        )}>
           <div className="flex-shrink-0 mr-3">
-            <div className="bg-primary/20 p-2 rounded-full">
+            <div className={cn(
+              "p-2 rounded-full",
+              isNegative 
+                ? "bg-red-100/50 dark:bg-red-900/30" 
+                : "bg-primary/20"
+            )}>
               {achievement.icon ? (
                 <span className="text-2xl">{achievement.icon}</span>
+              ) : isNegative ? (
+                <AlertCircle className="h-6 w-6 text-red-500" />
               ) : (
                 <Trophy className="h-6 w-6 text-primary" />
               )}
             </div>
           </div>
           <div className="flex-1">
-            <h3 className="font-bold text-lg">Achievement Unlocked!</h3>
+            <h3 className="font-bold text-lg">
+              {isNegative ? "Setback Occurred!" : "Achievement Unlocked!"}
+            </h3>
             <p className="text-sm text-gray-600 dark:text-gray-300">{achievement.title}</p>
           </div>
           <button 
@@ -61,6 +80,12 @@ const AchievementPopup: React.FC<AchievementPopupProps> = ({ achievement, onClos
         
         <div className="p-4">
           <p className="text-sm">{achievement.description}</p>
+          
+          {isNegative && achievement.penaltyPoints && (
+            <p className="mt-2 text-sm font-medium text-red-600 dark:text-red-400">
+              Penalty: -{achievement.penaltyPoints} points
+            </p>
+          )}
         </div>
       </div>
     </div>
