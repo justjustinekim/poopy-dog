@@ -1,4 +1,3 @@
-
 import { Achievement, Challenge } from "@/types";
 import { AchievementRow, UserAchievementRow, ChallengeRow, UserChallengeRow } from "@/types/supabase";
 import { toast } from "sonner";
@@ -96,14 +95,14 @@ export const notifyNewAchievements = (achievements: Achievement[]): boolean => {
   // Show toast for newly unlocked achievements
   newlyUnlocked.forEach(achievement => {
     toast.success(`Achievement Unlocked: ${achievement.title}`, {
-      description: achievement.description
+      description: `${achievement.description} (+50 Poop Coins!)`
     });
   });
   
   // Show toast for newly triggered negative achievements
   newlyNegative.forEach(achievement => {
     toast.error(`Setback Occurred: ${achievement.title}`, {
-      description: achievement.description
+      description: `${achievement.description} (+1 Stink Badge)`
     });
   });
   
@@ -142,4 +141,36 @@ export const calculatePlayerStats = (
     level: calculatedLevel,
     nextLevelExp: nextLevelXP
   };
+};
+
+/**
+ * Converts challenge points to Poop Coins
+ */
+export const calculatePoopCoins = (
+  achievements: Achievement[],
+  completedChallenges: Challenge[]
+): number => {
+  // Each non-negative achievement gives 50 coins
+  const achievementCoins = achievements
+    .filter(a => a.unlocked && !a.isNegative)
+    .length * 50;
+  
+  // Each completed challenge gives its points value in coins
+  const challengeCoins = completedChallenges
+    .filter(c => c.completed)
+    .reduce((total, c) => total + c.points, 0);
+  
+  return achievementCoins + challengeCoins;
+};
+
+/**
+ * Calculate StinkBadges from negative achievements
+ */
+export const calculateStinkBadges = (
+  achievements: Achievement[]
+): number => {
+  // Each negative achievement gives 1 stink badge
+  return achievements
+    .filter(a => a.unlocked && a.isNegative)
+    .length;
 };

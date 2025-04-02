@@ -76,6 +76,7 @@ export interface Challenge {
   completed?: boolean;
   dateCompleted?: string;
   challengeType: 'daily' | 'weekly' | 'monthly' | string;
+  memeTemplate?: string;
 }
 
 export interface BadgeType {
@@ -125,4 +126,29 @@ export interface Comment {
   content: string;
   createdAt: string;
   likes: number;
+}
+
+export interface RewardItem {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+  cost: number;
+  type: 'badge' | 'filter' | 'flair' | 'emote';
+  unlocked: boolean;
+}
+
+export interface UserRewards {
+  poopCoins: number;
+  stinkBadges: number;
+  unlockedItems: RewardItem[];
+}
+
+export interface MemeTemplate {
+  id: string;
+  name: string;
+  imageUrl: string;
+  topText?: string;
+  bottomText?: string;
+  challengeId?: string;
 }

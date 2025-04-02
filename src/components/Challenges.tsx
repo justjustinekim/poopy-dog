@@ -1,11 +1,15 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Challenge } from "@/types";
 import { cn } from "@/lib/utils";
-import { Calendar, Clock, Award } from "lucide-react";
+import { Calendar, Clock, Award, Gift, Share2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import ChallengeMeme from "./ChallengeMeme";
+import { useUserRewards } from "@/hooks/useUserRewards";
 
 interface ChallengesProps {
   challenges: Challenge[];
@@ -13,6 +17,9 @@ interface ChallengesProps {
 }
 
 const Challenges: React.FC<ChallengesProps> = ({ challenges, loading }) => {
+  const { addPoopCoins } = useUserRewards();
+  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
+  
   // Group challenges by type
   const dailyChallenges = challenges.filter(c => c.challengeType === 'daily');
   const weeklyChallenges = challenges.filter(c => c.challengeType === 'weekly');
@@ -29,6 +36,10 @@ const Challenges: React.FC<ChallengesProps> = ({ challenges, loading }) => {
       default:
         return <Award className="h-4 w-4 mr-1" />;
     }
+  };
+  
+  const handleShareMeme = (challenge: Challenge) => {
+    setSelectedChallenge(challenge);
   };
   
   const renderChallengeList = (title: string, challengeList: Challenge[], typeLabel: string) => {
@@ -56,8 +67,8 @@ const Challenges: React.FC<ChallengesProps> = ({ challenges, loading }) => {
                 className={cn(
                   "h-12 w-12 flex items-center justify-center rounded-full text-xl",
                   challenge.completed 
-                    ? "bg-green-100 text-green-600" 
-                    : "bg-gray-100 text-gray-500"
+                    ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400" 
+                    : "bg-gray-100 text-gray-500 dark:bg-gray-800"
                 )}
               >
                 {challenge.icon}
@@ -65,9 +76,10 @@ const Challenges: React.FC<ChallengesProps> = ({ challenges, loading }) => {
               <div className="flex-1">
                 <CardTitle className="text-base flex items-center">
                   {challenge.title}
-                  <span className="ml-2 text-sm font-normal text-gray-500">
-                    +{challenge.points} XP
-                  </span>
+                  <div className="ml-2 flex items-center text-sm font-normal text-gray-500 dark:text-gray-400">
+                    <Gift className="h-3 w-3 mr-1" />
+                    <span>{challenge.points} Coins</span>
+                  </div>
                 </CardTitle>
                 <CardDescription>{challenge.description}</CardDescription>
                 
@@ -82,11 +94,32 @@ const Challenges: React.FC<ChallengesProps> = ({ challenges, loading }) => {
                   />
                 </div>
                 
-                <div className="text-xs text-gray-500 mt-2">
-                  {challenge.completed 
-                    ? `Completed on ${new Date(challenge.dateCompleted || '').toLocaleDateString()}`
-                    : `Ends ${formatDistanceToNow(new Date(challenge.endDate), { addSuffix: true })}`
-                  }
+                <div className="flex justify-between items-center mt-3">
+                  <div className="text-xs text-gray-500">
+                    {challenge.completed 
+                      ? `Completed on ${new Date(challenge.dateCompleted || '').toLocaleDateString()}`
+                      : `Ends ${formatDistanceToNow(new Date(challenge.endDate), { addSuffix: true })}`
+                    }
+                  </div>
+                  
+                  {challenge.completed && (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="text-xs"
+                          onClick={() => handleShareMeme(challenge)}
+                        >
+                          <Share2 className="h-3 w-3 mr-1" />
+                          Share
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-md p-0">
+                        <ChallengeMeme challenge={challenge} />
+                      </DialogContent>
+                    </Dialog>
+                  )}
                 </div>
               </div>
             </CardHeader>

@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from "react";
 import { Achievement } from "@/types";
-import { Trophy, X, AlertCircle } from "lucide-react";
+import { Trophy, X, AlertCircle, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUserRewards } from "@/hooks/useUserRewards";
 
 interface AchievementPopupProps {
   achievement: Achievement;
@@ -11,6 +12,7 @@ interface AchievementPopupProps {
 
 const AchievementPopup: React.FC<AchievementPopupProps> = ({ achievement, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const { addPoopCoins, addStinkBadges } = useUserRewards();
   
   useEffect(() => {
     // Animate in
@@ -22,8 +24,17 @@ const AchievementPopup: React.FC<AchievementPopupProps> = ({ achievement, onClos
       setTimeout(onClose, 500); // Wait for exit animation before removing
     }, 5000);
     
+    // Award rewards when achievement is unlocked
+    if (!achievement.isNegative) {
+      // Regular achievements give Poop Coins
+      addPoopCoins(50);
+    } else if (achievement.isNegative && achievement.penaltyPoints) {
+      // Negative achievements give Stink Badges (as a consolation)
+      addStinkBadges(1);
+    }
+    
     return () => clearTimeout(timer);
-  }, [onClose]);
+  }, [onClose, achievement, addPoopCoins, addStinkBadges]);
   
   const isNegative = achievement.isNegative;
   
@@ -82,15 +93,27 @@ const AchievementPopup: React.FC<AchievementPopupProps> = ({ achievement, onClos
           <p className="text-sm">{achievement.description}</p>
           
           {isNegative && achievement.penaltyPoints && (
-            <p className="mt-2 text-sm font-medium text-red-600 dark:text-red-400">
-              Penalty: -{achievement.penaltyPoints} points
-            </p>
+            <div className="mt-2 flex items-center justify-between">
+              <p className="text-sm font-medium text-red-600 dark:text-red-400">
+                Penalty: -{achievement.penaltyPoints} points
+              </p>
+              <p className="text-sm font-medium flex items-center text-amber-600 dark:text-amber-400">
+                <Gift className="h-4 w-4 mr-1" />
+                +1 Stink Badge
+              </p>
+            </div>
           )}
           
           {!isNegative && (
-            <p className="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
-              +50 experience points!
-            </p>
+            <div className="mt-2 flex items-center justify-between">
+              <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                +50 experience points!
+              </p>
+              <p className="text-sm font-medium flex items-center text-amber-600 dark:text-amber-400">
+                <Gift className="h-4 w-4 mr-1" />
+                +50 Poop Coins
+              </p>
+            </div>
           )}
         </div>
       </div>
