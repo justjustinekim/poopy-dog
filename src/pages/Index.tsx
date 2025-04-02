@@ -1,5 +1,5 @@
 
-// Updated landing page with better styling and no reference image
+// Updated landing page with cute dog graphic as main element
 import React from "react";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -47,17 +47,48 @@ const Index: React.FC = () => {
           </p>
         </div>
         
-        {/* Middle section with illustrated elements */}
+        {/* Middle section with cute dog illustration */}
         <div className="flex-1 flex items-center justify-center relative mb-6">
           <div className="w-64 h-64 sm:w-80 sm:h-80 relative">
-            {/* Dog silhouette illustration */}
+            {/* Cute dog illustration */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-full h-full bg-[#91AE84]/20 rounded-full flex items-center justify-center">
-                <svg viewBox="0 0 200 200" className="w-3/4 h-3/4 fill-[#768F6A]">
-                  <path d="M140,60 C160,50 180,50 190,70 C200,90 190,110 180,120 C170,130 160,140 160,160 C160,180 140,190 120,190 C100,190 80,180 80,160 C80,140 70,130 60,120 C50,110 40,90 50,70 C60,50 80,50 100,60 C120,70 130,70 140,60 Z" />
-                  <circle cx="80" cy="80" r="10" className="fill-black" />
-                  <circle cx="130" cy="80" r="10" className="fill-black" />
-                  <path d="M90,110 C100,120 110,120 120,110" stroke="black" strokeWidth="3" fill="none" />
+              <div className="w-full h-full flex items-center justify-center">
+                <svg viewBox="0 0 200 200" className="w-full h-full">
+                  {/* Dog body - round and cute */}
+                  <ellipse cx="100" cy="110" rx="70" ry="65" className="fill-[#F9D7A2]" />
+                  
+                  {/* Dog ears */}
+                  <ellipse cx="50" cy="60" rx="25" ry="30" className="fill-[#E8C28F] transform -rotate-12" />
+                  <ellipse cx="150" cy="60" rx="25" ry="30" className="fill-[#E8C28F] transform rotate-12" />
+                  
+                  {/* Dog inner ears */}
+                  <ellipse cx="50" cy="60" rx="16" ry="20" className="fill-[#EB9A87] transform -rotate-12" />
+                  <ellipse cx="150" cy="60" rx="16" ry="20" className="fill-[#EB9A87] transform rotate-12" />
+                  
+                  {/* Dog head */}
+                  <circle cx="100" cy="80" r="50" className="fill-[#F9D7A2]" />
+                  
+                  {/* Dog snout */}
+                  <ellipse cx="100" cy="95" rx="25" ry="20" className="fill-[#FCEECF]" />
+                  <ellipse cx="100" cy="103" rx="15" ry="10" className="fill-[#D19271]" />
+                  
+                  {/* Dog eyes */}
+                  <circle cx="80" cy="75" r="6" className="fill-[#4A4A4A]" />
+                  <circle cx="120" cy="75" r="6" className="fill-[#4A4A4A]" />
+                  
+                  {/* Dog eyes shine */}
+                  <circle cx="82" cy="73" r="2" className="fill-white" />
+                  <circle cx="122" cy="73" r="2" className="fill-white" />
+                  
+                  {/* Dog smile */}
+                  <path d="M90,90 Q100,100 110,90" stroke="#4A4A4A" strokeWidth="2.5" fill="none" />
+                  
+                  {/* Dog blush */}
+                  <circle cx="75" cy="90" r="8" className="fill-[#FFA6A6] opacity-40" />
+                  <circle cx="125" cy="90" r="8" className="fill-[#FFA6A6] opacity-40" />
+                  
+                  {/* Dog spot on back */}
+                  <ellipse cx="120" cy="130" rx="20" ry="15" className="fill-[#E8C28F]" />
                 </svg>
               </div>
             </div>
@@ -87,6 +118,17 @@ const Index: React.FC = () => {
                 <div className="w-3 bg-primary h-12 rounded-t"></div>
                 <div className="w-3 bg-primary h-7 rounded-t"></div>
                 <div className="w-3 bg-primary h-10 rounded-t"></div>
+              </div>
+            </div>
+            
+            {/* Thought bubble with heart */}
+            <div className="absolute -top-4 -left-4">
+              <div className="relative">
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm">
+                  <span role="img" aria-label="heart" className="text-red-500 text-xl">❤️</span>
+                </div>
+                <div className="absolute bottom-0 right-1 w-3 h-3 bg-white dark:bg-gray-800 rounded-full transform translate-x-1/2 translate-y-1/2"></div>
+                <div className="absolute bottom-2 right-3 w-2 h-2 bg-white dark:bg-gray-800 rounded-full transform translate-x-1/2 translate-y-1/2"></div>
               </div>
             </div>
           </div>
