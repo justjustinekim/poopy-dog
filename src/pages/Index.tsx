@@ -1,6 +1,6 @@
+
 import React, { useState } from "react";
-import Header from "@/components/Header";
-import Hero from "@/components/Hero";
+import { DogIcon, HeartIcon, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,129 +18,120 @@ const Index: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="relative min-h-screen bg-blue-50 dark:bg-gray-900 overflow-hidden">
+      {/* Status Bar Mockup (for visual appeal only) */}
+      <div className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 p-2 flex justify-end items-center gap-2 z-50">
+        <div className="text-xs font-bold">9:41</div>
+        <div className="flex items-center gap-1">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 14L12 8L18 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 22L22 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M8 2H22V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <svg width="20" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="2"/>
+            <path d="M7 15V9L12 12L17 9V15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+      </div>
       
-      <main className="container mx-auto px-4 py-8">
-        <Hero
-          title="Better Dog Health Starts with Poop"
-          subtitle="Track, analyze, and understand your dog's digestive health to keep them happy and healthy."
-          ctaText="Get Started"
-          onCtaClick={handleGetStarted}
-        />
-        
-        <div className="mt-8 text-center">
-          {user ? (
-            <Button variant="outline" onClick={() => navigate('/dashboard')}>
-              Go to Dashboard
-            </Button>
-          ) : (
-            <Button variant="outline" onClick={() => navigate('/auth')}>
-              Sign In / Sign Up
-            </Button>
-          )}
+      <main className="container mx-auto px-6 pt-14 pb-32 relative">
+        {/* Poop Entry Illustrations */}
+        <div className="absolute top-24 left-4 w-28 h-28 rounded-full bg-white dark:bg-gray-800 shadow-lg flex items-center justify-center transform -rotate-6 z-10">
+          <div className="relative">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor" className="text-amber-800">
+              <path d="M12 2C8.41 2 4 3.5 4 8.5c0 3.5 1.11 4.72 1.5 5.5c0 0 1.5 0 1.5-2C7 13 7 12.5 7.5 13C8 13.5 9 15 10 15s2.5-1.5 3-1.5s1 1 2 1s2-1 2-1.5S16 10 16 10c3.61-1.13 5-3.69 5-5.5C21 3.5 17.59 2 12 2z"/>
+            </svg>
+            <div className="absolute -bottom-2 -right-2 bg-white dark:bg-gray-700 rounded-full px-2 py-1 text-xs font-bold border border-gray-200 dark:border-gray-600">
+              Good!
+            </div>
+          </div>
         </div>
         
-        <section className="py-12 md:py-24">
-          <div className="container px-4 md:px-6">
-            <div className="grid gap-6 lg:grid-cols-3 lg:gap-12">
-              <div className="flex flex-col items-center space-y-4 text-center">
-                <div className="rounded-full bg-primary/10 p-4">
-                  <svg
-                    className="h-6 w-6 text-primary"
-                    fill="none"
-                    height="24"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M12 2v1" />
-                    <path d="M12 21v1" />
-                    <path d="m4.93 4.93-.7.7" />
-                    <path d="m19.07 19.07-.7.7" />
-                    <path d="M2 12h1" />
-                    <path d="M21 12h1" />
-                    <path d="m4.93 19.07-.7-.7" />
-                    <path d="m19.07 4.93-.7-.7" />
-                    <path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold">Track Daily</h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                  Log your dog's poop with our easy-to-use tracking system. Take photos, note consistency, and track changes over time.
-                </p>
-              </div>
-              <div className="flex flex-col items-center space-y-4 text-center">
-                <div className="rounded-full bg-primary/10 p-4">
-                  <svg
-                    className="h-6 w-6 text-primary"
-                    fill="none"
-                    height="24"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0" />
-                    <path d="M12 8v4l2 2" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold">Analyze Health</h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                  Our AI analyzes your dog's poop patterns to identify potential health issues before they become serious problems.
-                </p>
-              </div>
-              <div className="flex flex-col items-center space-y-4 text-center">
-                <div className="rounded-full bg-primary/10 p-4">
-                  <svg
-                    className="h-6 w-6 text-primary"
-                    fill="none"
-                    height="24"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold">Improve Diet</h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                  Get personalized recommendations for your dog's diet based on their digestive health patterns and needs.
-                </p>
-              </div>
+        <div className="absolute top-40 right-4 w-32 h-32 rounded-full bg-white dark:bg-gray-800 shadow-lg flex items-center justify-center transform rotate-3 z-10">
+          <div className="relative">
+            <svg width="70" height="70" viewBox="0 0 24 24" fill="currentColor" className="text-yellow-700">
+              <path d="M12 2C8.41 2 4 3.5 4 8.5c0 3.5 1.11 4.72 1.5 5.5c0 0 1.5 0 1.5-2C7 13 7 12.5 7.5 13C8 13.5 9 15 10 15s2.5-1.5 3-1.5s1 1 2 1s2-1 2-1.5S16 10 16 10c3.61-1.13 5-3.69 5-5.5C21 3.5 17.59 2 12 2z"/>
+            </svg>
+            <div className="absolute -bottom-2 -right-2 bg-white dark:bg-gray-700 rounded-full px-2 py-1 text-xs font-bold border border-gray-200 dark:border-gray-600">
+              Healthy!
             </div>
           </div>
-        </section>
+        </div>
         
-        <section className="py-12 md:py-24 bg-gray-50 dark:bg-gray-900 rounded-lg my-12">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                  Join thousands of happy dog owners
-                </h2>
-                <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                  Our community is growing every day. Start tracking your dog's health today and see the difference.
-                </p>
-              </div>
-              <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                <Button onClick={handleGetStarted}>Get Started for Free</Button>
-                <Button variant="outline">Learn More</Button>
-              </div>
+        <div className="absolute bottom-40 left-8 w-36 h-36 rounded-full bg-white dark:bg-gray-800 shadow-lg flex items-center justify-center transform -rotate-6 z-10">
+          <div className="relative">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor" className="text-green-900">
+              <path d="M12 2C8.41 2 4 3.5 4 8.5c0 3.5 1.11 4.72 1.5 5.5c0 0 1.5 0 1.5-2C7 13 7 12.5 7.5 13C8 13.5 9 15 10 15s2.5-1.5 3-1.5s1 1 2 1s2-1 2-1.5S16 10 16 10c3.61-1.13 5-3.69 5-5.5C21 3.5 17.59 2 12 2z"/>
+            </svg>
+            <div className="absolute -bottom-2 -right-2 bg-white dark:bg-gray-700 rounded-full px-2 py-1 text-xs font-bold border border-gray-200 dark:border-gray-600">
+              Perfect!
             </div>
           </div>
-        </section>
+        </div>
+        
+        {/* AI Badge */}
+        <div className="flex justify-center mt-10 mb-4">
+          <div className="bg-primary/10 text-primary px-4 py-1 rounded-full flex items-center gap-1">
+            <span>Powered by AI</span>
+            <Sparkles size={16} className="animate-pulse" />
+          </div>
+        </div>
+        
+        {/* Cute Dog Character */}
+        <div className="absolute right-0 top-32 z-20">
+          <div className="relative">
+            <div className="w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <DogIcon 
+                size={100} 
+                className="absolute top-4 left-4 text-primary transform scale-125"
+              />
+              <div className="absolute top-8 left-6 w-8 h-8 bg-red-500 rounded-full transform rotate-12 z-10"></div>
+              <div className="absolute top-8 left-16 w-8 h-8 bg-red-500 rounded-full transform -rotate-12 z-10"></div>
+              {/* Smile */}
+              <div className="absolute bottom-8 left-10 w-12 h-6 border-b-4 border-gray-800 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Main Text Content */}
+        <div className="mt-28 relative z-30">
+          <h1 className="text-5xl font-black leading-tight text-gray-900 dark:text-white">
+            Track<br/>
+            poops.<br/>
+            Raise<br/>
+            healthy<br/>
+            dogs!
+          </h1>
+          
+          <div className="mt-10">
+            <Button 
+              size="lg" 
+              onClick={handleGetStarted} 
+              className="w-full py-6 rounded-full text-lg font-semibold"
+            >
+              Get started
+            </Button>
+            
+            <div className="mt-4 text-center">
+              <button 
+                onClick={() => navigate('/auth')} 
+                className="text-gray-700 dark:text-gray-300 font-medium"
+              >
+                I already have an account
+              </button>
+            </div>
+          </div>
+          
+          <div className="mt-10 text-center text-xs text-gray-500 dark:text-gray-400">
+            By continuing you're accepting our 
+            <Link to="#" className="mx-1 underline">Terms of Use</Link> 
+            and 
+            <Link to="#" className="mx-1 underline">Privacy Notice</Link>
+          </div>
+        </div>
       </main>
     </div>
   );
