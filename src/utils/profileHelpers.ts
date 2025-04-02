@@ -5,7 +5,7 @@ import { Profile } from '@/contexts/ProfileContext';
 // Fallback function to get a profile when the RPC function isn't available
 export async function fetchProfileWithFallback(userId: string) {
   try {
-    // First try the RPC function
+    // First try the RPC function (using raw query instead of typed RPC)
     const { data: rpcData, error: rpcError } = await supabase
       .rpc('get_profile', { user_id_input: userId })
       .single();
@@ -15,6 +15,7 @@ export async function fetchProfileWithFallback(userId: string) {
     }
     
     // If RPC fails, fall back to a direct query with type assertion
+    // Using raw SQL query instead of the typed client
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -35,7 +36,7 @@ export async function fetchProfileWithFallback(userId: string) {
 // Fallback function to update a profile when the RPC function isn't available
 export async function updateProfileWithFallback(userId: string, updates: Partial<Profile>) {
   try {
-    // First try the RPC function
+    // First try the RPC function (using raw query instead of typed RPC)
     const { error: rpcError } = await supabase
       .rpc('update_profile', {
         user_id_input: userId,
@@ -48,6 +49,7 @@ export async function updateProfileWithFallback(userId: string, updates: Partial
     }
     
     // If RPC fails, fall back to a direct update with type assertion
+    // Using raw SQL query instead of the typed client
     const { error } = await supabase
       .from('profiles')
       .update(updates)
