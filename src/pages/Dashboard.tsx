@@ -9,48 +9,28 @@ import DogSelector from "@/components/dashboard/DogSelector";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
 import { usePoopEntries } from "@/hooks/usePoopEntries";
 import { useNavigate } from "react-router-dom";
+import { useDogs } from "@/hooks/useDogs";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { dogs, loading: dogsLoading } = useDogs();
+  
   const [activeTab, setActiveTab] = useState("track");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [dogs, setDogs] = useState<Dog[]>([]);
-  
   const [selectedDog, setSelectedDog] = useState<Dog | null>(null);
   const [healthInsights, setHealthInsights] = useState<HealthInsight[]>([]);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [newEntry, setNewEntry] = useState<Partial<PoopEntry> | undefined>(undefined);
   
-  // Get dogs from local storage
+  // Set selected dog when dogs are loaded
   useEffect(() => {
-    const storedDogs = localStorage.getItem("dogs");
-    if (storedDogs) {
-      const parsedDogs = JSON.parse(storedDogs);
-      setDogs(parsedDogs);
-      
-      // Select the first dog by default
-      if (parsedDogs.length > 0 && !selectedDog) {
-        setSelectedDog(parsedDogs[0]);
-      }
-    } else {
-      // Fallback to mock data if no dogs in storage
-      const mockDogs: Dog[] = [
-        {
-          id: "dog-1",
-          name: "Buddy",
-          breed: "Golden Retriever",
-          age: 3,
-          weight: 65,
-          imageUrl: "/placeholder.svg"
-        }
-      ];
-      setDogs(mockDogs);
-      setSelectedDog(mockDogs[0]);
+    if (dogs.length > 0 && !selectedDog) {
+      setSelectedDog(dogs[0]);
     }
-  }, []);
+  }, [dogs, selectedDog]);
   
-  const { entries, loading, addEntry } = usePoopEntries(selectedDog || undefined);
+  const { entries, loading: entriesLoading, addEntry } = usePoopEntries(selectedDog || undefined);
   
   useEffect(() => {
     if (selectedDog) {
@@ -113,7 +93,7 @@ const Dashboard = () => {
     });
   };
   
-  if (loading) {
+  if (dogsLoading || entriesLoading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
   

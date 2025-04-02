@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Dog } from "@/types";
 import { v4 as uuidv4 } from 'uuid';
+import { useDogs } from "@/hooks/useDogs";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface OnboardingContextType {
   step: number;
@@ -46,6 +48,9 @@ interface OnboardingProviderProps {
 
 export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { dogs: dbDogs, addDog: addDogToDb } = useDogs();
+  
   const [step, setStep] = useState(0);
   const [dogData, setDogData] = useState<Partial<Dog>>({
     name: "",
@@ -60,6 +65,13 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
   const [lifestyleData, setLifestyleData] = useState<any>(null);
   const [onboardingProgress, setOnboardingProgress] = useState(0);
   const totalSteps = 8; // Total number of steps in the onboarding process
+
+  // Sync dogs from database
+  useEffect(() => {
+    if (dbDogs.length > 0) {
+      setDogs(dbDogs);
+    }
+  }, [dbDogs]);
 
   useEffect(() => {
     // If user is coming back to onboarding and already has completed it,
@@ -117,22 +129,59 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
     }
   };
 
-  const handleDogSubmit = (dog: Dog) => {
-    // For demo purposes, we'll just store it in local storage
-    // In a real app, this would be sent to a backend
-    const dogWithId = {
-      ...dog,
-      id: uuidv4(),
-    };
-    
-    // Add the dog to our collection of dogs
-    setDogs(prevDogs => [...prevDogs, dogWithId]);
-    
-    toast.success(`${dog.name} has been added!`);
-    setDogAdded(true);
-    // Update dog data in state
-    setDogData(dogWithId);
-    handleNextStep();
+  const handleDogSubmit = async (dog: Dog) => {
+    try {
+      // Save to Supabase if the user is logged in
+      if (user) {
+        const tempId = dog.id; // Store the temp ID
+        delete dog.id; // Remove the ID so Supabase can generate a proper one
+        
+        // Add health and lifestyle data
+        const dogWithData = {
+          ...dog,
+          healthAssessment: healthData,
+          lifestyleData: lifestyleData,
+        };
+        
+        // Add to Supabase
+        const newDog = await addDogToDb(dogWithData);
+        
+        if (newDog) {
+          // Set the new dog with DB-generated ID
+          setDogData(newDog);
+          setDogs(prevDogs => [...prevDogs, newDog]);
+        } else {
+          // Fallback to local storage if there was an error
+          const dogWithId = {
+            ...dog,
+            id: tempId || uuidv4(),
+          };
+          
+          setDogs(prevDogs => [...prevDogs, dogWithId]);
+          setDogData(dogWithId);
+        }
+      } else {
+        // Fallback for non-logged in users
+        const dogWithId = {
+          ...dog,
+          id: dog.id || uuidv4(),
+        };
+        
+        setDogs(prevDogs => [...prevDogs, dogWithId]);
+        setDogData(dogWithId);
+        
+        // Store in local storage
+        const storedDogs = JSON.parse(localStorage.getItem("dogs") || "[]");
+        localStorage.setItem("dogs", JSON.stringify([...storedDogs, dogWithId]));
+      }
+      
+      toast.success(`${dog.name} has been added!`);
+      setDogAdded(true);
+      handleNextStep();
+    } catch (error) {
+      console.error("Error adding dog:", error);
+      toast.error("There was a problem adding your dog. Please try again.");
+    }
   };
 
   const addDog = (dog: Dog) => {
@@ -143,7 +192,7 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
     setHealthData(data);
     
     // In a real app, we would store this data with the dog profile
-    // For demo purposes, we'll just store it in local storage
+    // Will be done in handleDogSubmit for Supabase storage
     if (dogAdded && dogs.length > 0) {
       const updatedDogs = [...dogs];
       const lastDog = updatedDogs[updatedDogs.length - 1];
@@ -161,6 +210,7 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
     setLifestyleData(data);
     
     // Store lifestyle data with the dog profile
+    // Will be done in handleDogSubmit for Supabase storage
     if (dogAdded && dogs.length > 0) {
       const updatedDogs = [...dogs];
       const lastDog = updatedDogs[updatedDogs.length - 1];

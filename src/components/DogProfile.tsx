@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dog as DogIcon, Edit2, Save, X } from "lucide-react";
 import { Dog } from "@/types";
+import { useDogs } from "@/hooks/useDogs";
 
 interface DogProfileProps {
   dog: Dog;
@@ -16,6 +17,7 @@ interface DogProfileProps {
 const DogProfile: React.FC<DogProfileProps> = ({ dog, onUpdate, minimal = false }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Dog>(dog);
+  const { updateDog } = useDogs();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -26,11 +28,17 @@ const DogProfile: React.FC<DogProfileProps> = ({ dog, onUpdate, minimal = false 
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (onUpdate) {
+    
+    // Update in Supabase
+    const success = await updateDog(formData);
+    
+    // If provided, call the onUpdate prop
+    if (success && onUpdate) {
       onUpdate(formData);
     }
+    
     setIsEditing(false);
   };
 

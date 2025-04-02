@@ -102,6 +102,78 @@ export type Database = {
         }
         Relationships: []
       }
+      dogs: {
+        Row: {
+          adoption_story: string | null
+          age: number
+          birthdate: string | null
+          breed: string
+          created_at: string
+          diet_type: string | null
+          digestive_health: string | null
+          digestive_issues: string[] | null
+          favorite_treats: string | null
+          food_sensitivity: string | null
+          health_assessment: Json | null
+          id: string
+          image_url: string | null
+          lifestyle_data: Json | null
+          microchipped: boolean | null
+          name: string
+          personality_traits: string[] | null
+          poop_frequency: string | null
+          updated_at: string
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          adoption_story?: string | null
+          age: number
+          birthdate?: string | null
+          breed: string
+          created_at?: string
+          diet_type?: string | null
+          digestive_health?: string | null
+          digestive_issues?: string[] | null
+          favorite_treats?: string | null
+          food_sensitivity?: string | null
+          health_assessment?: Json | null
+          id?: string
+          image_url?: string | null
+          lifestyle_data?: Json | null
+          microchipped?: boolean | null
+          name: string
+          personality_traits?: string[] | null
+          poop_frequency?: string | null
+          updated_at?: string
+          user_id: string
+          weight: number
+        }
+        Update: {
+          adoption_story?: string | null
+          age?: number
+          birthdate?: string | null
+          breed?: string
+          created_at?: string
+          diet_type?: string | null
+          digestive_health?: string | null
+          digestive_issues?: string[] | null
+          favorite_treats?: string | null
+          food_sensitivity?: string | null
+          health_assessment?: Json | null
+          id?: string
+          image_url?: string | null
+          lifestyle_data?: Json | null
+          microchipped?: boolean | null
+          name?: string
+          personality_traits?: string[] | null
+          poop_frequency?: string | null
+          updated_at?: string
+          user_id?: string
+          weight?: number
+        }
+        Relationships: []
+      }
       poop_entries: {
         Row: {
           color: string

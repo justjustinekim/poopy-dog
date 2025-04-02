@@ -10,12 +10,12 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { Dog } from "@/types";
-import { sampleDogs } from "@/utils/mockData";
-import { Dog as DogIcon, User, UserPlus, Settings, Trash2, Upload, Save, PlusCircle } from "lucide-react";
+import { useDogs } from "@/hooks/useDogs";
+import { Dog as DogIcon, User, Settings, Trash2, Upload, Save, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const Profile: React.FC = () => {
-  const [dogs, setDogs] = useState<Dog[]>(sampleDogs);
+  const { dogs, addDog: addDogToDb, deleteDog } = useDogs();
   const [isAddingDog, setIsAddingDog] = useState(false);
   const [newDog, setNewDog] = useState<Partial<Dog>>({
     name: "",
@@ -24,36 +24,38 @@ const Profile: React.FC = () => {
     weight: 0
   });
   
-  const handleAddDog = () => {
+  const handleAddDog = async () => {
     if (!newDog.name || !newDog.breed) {
       toast.error("Please fill in all required fields");
       return;
     }
     
-    const dog: Dog = {
-      id: `dog-${Date.now()}`,
-      name: newDog.name,
-      breed: newDog.breed,
-      age: Number(newDog.age) || 0,
-      weight: Number(newDog.weight) || 0,
-      imageUrl: newDog.imageUrl
-    };
-    
-    setDogs([...dogs, dog]);
-    setNewDog({
-      name: "",
-      breed: "",
-      age: 0,
-      weight: 0
-    });
-    setIsAddingDog(false);
-    
-    toast.success(`${dog.name} added successfully!`);
+    try {
+      const dog = {
+        name: newDog.name,
+        breed: newDog.breed,
+        age: Number(newDog.age) || 0,
+        weight: Number(newDog.weight) || 0,
+        imageUrl: newDog.imageUrl
+      };
+      
+      await addDogToDb(dog);
+      
+      setNewDog({
+        name: "",
+        breed: "",
+        age: 0,
+        weight: 0
+      });
+      setIsAddingDog(false);
+    } catch (error) {
+      console.error("Error adding dog:", error);
+      toast.error("Failed to add dog");
+    }
   };
   
-  const handleDeleteDog = (dogId: string) => {
-    setDogs(dogs.filter(dog => dog.id !== dogId));
-    toast.success("Dog removed successfully");
+  const handleDeleteDog = async (dogId: string) => {
+    await deleteDog(dogId);
   };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +71,7 @@ const Profile: React.FC = () => {
       <div className="animate-fade-in">
         <header className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Your Profile</h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             Manage your account and dogs
           </p>
         </header>
@@ -94,7 +96,7 @@ const Profile: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {dogs.map(dog => (
                 <Card key={dog.id} className="glass-card overflow-hidden">
-                  <div className="relative h-40 bg-blue-50">
+                  <div className="relative h-40 bg-blue-50 dark:bg-blue-950">
                     {dog.imageUrl ? (
                       <img 
                         src={dog.imageUrl} 
@@ -103,12 +105,12 @@ const Profile: React.FC = () => {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <DogIcon className="h-20 w-20 text-blue-200" />
+                        <DogIcon className="h-20 w-20 text-blue-200 dark:text-blue-600" />
                       </div>
                     )}
                     <button
                       onClick={() => handleDeleteDog(dog.id)}
-                      className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 hover:bg-white shadow-sm transition-colors"
+                      className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-800 shadow-sm transition-colors"
                     >
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </button>
@@ -123,10 +125,10 @@ const Profile: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
-                        <span className="text-gray-500">Age:</span> {dog.age} years
+                        <span className="text-gray-500 dark:text-gray-400">Age:</span> {dog.age} years
                       </div>
                       <div>
-                        <span className="text-gray-500">Weight:</span> {dog.weight} lbs
+                        <span className="text-gray-500 dark:text-gray-400">Weight:</span> {dog.weight} lbs
                       </div>
                     </div>
                   </CardContent>
@@ -144,8 +146,8 @@ const Profile: React.FC = () => {
               >
                 {!isAddingDog ? (
                   <>
-                    <PlusCircle className="h-12 w-12 text-blue-200 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-600">Add New Dog</h3>
+                    <PlusCircle className="h-12 w-12 text-blue-200 dark:text-blue-700 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-600 dark:text-gray-300">Add New Dog</h3>
                   </>
                 ) : (
                   <>
