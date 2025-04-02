@@ -34,6 +34,16 @@ export const useCamera = ({
     }
   }, [snapchatStyle, isCameraActive, previewUrl]);
 
+  // Make sure to clean up camera stream on unmount
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+    };
+  }, []);
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     handleFile(file);
@@ -58,23 +68,47 @@ export const useCamera = ({
 
   const activateCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      // First try to get the environment-facing camera (back camera)
+      const constraints = { 
         video: { 
           facingMode: 'environment',
           width: { ideal: 1280 },
           height: { ideal: 720 }
         } 
-      });
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        videoRef.current.play().catch(error => {
+          console.error("Error playing video:", error);
+        });
         setIsCameraActive(true);
       }
     } catch (err) {
       console.error("Error accessing camera:", err);
-      alert("Could not access camera. Please check permissions and try again.");
+      
+      // If environment camera fails, try any available camera as fallback
+      try {
+        const fallbackStream = await navigator.mediaDevices.getUserMedia({ 
+          video: true 
+        });
+        
+        streamRef.current = fallbackStream;
+        
+        if (videoRef.current) {
+          videoRef.current.srcObject = fallbackStream;
+          videoRef.current.play().catch(error => {
+            console.error("Error playing video:", error);
+          });
+          setIsCameraActive(true);
+        }
+      } catch (fallbackErr) {
+        console.error("Fallback camera also failed:", fallbackErr);
+        alert("Could not access camera. Please check permissions and try again.");
+      }
     }
   };
 
@@ -87,7 +121,22 @@ export const useCamera = ({
     
     const context = canvas.getContext('2d');
     if (context) {
+      // Flip horizontally if using front camera (detect by checking facingMode)
+      const videoTrack = streamRef.current?.getVideoTracks()[0];
+      const settings = videoTrack?.getSettings();
+      const isFrontCamera = settings?.facingMode === 'user';
+      
+      if (isFrontCamera) {
+        context.translate(canvas.width, 0);
+        context.scale(-1, 1);
+      }
+      
       context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      
+      // Reset transform if we applied one
+      if (isFrontCamera) {
+        context.setTransform(1, 0, 0, 1, 0, 0);
+      }
       
       canvas.toBlob((blob) => {
         if (blob) {

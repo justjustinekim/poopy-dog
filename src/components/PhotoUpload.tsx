@@ -32,17 +32,32 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
     snapchatStyle
   });
 
+  // Handler for when user clicks on gallery/upload option
+  const handleSelectFromGallery = () => {
+    fileInputRef.current?.click();
+  };
+
   if (snapchatStyle) {
     return (
       <div className={cn("relative h-full", className)}>
-        <SnapchatStylePhotoUpload
-          isCameraActive={isCameraActive}
-          videoRef={videoRef}
-          previewUrl={previewUrl}
-          fileInputRef={fileInputRef}
-          capturePhoto={capturePhoto}
-          clearPreview={clearPreview}
-        />
+        {isCameraActive ? (
+          <CameraView
+            videoRef={videoRef}
+            capturePhoto={capturePhoto}
+            stopCamera={stopCamera}
+            isSnapchatStyle={true}
+            onSelectFromGallery={handleSelectFromGallery}
+          />
+        ) : (
+          <SnapchatStylePhotoUpload
+            isCameraActive={isCameraActive}
+            videoRef={videoRef}
+            previewUrl={previewUrl}
+            fileInputRef={fileInputRef}
+            capturePhoto={capturePhoto}
+            clearPreview={clearPreview}
+          />
+        )}
         
         <input
           type="file"
@@ -74,6 +89,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
           videoRef={videoRef}
           capturePhoto={capturePhoto}
           stopCamera={stopCamera}
+          onSelectFromGallery={handleSelectFromGallery}
         />
       )}
 

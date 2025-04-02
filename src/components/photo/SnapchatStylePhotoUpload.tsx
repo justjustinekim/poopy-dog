@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Upload, X, Check, RotateCcw } from "lucide-react";
+import { Upload, X, Check, RotateCcw, Camera } from "lucide-react";
 
 interface SnapchatStylePhotoUploadProps {
   isCameraActive: boolean;
@@ -37,10 +37,10 @@ const SnapchatStylePhotoUpload: React.FC<SnapchatStylePhotoUploadProps> = ({
             {/* Upload Button (Left) */}
             <button 
               onClick={() => fileInputRef.current?.click()}
-              className="rounded-full bg-black/40 p-3"
+              className="rounded-full bg-black/40 p-3 text-white"
               aria-label="Upload photo"
             >
-              <Upload className="h-7 w-7 text-white" />
+              <Upload className="h-7 w-7" />
             </button>
             
             {/* Capture Button (Center) */}
@@ -52,15 +52,22 @@ const SnapchatStylePhotoUpload: React.FC<SnapchatStylePhotoUploadProps> = ({
               <div className="w-16 h-16 rounded-full border-2 border-gray-200"></div>
             </button>
             
-            {/* Placeholder for right side to balance layout */}
-            <div className="rounded-full bg-black/40 p-3">
-              <RotateCcw className="h-7 w-7 text-white" />
-            </div>
+            {/* Switch camera (if on mobile) */}
+            <button 
+              className="rounded-full bg-black/40 p-3 text-white"
+              aria-label="Switch camera"
+              onClick={() => {
+                // This is a placeholder - actual camera switching is handled in the camera hook
+                console.log("Switch camera requested");
+              }}
+            >
+              <RotateCcw className="h-7 w-7" />
+            </button>
           </div>
         </div>
       )}
       
-      {/* Preview Screen */}
+      {/* Preview Screen - display captured photo */}
       {previewUrl && (
         <div className="absolute inset-0 bg-black flex flex-col">
           <img 
@@ -73,18 +80,36 @@ const SnapchatStylePhotoUpload: React.FC<SnapchatStylePhotoUploadProps> = ({
           <div className="absolute bottom-0 left-0 right-0 flex justify-between items-center p-6">
             <button
               onClick={clearPreview}
-              className="rounded-full bg-black/40 p-3"
+              className="rounded-full bg-black/40 p-3 text-white"
               aria-label="Retake"
             >
-              <X className="h-7 w-7 text-white" />
+              <X className="h-7 w-7" />
             </button>
             
+            {/* Empty div to center the confirm button */}
+            <div className="w-12"></div>
+            
             <button
-              onClick={() => {/* Already handled */}}
-              className="rounded-full bg-green-500 p-4"
+              className="rounded-full bg-green-500 p-4 text-white"
               aria-label="Confirm"
             >
-              <Check className="h-7 w-7 text-white" />
+              <Check className="h-7 w-7" />
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Show message when no camera is active and no preview */}
+      {!isCameraActive && !previewUrl && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/90">
+          <div className="text-center p-6">
+            <Camera className="h-12 w-12 mx-auto mb-4 text-white" />
+            <p className="text-white text-lg mb-6">Camera access required</p>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="bg-white text-black rounded-full px-6 py-3 font-medium"
+            >
+              Upload a photo instead
             </button>
           </div>
         </div>
