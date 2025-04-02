@@ -1,16 +1,22 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Camera, Upload, X, Image as ImageIcon, Check } from "lucide-react";
+import { Camera, Upload, X, Image as ImageIcon, Check, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PhotoUploadProps {
   onPhotoCapture: (file: File) => void;
   className?: string;
   initialPhotoUrl?: string | null;
+  snapchatStyle?: boolean;
 }
 
-const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoCapture, className, initialPhotoUrl }) => {
+const PhotoUpload: React.FC<PhotoUploadProps> = ({ 
+  onPhotoCapture, 
+  className, 
+  initialPhotoUrl,
+  snapchatStyle = false
+}) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialPhotoUrl || null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -25,6 +31,13 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoCapture, className, in
       setPreviewUrl(initialPhotoUrl);
     }
   }, [initialPhotoUrl]);
+
+  // Auto-activate camera in Snapchat style mode
+  useEffect(() => {
+    if (snapchatStyle && !isCameraActive && !previewUrl) {
+      activateCamera();
+    }
+  }, [snapchatStyle]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -85,7 +98,9 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoCapture, className, in
         if (blob) {
           const file = new File([blob], "captured-photo.jpg", { type: "image/jpeg" });
           handleFile(file);
-          stopCamera();
+          if (!snapchatStyle) {
+            stopCamera();
+          }
         }
       }, 'image/jpeg', 0.9);
     }
@@ -104,8 +119,96 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoCapture, className, in
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+    // Re-activate camera in Snapchat style
+    if (snapchatStyle) {
+      activateCamera();
+    }
   };
 
+  if (snapchatStyle) {
+    return (
+      <div className={cn("relative h-full", className)}>
+        {/* Camera View */}
+        {isCameraActive && (
+          <div className="absolute inset-0">
+            <video
+              ref={videoRef}
+              className="h-full w-full object-cover"
+              autoPlay
+              playsInline
+              muted
+            />
+            
+            {/* Bottom Controls - Snapchat Style */}
+            <div className="absolute bottom-0 left-0 right-0 flex justify-between items-center p-6">
+              {/* Upload Button (Left) */}
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="rounded-full bg-black/40 p-3"
+                aria-label="Upload photo"
+              >
+                <Upload className="h-7 w-7 text-white" />
+              </button>
+              
+              {/* Capture Button (Center) */}
+              <button 
+                onClick={capturePhoto}
+                className="w-20 h-20 rounded-full bg-white border-4 border-white flex items-center justify-center"
+                aria-label="Take photo"
+              >
+                <div className="w-16 h-16 rounded-full border-2 border-gray-200"></div>
+              </button>
+              
+              {/* Placeholder for right side to balance layout */}
+              <div className="rounded-full bg-black/40 p-3">
+                <RotateCcw className="h-7 w-7 text-white" />
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Preview Screen */}
+        {previewUrl && (
+          <div className="absolute inset-0 bg-black flex flex-col">
+            <img 
+              src={previewUrl} 
+              alt="Preview" 
+              className="h-full w-full object-contain flex-1"
+            />
+            
+            {/* Preview Controls */}
+            <div className="absolute bottom-0 left-0 right-0 flex justify-between items-center p-6">
+              <button
+                onClick={clearPreview}
+                className="rounded-full bg-black/40 p-3"
+                aria-label="Retake"
+              >
+                <X className="h-7 w-7 text-white" />
+              </button>
+              
+              <button
+                onClick={() => {/* Already handled */}}
+                className="rounded-full bg-green-500 p-4"
+                aria-label="Confirm"
+              >
+                <Check className="h-7 w-7 text-white" />
+              </button>
+            </div>
+          </div>
+        )}
+        
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+        />
+      </div>
+    );
+  }
+
+  // Original non-Snapchat style UI
   return (
     <div className={cn("relative", className)}>
       {!isCameraActive && !previewUrl && (

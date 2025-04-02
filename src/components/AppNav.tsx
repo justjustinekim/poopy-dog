@@ -108,6 +108,7 @@ const AppNav: React.FC = () => {
           <PhotoUpload 
             onPhotoCapture={handlePhotoCapture} 
             className="w-full h-full"
+            snapchatStyle={true}
           />
           <button
             onClick={() => setCameraOpen(false)}
@@ -116,13 +117,6 @@ const AppNav: React.FC = () => {
           >
             <X className="h-6 w-6" />
           </button>
-          
-          {/* Playful elements in camera view */}
-          <div className="absolute bottom-24 right-6 z-[101] animate-float">
-            <div className="bg-white/90 rounded-full p-3 shadow-lg">
-              <span className="text-2xl">💩</span>
-            </div>
-          </div>
         </div>
       )}
     </>
