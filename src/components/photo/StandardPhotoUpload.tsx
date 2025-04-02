@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, Upload, X, ImageIcon, Check, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,8 @@ interface StandardPhotoUploadProps {
   reactivateCamera: () => void;
   fileInputRef: React.RefObject<HTMLInputElement>;
   cameraError: string | null;
+  hasPermissions: boolean | null;
+  permissionCheckComplete: boolean;
 }
 
 const StandardPhotoUpload: React.FC<StandardPhotoUploadProps> = ({
@@ -25,8 +27,18 @@ const StandardPhotoUpload: React.FC<StandardPhotoUploadProps> = ({
   clearPreview,
   reactivateCamera,
   fileInputRef,
-  cameraError
+  cameraError,
+  hasPermissions,
+  permissionCheckComplete
 }) => {
+  // Function to determine what text to show for camera access
+  const getCameraStatusText = () => {
+    if (cameraError) return cameraError;
+    if (hasPermissions === false) return "Camera access denied. Please check your browser permissions.";
+    if (hasPermissions === null && !permissionCheckComplete) return "Checking camera access...";
+    return "Take a clear photo of your dog's poop for accurate analysis";
+  };
+
   return (
     <>
       {!previewUrl && (
@@ -34,7 +46,7 @@ const StandardPhotoUpload: React.FC<StandardPhotoUploadProps> = ({
           <ImageIcon className="h-12 w-12 text-gray-400 mb-4" />
           <h3 className="text-lg font-medium mb-1">Capture a photo</h3>
           <p className="text-sm text-gray-500 mb-6">
-            Take a clear photo of your dog's poop for accurate analysis
+            {getCameraStatusText()}
           </p>
           
           {cameraError && (
@@ -49,6 +61,7 @@ const StandardPhotoUpload: React.FC<StandardPhotoUploadProps> = ({
               variant="default" 
               className="flex-1 flex items-center justify-center"
               onClick={activateCamera}
+              disabled={hasPermissions === false}
             >
               <Camera className="mr-2 h-4 w-4" />
               Camera
@@ -62,14 +75,6 @@ const StandardPhotoUpload: React.FC<StandardPhotoUploadProps> = ({
               <Upload className="mr-2 h-4 w-4" />
               Upload
             </Button>
-            
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              ref={fileInputRef}
-              onChange={onFileChange}
-            />
           </div>
         </div>
       )}
@@ -99,7 +104,7 @@ const StandardPhotoUpload: React.FC<StandardPhotoUploadProps> = ({
           </div>
           
           <div className="mt-4 flex justify-center">
-            <Button onClick={reactivateCamera}>
+            <Button onClick={reactivateCamera} disabled={hasPermissions === false}>
               Retake Photo
             </Button>
           </div>

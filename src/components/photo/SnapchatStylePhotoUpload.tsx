@@ -1,6 +1,7 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Upload, X, Check, RotateCcw, Camera } from "lucide-react";
+import { toast } from "sonner";
 
 interface SnapchatStylePhotoUploadProps {
   isCameraActive: boolean;
@@ -11,6 +12,9 @@ interface SnapchatStylePhotoUploadProps {
   clearPreview: () => void;
   cameraError: string | null;
   activateCamera: () => void;
+  hasPermissions: boolean | null;
+  permissionCheckComplete: boolean;
+  checkCameraPermissions: () => Promise<boolean>;
 }
 
 const SnapchatStylePhotoUpload: React.FC<SnapchatStylePhotoUploadProps> = ({
@@ -21,8 +25,34 @@ const SnapchatStylePhotoUpload: React.FC<SnapchatStylePhotoUploadProps> = ({
   capturePhoto,
   clearPreview,
   cameraError,
-  activateCamera
+  activateCamera,
+  hasPermissions,
+  permissionCheckComplete,
+  checkCameraPermissions
 }) => {
+  // Check permissions on mount and try to activate camera if permissions are granted
+  useEffect(() => {
+    if (hasPermissions === null && !permissionCheckComplete) {
+      checkCameraPermissions().then(hasAccess => {
+        if (hasAccess && !isCameraActive && !previewUrl) {
+          activateCamera();
+        }
+      });
+    } else if (hasPermissions === true && !isCameraActive && !previewUrl) {
+      activateCamera();
+    }
+  }, [hasPermissions, permissionCheckComplete, isCameraActive, previewUrl]);
+
+  // Retry camera access
+  const handleRetryCamera = async () => {
+    const hasAccess = await checkCameraPermissions();
+    if (hasAccess) {
+      activateCamera();
+    } else {
+      toast.error("Could not access camera. Please check your browser permissions.");
+    }
+  };
+
   return (
     <div className="relative h-full">
       {/* Camera View */}
@@ -108,17 +138,21 @@ const SnapchatStylePhotoUpload: React.FC<SnapchatStylePhotoUploadProps> = ({
         <div className="absolute inset-0 flex items-center justify-center bg-black/90">
           <div className="text-center p-6">
             <Camera className="h-12 w-12 mx-auto mb-4 text-white" />
-            <p className="text-white text-lg mb-2">
-              {cameraError || "Camera access required"}
+            <p className="text-white text-lg mb-4">
+              {cameraError || 
+                (hasPermissions === false ? "Camera access denied" : 
+                (hasPermissions === null ? "Checking camera access..." : "Initializing camera..."))}
             </p>
-            {cameraError && (
+            
+            {(cameraError || hasPermissions === false) && (
               <button 
-                onClick={activateCamera}
+                onClick={handleRetryCamera}
                 className="bg-white text-black rounded-full px-6 py-3 font-medium mb-4"
               >
                 Try Again
               </button>
             )}
+            
             <button
               onClick={() => fileInputRef.current?.click()}
               className="bg-white text-black rounded-full px-6 py-3 font-medium"

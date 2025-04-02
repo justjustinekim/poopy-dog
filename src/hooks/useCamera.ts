@@ -15,12 +15,14 @@ export const useCamera = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialPhotoUrl || null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [hasPermissions, setHasPermissions] = useState<boolean>(false);
+  const [hasPermissions, setHasPermissions] = useState<boolean | null>(null); // null means "not checked yet"
   const [cameraError, setCameraError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const streamRef = useRef<MediaStream | null>(null);
+  const [permissionCheckComplete, setPermissionCheckComplete] = useState(false);
+  const initAttemptedRef = useRef(false);
 
   // Update preview if initialPhotoUrl changes
   useEffect(() => {
@@ -31,8 +33,13 @@ export const useCamera = ({
 
   // Auto-activate camera in Snapchat style mode
   useEffect(() => {
-    if (snapchatStyle && !isCameraActive && !previewUrl) {
-      activateCamera();
+    if (snapchatStyle && !isCameraActive && !previewUrl && !initAttemptedRef.current) {
+      initAttemptedRef.current = true;
+      checkCameraPermissions().then(hasAccess => {
+        if (hasAccess) {
+          activateCamera();
+        }
+      });
     }
   }, [snapchatStyle, isCameraActive, previewUrl]);
 
@@ -45,27 +52,57 @@ export const useCamera = ({
 
   const checkCameraPermissions = async (): Promise<boolean> => {
     try {
+      console.log("Checking camera permissions...");
+      
       // Check if permissions are already granted
       const devices = await navigator.mediaDevices.enumerateDevices();
       const cameras = devices.filter(device => device.kind === 'videoinput');
       
       if (cameras.length === 0) {
+        console.log("No cameras detected");
         setCameraError("No camera detected on this device");
+        setHasPermissions(false);
+        setPermissionCheckComplete(true);
         return false;
       }
       
-      // Try to get user media to see if permissions are granted
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      // Check if any camera has permission
+      const hasPermissionAlready = cameras.some(device => device.label !== '');
       
-      // If we get here, permissions are granted
-      // Stop this test stream immediately
-      stream.getTracks().forEach(track => track.stop());
+      if (hasPermissionAlready) {
+        console.log("Camera permission already granted");
+        setHasPermissions(true);
+        setCameraError(null);
+        setPermissionCheckComplete(true);
+        return true;
+      }
       
-      setHasPermissions(true);
-      return true;
+      // If no label is visible, we need to request permission
+      try {
+        console.log("Requesting camera permission...");
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        
+        // If we get here, permissions are granted
+        // Stop this test stream immediately
+        stream.getTracks().forEach(track => track.stop());
+        
+        console.log("Camera permission granted");
+        setHasPermissions(true);
+        setCameraError(null);
+        setPermissionCheckComplete(true);
+        return true;
+      } catch (err) {
+        console.error("Permission request failed:", err);
+        setHasPermissions(false);
+        setCameraError("Camera access denied. Please check your browser permissions.");
+        setPermissionCheckComplete(true);
+        return false;
+      }
     } catch (err) {
-      console.log("Permission check failed:", err);
+      console.error("Permission check failed:", err);
       setHasPermissions(false);
+      setCameraError("Error checking camera permissions: " + (err instanceof Error ? err.message : String(err)));
+      setPermissionCheckComplete(true);
       return false;
     }
   };
@@ -103,14 +140,18 @@ export const useCamera = ({
     }
     
     try {
-      // Check permissions first if we haven't confirmed them yet
-      if (!hasPermissions) {
+      // Check if we already know we have permissions
+      if (hasPermissions === null) {
         const permissionsGranted = await checkCameraPermissions();
         if (!permissionsGranted) {
-          console.log("Camera permissions not granted");
+          console.log("Camera permissions not granted during activation");
           setCameraError("Camera access denied. Please check your browser permissions.");
           return;
         }
+      } else if (hasPermissions === false) {
+        console.log("Camera permissions already known to be denied");
+        setCameraError("Camera access denied. Please check your browser permissions.");
+        return;
       }
       
       // First try to get the environment-facing camera (back camera)
@@ -124,6 +165,12 @@ export const useCamera = ({
 
       console.log("Getting user media with constraints:", constraints);
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      
+      // Cleanup any existing stream first
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      
       streamRef.current = stream;
       
       if (videoRef.current) {
@@ -133,6 +180,7 @@ export const useCamera = ({
           setCameraError("Error starting video stream");
         });
         setIsCameraActive(true);
+        setCameraError(null);
       }
     } catch (err) {
       console.error("Error accessing camera:", err);
@@ -145,6 +193,11 @@ export const useCamera = ({
           video: true 
         });
         
+        // Cleanup any existing stream first
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(track => track.stop());
+        }
+        
         streamRef.current = fallbackStream;
         
         if (videoRef.current) {
@@ -154,6 +207,7 @@ export const useCamera = ({
             setCameraError("Error starting video stream");
           });
           setIsCameraActive(true);
+          setCameraError(null);
         }
       } catch (fallbackErr) {
         console.error("Fallback camera also failed:", fallbackErr);
@@ -230,6 +284,7 @@ export const useCamera = ({
     isSuccess,
     isCameraActive,
     hasPermissions,
+    permissionCheckComplete,
     cameraError,
     fileInputRef,
     videoRef,
@@ -238,6 +293,7 @@ export const useCamera = ({
     capturePhoto,
     stopCamera,
     clearPreview,
-    reactivateCamera
+    reactivateCamera,
+    checkCameraPermissions
   };
 };

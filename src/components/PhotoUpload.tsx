@@ -1,11 +1,12 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useCamera } from "@/hooks/useCamera";
 import StandardPhotoUpload from "./photo/StandardPhotoUpload";
 import SnapchatStylePhotoUpload from "./photo/SnapchatStylePhotoUpload";
 import CameraView from "./photo/CameraView";
 import { PhotoUploadProps } from "./photo/types";
+import { toast } from "sonner";
 
 const PhotoUpload: React.FC<PhotoUploadProps> = ({ 
   onPhotoCapture, 
@@ -18,6 +19,8 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
     isLoading,
     isSuccess,
     isCameraActive,
+    hasPermissions,
+    permissionCheckComplete,
     cameraError,
     fileInputRef,
     videoRef,
@@ -26,12 +29,20 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
     capturePhoto,
     stopCamera,
     clearPreview,
-    reactivateCamera
+    reactivateCamera,
+    checkCameraPermissions
   } = useCamera({
     initialPhotoUrl,
     onPhotoCapture,
     snapchatStyle
   });
+
+  // Show toast when camera errors occur
+  useEffect(() => {
+    if (cameraError && permissionCheckComplete) {
+      toast.error(cameraError);
+    }
+  }, [cameraError, permissionCheckComplete]);
 
   // Handler for when user clicks on gallery/upload option
   const handleSelectFromGallery = () => {
@@ -59,6 +70,9 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
             clearPreview={clearPreview}
             cameraError={cameraError}
             activateCamera={activateCamera}
+            hasPermissions={hasPermissions}
+            permissionCheckComplete={permissionCheckComplete}
+            checkCameraPermissions={checkCameraPermissions}
           />
         )}
         
@@ -86,6 +100,8 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
         reactivateCamera={reactivateCamera}
         fileInputRef={fileInputRef}
         cameraError={cameraError}
+        hasPermissions={hasPermissions}
+        permissionCheckComplete={permissionCheckComplete}
       />
 
       {isCameraActive && (
