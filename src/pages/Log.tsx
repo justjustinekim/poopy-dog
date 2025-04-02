@@ -1,92 +1,74 @@
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Camera, Upload, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import PhotoUpload from "@/components/PhotoUpload";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { v4 as uuidv4 } from "uuid";
 
 const Log = () => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
+  const handlePhotoCapture = async (file: File) => {
+    if (!user) {
+      toast.error("You must be logged in to upload photos");
+      return;
     }
-  };
 
-  const handlePhotoCapture = (file: File) => {
-    // When the PhotoUpload component captures a photo
-    console.log("Photo captured:", file);
-  };
-
-  const handleReset = () => {
-    setSelectedImage(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    setIsUploading(true);
+    
+    try {
+      // Generate a unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${uuidv4()}.${fileExt}`;
+      const filePath = `public/${fileName}`;
+      
+      // Upload to Supabase storage
+      const { error: uploadError } = await supabase.storage
+        .from('poop_images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+      
+      if (uploadError) {
+        throw new Error(`Error uploading image: ${uploadError.message}`);
+      }
+      
+      toast.success("Photo uploaded successfully!");
+      
+      // Redirect to the feed page
+      navigate('/social');
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to upload photo");
+    } finally {
+      setIsUploading(false);
     }
   };
 
   return (
     <Layout>
-      <div className="w-full max-w-[448px] mx-auto pt-12 md:pt-48 px-4">
-        <h1 className="text-2xl font-bold mb-6">Log a Poop</h1>
-        
-        {/* Use existing PhotoUpload component which has better mobile capture support */}
-        <PhotoUpload onPhotoCapture={handlePhotoCapture} />
-        
-        {/* This is a fallback option but the PhotoUpload component above handles everything better */}
-        <div className="hidden">
-          <div className="mt-6 space-y-4">
-            <div className="bg-white dark:bg-gray-800 rounded-md p-4 border border-gray-200 dark:border-gray-700">
-              <label htmlFor="poop-photo" className="flex flex-col items-center justify-center cursor-pointer">
-                <div className="w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md flex flex-col items-center justify-center">
-                  <Camera className="h-8 w-8 text-gray-400 mb-2" />
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Upload a photo or take one now</span>
-                </div>
-                <Input
-                  id="poop-photo"
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </label>
-            </div>
-
-            {selectedImage && (
-              <div className="space-y-4">
-                <div className="relative">
-                  <img 
-                    src={selectedImage} 
-                    alt="Selected poop" 
-                    className="w-full h-auto rounded-md object-cover"
-                  />
-                  <button
-                    onClick={handleReset}
-                    className="absolute top-2 right-2 bg-black/50 rounded-full p-1 text-white"
-                    aria-label="Remove image"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-                <Button 
-                  variant="outline" 
-                  onClick={handleReset}
-                  className="w-full"
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  Retake/Upload New
-                </Button>
+      <div className="w-full h-full flex flex-col items-center">
+        <div className="w-full h-[calc(100vh-6rem)] max-w-md mx-auto">
+          <PhotoUpload 
+            onPhotoCapture={handlePhotoCapture} 
+            className="w-full h-full"
+            snapchatStyle={true}
+          />
+          
+          {isUploading && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto"></div>
+                <p className="mt-4 text-center">Uploading your photo...</p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </Layout>
