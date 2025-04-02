@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dog, HealthInsight, PoopEntry } from "@/types";
@@ -6,7 +7,9 @@ import HealthInsightsOverview from "./HealthInsightsOverview";
 import PoopCalendar from "@/components/PoopCalendar";
 import TrackEntryForm from "./TrackEntryForm";
 import LeaderboardCard from "@/components/social/LeaderboardCard";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Button } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -37,7 +40,7 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({
 }) => {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="mt-6">
-      <TabsList className="grid grid-cols-3 w-full max-w-md">
+      <TabsList className="grid grid-cols-4 w-full max-w-md">
         <TabsTrigger value="track" className="flex items-center gap-2">
           <PlusCircle className="h-4 w-4" />
           <span>Track</span>
