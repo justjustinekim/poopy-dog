@@ -154,3 +154,16 @@ export interface MemeTemplate {
   bottomText?: string;
   challengeId?: string;
 }
+
+export interface LeaderboardUser {
+  id: string;
+  username: string;
+  avatarUrl?: string;
+  perfectPoops: number;
+  rank: number;
+}
+
+export interface LeaderboardData {
+  currentUser?: LeaderboardUser;
+  topUsers: LeaderboardUser[];
+}
