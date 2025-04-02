@@ -1,39 +1,45 @@
 
 import React from "react";
-import { Check, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Check, Plus } from "lucide-react";
+import { useOnboarding } from "../OnboardingProvider";
 
 interface CompletionStepProps {
   onNext: () => void;
 }
 
 const CompletionStep: React.FC<CompletionStepProps> = ({ onNext }) => {
+  const { dogs, goToAddAnotherDog } = useOnboarding();
+  
   return (
-    <div className="text-center space-y-6 animate-fade-in">
-      <div className="flex justify-center mb-8">
-        <div className="relative">
-          <Check className="h-20 w-20 text-green-500 animate-bounce" />
-          <div className="absolute inset-0 bg-green-500/20 rounded-full blur-md -z-10 scale-150"></div>
-        </div>
+    <div className="space-y-6 text-center animate-fade-in">
+      <div className="mx-auto w-24 h-24 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mb-4">
+        <Check className="h-12 w-12 text-green-600 dark:text-green-300" />
       </div>
       
-      <h1 className="text-3xl font-bold">You're All Set!</h1>
-      <p className="text-gray-600 dark:text-gray-300">
-        You've successfully set up PoopyDog to track your dog's gut health.
+      <h1 className="text-2xl font-bold">You're All Set!</h1>
+      
+      <p className="text-muted-foreground">
+        {dogs.length > 1 
+          ? `You've successfully added ${dogs.length} dogs to your account.` 
+          : "You've successfully set up your dog's profile."}
+        <br />
+        We're excited to help you track and improve your dog's gut health.
       </p>
       
-      <div className="mt-8 mb-4 bg-green-50 dark:bg-green-900/20 p-6 rounded-lg">
-        <h3 className="font-bold text-xl mb-2 flex items-center justify-center">
-          <Trophy className="h-5 w-5 mr-2 text-yellow-500" /> 
-          Achievement Unlocked!
-        </h3>
-        <p className="font-medium">First Time Pooper</p>
-        <p className="text-sm text-gray-600 dark:text-gray-400">You've completed the onboarding process</p>
-      </div>
-      
-      <div className="mt-8">
-        <Button onClick={onNext} size="lg" className="mx-auto">
-          Start Tracking
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto pt-4">
+        <Button 
+          variant="outline" 
+          className="flex items-center justify-center"
+          onClick={goToAddAnotherDog}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add Another Dog
+        </Button>
+        
+        <Button onClick={onNext} className="flex items-center justify-center">
+          <Check className="mr-2 h-4 w-4" />
+          Go to Dashboard
         </Button>
       </div>
     </div>

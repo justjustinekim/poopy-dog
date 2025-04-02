@@ -10,6 +10,8 @@ interface OnboardingContextType {
   setStep: (step: number) => void;
   dogData: Partial<Dog>;
   setDogData: (data: Partial<Dog>) => void;
+  dogs: Dog[];
+  addDog: (dog: Dog) => void;
   dogAdded: boolean;
   setDogAdded: (added: boolean) => void;
   completedSteps: number[];
@@ -24,6 +26,7 @@ interface OnboardingContextType {
   handleDogSubmit: (dog: Dog) => void;
   handleHealthAssessmentComplete: (data: any) => void;
   handleLifestyleAssessmentComplete: (data: any) => void;
+  goToAddAnotherDog: () => void;
   totalSteps: number;
 }
 
@@ -50,6 +53,7 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
     age: 0,
     weight: 0,
   });
+  const [dogs, setDogs] = useState<Dog[]>([]);
   const [dogAdded, setDogAdded] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [healthData, setHealthData] = useState<any>(null);
@@ -72,6 +76,18 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
     setOnboardingProgress(progressPercentage);
   }, [step]);
 
+  const goToAddAnotherDog = () => {
+    setDogData({
+      name: "",
+      breed: "",
+      age: 0,
+      weight: 0,
+    });
+    setHealthData(null);
+    setLifestyleData(null);
+    setStep(4); // Go back to the add dog step
+  };
+
   const handleNextStep = () => {
     if (!completedSteps.includes(step)) {
       setCompletedSteps([...completedSteps, step]);
@@ -81,14 +97,13 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
       // Complete onboarding
       localStorage.setItem("onboardingCompleted", "true");
       
-      // Also store the dog in local storage for demo purposes
-      if (dogAdded) {
-        const existingDogs = JSON.parse(localStorage.getItem("dogs") || "[]");
-        localStorage.setItem("dogs", JSON.stringify([...existingDogs]));
+      // Also store the dogs in local storage for demo purposes
+      if (dogs.length > 0) {
+        localStorage.setItem("dogs", JSON.stringify(dogs));
       }
       
       navigate("/dashboard");
-      toast.success("Welcome to PoopyDog! Your dog has been added.");
+      toast.success("Welcome to PoopyDog! Your dog(s) have been added.");
     } else {
       setStep(step + 1);
     }
@@ -110,8 +125,8 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
       id: uuidv4(),
     };
     
-    const existingDogs = JSON.parse(localStorage.getItem("dogs") || "[]");
-    localStorage.setItem("dogs", JSON.stringify([...existingDogs, dogWithId]));
+    // Add the dog to our collection of dogs
+    setDogs(prevDogs => [...prevDogs, dogWithId]);
     
     toast.success(`${dog.name} has been added!`);
     setDogAdded(true);
@@ -120,18 +135,22 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
     handleNextStep();
   };
 
+  const addDog = (dog: Dog) => {
+    setDogs(prevDogs => [...prevDogs, dog]);
+  };
+
   const handleHealthAssessmentComplete = (data: any) => {
     setHealthData(data);
     
     // In a real app, we would store this data with the dog profile
     // For demo purposes, we'll just store it in local storage
-    if (dogAdded) {
-      const existingDogs = JSON.parse(localStorage.getItem("dogs") || "[]");
-      const lastDog = existingDogs[existingDogs.length - 1];
+    if (dogAdded && dogs.length > 0) {
+      const updatedDogs = [...dogs];
+      const lastDog = updatedDogs[updatedDogs.length - 1];
       
       if (lastDog) {
         lastDog.healthAssessment = data;
-        localStorage.setItem("dogs", JSON.stringify(existingDogs));
+        setDogs(updatedDogs);
       }
     }
     
@@ -142,13 +161,13 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
     setLifestyleData(data);
     
     // Store lifestyle data with the dog profile
-    if (dogAdded) {
-      const existingDogs = JSON.parse(localStorage.getItem("dogs") || "[]");
-      const lastDog = existingDogs[existingDogs.length - 1];
+    if (dogAdded && dogs.length > 0) {
+      const updatedDogs = [...dogs];
+      const lastDog = updatedDogs[updatedDogs.length - 1];
       
       if (lastDog) {
         lastDog.lifestyleData = data;
-        localStorage.setItem("dogs", JSON.stringify(existingDogs));
+        setDogs(updatedDogs);
       }
     }
     
@@ -160,6 +179,8 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
     setStep,
     dogData,
     setDogData,
+    dogs,
+    addDog,
     dogAdded,
     setDogAdded,
     completedSteps,
@@ -174,6 +195,7 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
     handleDogSubmit,
     handleHealthAssessmentComplete,
     handleLifestyleAssessmentComplete,
+    goToAddAnotherDog,
     totalSteps
   };
 

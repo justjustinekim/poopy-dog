@@ -15,31 +15,42 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("track");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [mockDogs] = useState<Dog[]>([
-    {
-      id: "dog-1",
-      name: "Buddy",
-      breed: "Golden Retriever",
-      age: 3,
-      weight: 65,
-      imageUrl: "/placeholder.svg"
-    },
-    {
-      id: "dog-2",
-      name: "Luna",
-      breed: "French Bulldog",
-      age: 2,
-      weight: 22,
-      imageUrl: "/placeholder.svg"
-    }
-  ]);
+  const [dogs, setDogs] = useState<Dog[]>([]);
   
-  const [selectedDog, setSelectedDog] = useState<Dog>(mockDogs[0]);
+  const [selectedDog, setSelectedDog] = useState<Dog | null>(null);
   const [healthInsights, setHealthInsights] = useState<HealthInsight[]>([]);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [newEntry, setNewEntry] = useState<Partial<PoopEntry> | undefined>(undefined);
   
-  const { entries, loading, addEntry } = usePoopEntries(selectedDog);
+  // Get dogs from local storage
+  useEffect(() => {
+    const storedDogs = localStorage.getItem("dogs");
+    if (storedDogs) {
+      const parsedDogs = JSON.parse(storedDogs);
+      setDogs(parsedDogs);
+      
+      // Select the first dog by default
+      if (parsedDogs.length > 0 && !selectedDog) {
+        setSelectedDog(parsedDogs[0]);
+      }
+    } else {
+      // Fallback to mock data if no dogs in storage
+      const mockDogs: Dog[] = [
+        {
+          id: "dog-1",
+          name: "Buddy",
+          breed: "Golden Retriever",
+          age: 3,
+          weight: 65,
+          imageUrl: "/placeholder.svg"
+        }
+      ];
+      setDogs(mockDogs);
+      setSelectedDog(mockDogs[0]);
+    }
+  }, []);
+  
+  const { entries, loading, addEntry } = usePoopEntries(selectedDog || undefined);
   
   useEffect(() => {
     if (selectedDog) {
@@ -48,10 +59,14 @@ const Dashboard = () => {
   }, [selectedDog]);
   
   const handleDogChange = (dogId: string) => {
-    const dog = mockDogs.find(d => d.id === dogId);
+    const dog = dogs.find(d => d.id === dogId);
     if (dog) {
       setSelectedDog(dog);
     }
+  };
+  
+  const handleAddDog = () => {
+    navigate("/onboarding");
   };
   
   const handleEntrySubmit = (entry: PoopEntry) => {
@@ -109,25 +124,30 @@ const Dashboard = () => {
       <div className="my-8">
         <h1 className="text-3xl font-bold mb-6">Dog Health Dashboard</h1>
         
-        <DogSelector 
-          dogs={mockDogs}
-          selectedDogId={selectedDog.id}
-          onDogChange={handleDogChange}
-        />
+        {selectedDog && (
+          <DogSelector 
+            dogs={dogs}
+            selectedDogId={selectedDog.id}
+            onDogChange={handleDogChange}
+            onAddDog={handleAddDog}
+          />
+        )}
         
-        <DashboardTabs 
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          selectedDog={selectedDog}
-          entries={entries}
-          healthInsights={healthInsights}
-          onEntrySubmit={handleEntrySubmit}
-          onDateSelect={handleDateSelect}
-          photoUrl={photoUrl}
-          newEntry={newEntry}
-          onChatWithAI={handleChatWithAI}
-          dogInfo={selectedDog}
-        />
+        {selectedDog && (
+          <DashboardTabs 
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            selectedDog={selectedDog}
+            entries={entries}
+            healthInsights={healthInsights}
+            onEntrySubmit={handleEntrySubmit}
+            onDateSelect={handleDateSelect}
+            photoUrl={photoUrl}
+            newEntry={newEntry}
+            onChatWithAI={handleChatWithAI}
+            dogInfo={selectedDog}
+          />
+        )}
       </div>
     </Container>
   );

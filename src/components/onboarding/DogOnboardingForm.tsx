@@ -21,7 +21,7 @@ const DogOnboardingForm: React.FC<DogOnboardingFormProps> = ({
   onCancel
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(initialValues.imageUrl || null);
   const [showConfetti, setShowConfetti] = useState(false);
 
   // Initialize the form with default or provided values
@@ -33,16 +33,16 @@ const DogOnboardingForm: React.FC<DogOnboardingFormProps> = ({
       age: initialValues.age || 0,
       weight: initialValues.weight || 0,
       imageUrl: initialValues.imageUrl || "",
-      foodSensitivity: "none",
-      digestiveIssues: [],
-      poopFrequency: "2-3",
-      digestiveHealth: "normal",
-      dietType: "kibble",
-      personalityTraits: [],
-      favoriteTreats: "",
-      birthdate: "",
-      microchipped: false,
-      adoptionStory: "",
+      foodSensitivity: initialValues.foodSensitivity || "none",
+      digestiveIssues: initialValues.digestiveIssues || [],
+      poopFrequency: initialValues.poopFrequency || "2-3",
+      digestiveHealth: initialValues.digestiveHealth || "normal",
+      dietType: initialValues.dietType || "kibble",
+      personalityTraits: initialValues.personalityTraits || [],
+      favoriteTreats: initialValues.favoriteTreats || "",
+      birthdate: initialValues.birthdate || "",
+      microchipped: initialValues.microchipped || false,
+      adoptionStory: initialValues.adoptionStory || "",
     },
   });
 
