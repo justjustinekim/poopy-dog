@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
+import { fetchProfileWithFallback, updateProfileWithFallback } from '@/utils/profileHelpers';
 
 export interface Profile {
   id: string;
@@ -56,19 +57,15 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
       try {
         setLoading(true);
         
-        // Use a raw SQL query instead of the typed client to get around type issues
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+        // Use our fallback mechanism that handles both RPC and direct queries
+        const { data, error } = await fetchProfileWithFallback(user.id);
         
         if (error) {
           throw error;
         }
         
         if (isMounted && data) {
-          setProfile(data as Profile);
+          setProfile(data);
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -99,13 +96,11 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
     try {
       setLoading(true);
       
-      const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', user.id);
+      // Use our fallback mechanism
+      const { error: updateError } = await updateProfileWithFallback(user.id, updates);
         
-      if (error) {
-        throw error;
+      if (updateError) {
+        throw updateError;
       }
       
       // Update local state
@@ -120,7 +115,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
     }
   };
 
-  // Upload avatar function
+  // Upload avatar function - No changes needed here
   const uploadAvatar = async (file: File): Promise<string | null> => {
     if (!user) {
       toast.error('You must be logged in to upload an avatar');
