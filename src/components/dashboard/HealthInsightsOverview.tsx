@@ -2,9 +2,10 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { HealthInsight, PoopEntry } from "@/types";
-import { AlertTriangle, CheckCircle, Info, BarChart2, Stethoscope, Calendar } from "lucide-react";
+import { AlertTriangle, CheckCircle, Info, BarChart2, Stethoscope, Calendar, Utensils, Zap, Droplets } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 interface HealthInsightsOverviewProps {
   dogName: string;
@@ -54,20 +55,51 @@ const HealthInsightsOverview: React.FC<HealthInsightsOverviewProps> = ({
     }
   };
 
+  // Calculate overall digestive health score (simplified model)
+  const calculateHealthScore = () => {
+    // Count good indicators
+    const goodCount = recentEntries.filter(entry => 
+      entry.consistency === "normal" && entry.color === "brown"
+    ).length;
+    
+    // Return a percentage based on good entries vs total
+    if (recentEntries.length === 0) return 0;
+    return Math.round((goodCount / recentEntries.length) * 100);
+  };
+
+  const healthScore = calculateHealthScore();
+
   return (
     <div className="space-y-6">
-      <Card className="glass-card">
-        <CardHeader>
+      <Card className="glass-card overflow-hidden">
+        <CardHeader className="relative bg-gradient-to-r from-primary/10 to-primary/5 pb-8">
           <CardTitle className="flex items-center">
-            <BarChart2 className="mr-2 h-5 w-5 text-primary" />
-            Health Summary for {dogName}
+            <Stethoscope className="mr-2 h-5 w-5 text-primary" />
+            {dogName}'s Gut Health Overview
           </CardTitle>
           <CardDescription>
-            Based on {entries.length} entries and recent activity
+            Holistic analysis based on {entries.length} entries and recent activity
           </CardDescription>
+          
+          {/* Health Score */}
+          <div className="absolute right-8 top-8">
+            <div className="relative w-20 h-20 rounded-full bg-background flex items-center justify-center">
+              <div 
+                className="absolute inset-0 rounded-full" 
+                style={{
+                  background: `conic-gradient(${healthScore >= 70 ? '#10b981' : healthScore >= 40 ? '#f59e0b' : '#ef4444'} ${healthScore}%, transparent 0)`,
+                  mask: 'radial-gradient(white 55%, transparent 0)',
+                  WebkitMask: 'radial-gradient(white 55%, transparent 0)'
+                }}
+              ></div>
+              <span className="text-2xl font-bold">{healthScore}%</span>
+            </div>
+            <div className="text-center mt-1 text-xs font-medium">Gut Health</div>
+          </div>
         </CardHeader>
+        
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-6">
             {/* Vet Alert Banner - Only show if there are critical insights */}
             {hasVetRecommendation && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
@@ -88,57 +120,99 @@ const HealthInsightsOverview: React.FC<HealthInsightsOverviewProps> = ({
               </div>
             )}
 
-            {/* Recent Activity Summary */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium mb-2 flex items-center">
-                <Calendar className="mr-2 h-4 w-4 text-primary" />
-                Recent Activity (Last 7 Days)
-              </h3>
-              {recentEntries.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-background/50 p-4 rounded-md">
-                    <h4 className="text-sm font-medium mb-2">Consistency</h4>
-                    <div className="space-y-2">
-                      {Object.entries(consistencyCounts).map(([consistency, count]) => (
-                        <div key={consistency} className="flex justify-between items-center">
-                          <span className="capitalize">{consistency}</span>
-                          <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded-full">
-                            {count} {count === 1 ? 'time' : 'times'}
-                          </span>
-                        </div>
-                      ))}
-                      {Object.keys(consistencyCounts).length === 0 && (
-                        <p className="text-sm text-muted-foreground">No data available</p>
-                      )}
+            {/* Digestive health summary cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="bg-background/50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center text-base">
+                    <Utensils className="h-4 w-4 mr-2 text-primary" />
+                    Food & Digestion
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {colorCounts && Object.keys(colorCounts).length > 0 ? (
+                    <div className="space-y-2 text-sm">
+                      <p>Based on stool color analysis, {dogName}'s food digestion appears to be 
+                        <span className={`font-semibold ${colorCounts['brown'] ? 'text-green-500' : 'text-yellow-500'}`}>
+                          {colorCounts['brown'] ? ' normal' : ' showing signs of imbalance'}
+                        </span>.
+                      </p>
+                      <div className="text-xs text-muted-foreground mt-2">
+                        Recommendation: {colorCounts['brown'] ? 'Continue current diet.' : 'Consider diet adjustments and monitor for changes.'}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No recent data available for analysis.</p>
+                  )}
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-background/50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center text-base">
+                    <Zap className="h-4 w-4 mr-2 text-primary" />
+                    Digestive Efficiency
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {consistencyCounts && Object.keys(consistencyCounts).length > 0 ? (
+                    <div className="space-y-2 text-sm">
+                      <p>Stool consistency indicates 
+                        <span className={`font-semibold ${consistencyCounts['normal'] ? 'text-green-500' : 'text-yellow-500'}`}>
+                          {consistencyCounts['normal'] ? ' efficient' : ' potentially inefficient'} digestion
+                        </span>.
+                      </p>
+                      <div className="text-xs text-muted-foreground mt-2">
+                        Recommendation: {consistencyCounts['normal'] ? 'Maintain current feeding schedule.' : 'Consider smaller, more frequent meals or adding fiber.'}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No recent data available for analysis.</p>
+                  )}
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-background/50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center text-base">
+                    <Droplets className="h-4 w-4 mr-2 text-primary" />
+                    Hydration Status
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <p>Based on stool consistency, {dogName}'s hydration appears to be 
+                      <span className={`font-semibold ${
+                        consistencyCounts && (consistencyCounts['liquid'] || consistencyCounts['soft']) 
+                          ? 'text-yellow-500'
+                          : (consistencyCounts && consistencyCounts['solid'] ? 'text-yellow-500' : 'text-green-500')
+                      }`}>
+                      {consistencyCounts && (consistencyCounts['liquid'] || consistencyCounts['soft']) 
+                        ? ' excessive'
+                        : (consistencyCounts && consistencyCounts['solid'] ? ' insufficient' : ' adequate')}
+                      </span>.
+                    </p>
+                    <div className="text-xs text-muted-foreground mt-2">
+                      Recommendation: {
+                        consistencyCounts && (consistencyCounts['liquid'] || consistencyCounts['soft'])
+                          ? 'Monitor water intake, ensure food isn\'t too wet.'
+                          : (consistencyCounts && consistencyCounts['solid'] 
+                              ? 'Increase fresh water availability.'
+                              : 'Continue providing fresh water consistently.')
+                      }
                     </div>
                   </div>
-                  <div className="bg-background/50 p-4 rounded-md">
-                    <h4 className="text-sm font-medium mb-2">Color</h4>
-                    <div className="space-y-2">
-                      {Object.entries(colorCounts).map(([color, count]) => (
-                        <div key={color} className="flex justify-between items-center">
-                          <span className="capitalize">{color}</span>
-                          <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded-full">
-                            {count} {count === 1 ? 'time' : 'times'}
-                          </span>
-                        </div>
-                      ))}
-                      {Object.keys(colorCounts).length === 0 && (
-                        <p className="text-sm text-muted-foreground">No data available</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-muted-foreground">No recent entries available</p>
-              )}
+                </CardContent>
+              </Card>
             </div>
+
+            <Separator />
 
             {/* Health Insights */}
             <div>
-              <h3 className="text-lg font-medium mb-2 flex items-center">
-                <Info className="mr-2 h-4 w-4 text-primary" />
-                Health Insights
+              <h3 className="text-lg font-medium mb-4 flex items-center">
+                <Info className="mr-2 h-5 w-5 text-primary" />
+                Detailed Health Insights
               </h3>
               {insights.length > 0 ? (
                 <div className="space-y-3">
@@ -180,9 +254,39 @@ const HealthInsightsOverview: React.FC<HealthInsightsOverviewProps> = ({
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground">No health insights available</p>
+                <div className="bg-background/50 p-6 rounded-md text-center">
+                  <Info className="mx-auto h-10 w-10 text-primary/30 mb-2" />
+                  <p className="text-muted-foreground">No health insights available yet. Continue tracking entries to generate insights.</p>
+                </div>
               )}
             </div>
+            
+            {/* Lifestyle tips */}
+            <Card className="bg-primary/5 border-primary/20">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Holistic Gut Health Tips for {dogName}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex">
+                    <span className="mr-2 text-primary">•</span>
+                    <span>Regular exercise helps stimulate healthy bowel movements</span>
+                  </li>
+                  <li className="flex">
+                    <span className="mr-2 text-primary">•</span>
+                    <span>Avoid sudden diet changes which can upset digestion</span>
+                  </li>
+                  <li className="flex">
+                    <span className="mr-2 text-primary">•</span>
+                    <span>Probiotic supplements can help maintain gut flora balance</span>
+                  </li>
+                  <li className="flex">
+                    <span className="mr-2 text-primary">•</span>
+                    <span>Stress can impact digestive health - maintain a calm environment</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
           </div>
         </CardContent>
       </Card>

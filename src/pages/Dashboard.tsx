@@ -16,7 +16,8 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { dogs, loading: dogsLoading } = useDogs();
   
-  const [activeTab, setActiveTab] = useState("track");
+  // Change default tab to insights instead of track
+  const [activeTab, setActiveTab] = useState("insights");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedDog, setSelectedDog] = useState<Dog | null>(null);
   const [healthInsights, setHealthInsights] = useState<HealthInsight[]>([]);
@@ -102,7 +103,7 @@ const Dashboard = () => {
       <AuthCheck />
       
       <div className="my-8">
-        <h1 className="text-3xl font-bold mb-6">Dog Health Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-6">Gut Health Dashboard</h1>
         
         {selectedDog && (
           <DogSelector 
