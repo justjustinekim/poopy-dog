@@ -1,155 +1,88 @@
+
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { Trophy, Star, Gift, Check, AlertCircle, Skull } from "lucide-react";
+import { Trophy, Star, Gift, Check, AlertCircle, Skull, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Achievement, BadgeType } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-
-const mockAchievements: Achievement[] = [
-  {
-    id: "1",
-    title: "Poop Tracker",
-    description: "Track your first poop!",
-    icon: "💩",
-    unlocked: true,
-    dateUnlocked: "2023-05-10"
-  },
-  {
-    id: "2",
-    title: "Consistency King",
-    description: "Track poop for 7 days in a row",
-    icon: "👑",
-    unlocked: true,
-    dateUnlocked: "2023-05-17"
-  },
-  {
-    id: "3",
-    title: "Poop Analyzer",
-    description: "Use the AI analysis feature 5 times",
-    icon: "🔍",
-    unlocked: false,
-    progress: 3,
-    maxProgress: 5
-  },
-  {
-    id: "neg-1",
-    title: "Streak Breaker",
-    description: "Missed tracking for 3 days in a row after having a streak",
-    icon: "💔",
-    isNegative: true,
-    unlocked: true,
-    dateUnlocked: "2023-05-20",
-    penaltyPoints: 50
-  },
-  {
-    id: "neg-2",
-    title: "Neglectful Owner",
-    description: "Didn't respond to a health warning for over 48 hours",
-    icon: "😓",
-    isNegative: true,
-    unlocked: false,
-    penaltyPoints: 75
-  },
-  {
-    id: "neg-3",
-    title: "Tardy Tracker",
-    description: "Consistently logged poop data more than 5 hours after the event",
-    icon: "⏰",
-    isNegative: true,
-    unlocked: true,
-    dateUnlocked: "2023-06-01",
-    penaltyPoints: 25
-  },
-  {
-    id: "4",
-    title: "Social Butterfly",
-    description: "Share 3 posts on PupSocial",
-    icon: "🦋",
-    unlocked: false,
-    progress: 1,
-    maxProgress: 3
-  },
-  {
-    id: "5",
-    title: "Doggone Detective",
-    description: "Identify an abnormal poop and take action",
-    icon: "🕵️",
-    unlocked: false
-  }
-];
-
-const mockBadges: BadgeType[] = [
-  {
-    id: "1",
-    name: "Poop Pioneer",
-    icon: "🏆",
-    rarity: "common",
-    description: "Early adopter of PupPoopVision"
-  },
-  {
-    id: "2",
-    name: "Super Scooper",
-    icon: "🦸",
-    rarity: "uncommon",
-    description: "Tracked 30 poops in one month"
-  },
-  {
-    id: "3",
-    name: "Health Guardian",
-    icon: "🛡️",
-    rarity: "rare",
-    description: "Detected and treated 3 health issues early"
-  },
-  {
-    id: "4",
-    name: "Community Legend",
-    icon: "👑",
-    rarity: "epic",
-    description: "Helped 10 other dog parents with advice"
-  },
-  {
-    id: "5",
-    name: "Perfect Pooper",
-    icon: "✨",
-    rarity: "legendary",
-    description: "Maintained optimal poop health for 90 days"
-  }
-];
+import { useAchievements } from "@/hooks/useAchievements";
+import Challenges from "@/components/Challenges";
 
 const Achievements: React.FC = () => {
-  const [achievements, setAchievements] = useState<Achievement[]>(mockAchievements);
-  const [badges, setBadges] = useState<BadgeType[]>(mockBadges);
-  const [showConfetti, setShowConfetti] = useState(false);
   const [showNegative, setShowNegative] = useState(true);
+  const [showConfetti, setShowConfetti] = useState(false);
   const { toast } = useToast();
   
+  const {
+    achievements,
+    challenges,
+    loading,
+    streak,
+    totalPenaltyPoints,
+    level,
+    experience,
+    nextLevelExp,
+    refreshAchievements
+  } = useAchievements();
+  
+  // Mockup data for badges until we implement them
+  const [badges, setBadges] = useState<BadgeType[]>([
+    {
+      id: "1",
+      name: "Poop Pioneer",
+      icon: "🏆",
+      rarity: "common",
+      description: "Early adopter of PupPoopVision"
+    },
+    {
+      id: "2",
+      name: "Super Scooper",
+      icon: "🦸",
+      rarity: "uncommon",
+      description: "Tracked 30 poops in one month"
+    },
+    {
+      id: "3",
+      name: "Health Guardian",
+      icon: "🛡️",
+      rarity: "rare",
+      description: "Detected and treated 3 health issues early"
+    },
+    {
+      id: "4",
+      name: "Community Legend",
+      icon: "👑",
+      rarity: "epic",
+      description: "Helped 10 other dog parents with advice"
+    },
+    {
+      id: "5",
+      name: "Perfect Pooper",
+      icon: "✨",
+      rarity: "legendary",
+      description: "Maintained optimal poop health for 90 days"
+    }
+  ]);
+  
   const handleUnlockAchievement = (id: string) => {
-    setAchievements(prev => 
-      prev.map(a => 
-        a.id === id 
-          ? { ...a, unlocked: true, dateUnlocked: new Date().toISOString() } 
-          : a
-      )
-    );
-    
-    setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 3000);
-    
+    // This is just for the UI demo - in a real app, achievements would be unlocked by the backend
     toast({
       title: "Achievement Unlocked! 🎉",
       description: "You've earned a new achievement!",
       className: "bg-yellow-500 text-white font-bold",
     });
+    
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 3000);
+    
+    refreshAchievements();
   };
   
-  const userLevel = 5;
-  const userExp = 340;
-  const nextLevelExp = 500;
-  const expPercentage = (userExp / nextLevelExp) * 100;
+  const expPercentage = (experience / nextLevelExp) * 100;
   
   const getRarityColor = (rarity: string) => {
     switch(rarity) {
@@ -161,10 +94,6 @@ const Achievements: React.FC = () => {
       default: return 'bg-gray-200 text-gray-800';
     }
   };
-  
-  const totalPenaltyPoints = achievements
-    .filter(a => a.isNegative && a.unlocked)
-    .reduce((total, achievement) => total + (achievement.penaltyPoints || 0), 0);
   
   const renderConfetti = () => {
     if (!showConfetti) return null;
@@ -202,6 +131,27 @@ const Achievements: React.FC = () => {
     showNegative ? true : !achievement.isNegative
   );
   
+  const positiveAchievements = achievements.filter(a => !a.isNegative);
+  const negativeAchievements = achievements.filter(a => a.isNegative);
+  
+  if (loading) {
+    return (
+      <Layout className="pb-20">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center py-20">
+            <div className="animate-pulse flex flex-col items-center">
+              <div className="rounded-full bg-gray-200 h-20 w-20 mb-4"></div>
+              <div className="h-6 bg-gray-200 rounded w-1/2 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/4 mb-6"></div>
+              <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+  
   return (
     <Layout className="pb-20">
       {renderConfetti()}
@@ -217,12 +167,12 @@ const Achievements: React.FC = () => {
           </div>
           
           <CardContent className="pt-14 pb-6 text-center">
-            <h2 className="text-2xl font-bold mb-1">Level {userLevel} Doggo Expert</h2>
+            <h2 className="text-2xl font-bold mb-1">Level {level} Doggo Expert</h2>
             <p className="text-gray-500 mb-4">Keep tracking to earn rewards!</p>
             
             <div className="max-w-xs mx-auto">
               <div className="flex justify-between text-sm mb-1">
-                <span>EXP: {userExp}/{nextLevelExp}</span>
+                <span>EXP: {experience}/{nextLevelExp}</span>
                 <span>{Math.round(expPercentage)}%</span>
               </div>
               <Progress value={expPercentage} className="h-3 mb-4" />
@@ -242,11 +192,11 @@ const Achievements: React.FC = () => {
             
             <div className="flex justify-center gap-3 mt-4">
               <div className="text-center">
-                <div className="text-2xl font-bold">{achievements.filter(a => a.unlocked && !a.isNegative).length}</div>
+                <div className="text-2xl font-bold">{positiveAchievements.filter(a => a.unlocked).length}</div>
                 <div className="text-xs text-gray-500">Achievements</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold">12</div>
+                <div className="text-2xl font-bold">{streak}</div>
                 <div className="text-xs text-gray-500">Day Streak</div>
               </div>
               <div className="text-center">
@@ -258,7 +208,7 @@ const Achievements: React.FC = () => {
         </Card>
         
         <Tabs defaultValue="achievements" className="mb-10">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="achievements" className="gap-2">
               <Trophy className="h-4 w-4" />
               <span>Achievements</span>
@@ -267,6 +217,10 @@ const Achievements: React.FC = () => {
               <AlertCircle className="h-4 w-4" />
               <span>Setbacks</span>
             </TabsTrigger>
+            <TabsTrigger value="challenges" className="gap-2">
+              <Calendar className="h-4 w-4" />
+              <span>Challenges</span>
+            </TabsTrigger>
             <TabsTrigger value="badges" className="gap-2">
               <Star className="h-4 w-4" />
               <span>Badges</span>
@@ -274,9 +228,16 @@ const Achievements: React.FC = () => {
           </TabsList>
           
           <TabsContent value="achievements" className="space-y-4">
-            {filteredAchievements
-              .filter(achievement => !achievement.isNegative)
-              .map((achievement) => (
+            {positiveAchievements.length === 0 ? (
+              <div className="text-center py-10">
+                <Trophy className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">No Achievements Yet</h3>
+                <p className="text-gray-500 text-sm">
+                  Keep tracking your dog's health to earn achievements!
+                </p>
+              </div>
+            ) : (
+              positiveAchievements.map((achievement) => (
                 <Card 
                   key={achievement.id} 
                   className={cn(
@@ -325,6 +286,7 @@ const Achievements: React.FC = () => {
                       )}
                     </div>
                     
+                    {/* Demo button - would be implemented differently in production */}
                     {!achievement.unlocked && achievement.id === "3" && (
                       <button 
                         className="text-xs bg-primary text-white px-2 py-1 rounded hover:bg-primary/90"
@@ -335,13 +297,21 @@ const Achievements: React.FC = () => {
                     )}
                   </CardHeader>
                 </Card>
-            ))}
+              ))
+            )}
           </TabsContent>
           
           <TabsContent value="negatives" className="space-y-4">
-            {achievements
-              .filter(achievement => achievement.isNegative)
-              .map((achievement) => (
+            {negativeAchievements.length === 0 ? (
+              <div className="text-center py-10">
+                <Check className="h-12 w-12 text-green-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">No Setbacks!</h3>
+                <p className="text-gray-500 text-sm">
+                  Great job! You haven't triggered any negative achievements.
+                </p>
+              </div>
+            ) : (
+              negativeAchievements.map((achievement) => (
                 <Card 
                   key={achievement.id} 
                   className={cn(
@@ -383,6 +353,7 @@ const Achievements: React.FC = () => {
                       )}
                     </div>
                     
+                    {/* Demo button - would be implemented differently in production */}
                     {!achievement.unlocked && achievement.id === "neg-2" && (
                       <button 
                         className="text-xs bg-destructive text-white px-2 py-1 rounded hover:bg-destructive/90"
@@ -393,7 +364,8 @@ const Achievements: React.FC = () => {
                     )}
                   </CardHeader>
                 </Card>
-            ))}
+              ))
+            )}
             
             <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <p className="text-sm text-center text-gray-600 dark:text-gray-300">
@@ -401,6 +373,10 @@ const Achievements: React.FC = () => {
                 They can penalize your score but can be remedied by consistent tracking habits!
               </p>
             </div>
+          </TabsContent>
+          
+          <TabsContent value="challenges" className="space-y-4">
+            <Challenges challenges={challenges} loading={loading} />
           </TabsContent>
           
           <TabsContent value="badges" className="grid grid-cols-2 gap-4">

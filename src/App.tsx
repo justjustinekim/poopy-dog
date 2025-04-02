@@ -21,6 +21,7 @@ import AuthProvider from "./contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import AchievementPopup from "./components/AchievementPopup";
 import { useAuth } from "./contexts/AuthContext";
+import { useAchievements } from "./hooks/useAchievements";
 
 const queryClient = new QueryClient();
 
@@ -56,13 +57,14 @@ const AppRoutes = () => {
   const [showAchievement, setShowAchievement] = useState(false);
   const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
   const { user } = useAuth();
+  const { achievements, loading } = useAchievements();
   
   useEffect(() => {
     const hasSeenDemo = localStorage.getItem('hasSeenAchievementDemo');
     const hasSeenNegativeDemo = localStorage.getItem('hasSeenNegativeAchievementDemo');
     
-    // Show welcome achievement first
-    if (!hasSeenDemo) {
+    // Only show demos if no real achievements are unlocked
+    if (!hasSeenDemo && (!achievements.length || loading)) {
       setTimeout(() => {
         setCurrentAchievement({
           id: "welcome",
@@ -76,7 +78,7 @@ const AppRoutes = () => {
       }, 2000);
     } 
     // Show negative achievement demo after welcome
-    else if (!hasSeenNegativeDemo) {
+    else if (!hasSeenNegativeDemo && (!achievements.length || loading)) {
       setTimeout(() => {
         setCurrentAchievement({
           id: "streak-breaker",
@@ -91,7 +93,22 @@ const AppRoutes = () => {
         localStorage.setItem('hasSeenNegativeAchievementDemo', 'true');
       }, 3000);
     }
-  }, []);
+  }, [achievements, loading]);
+  
+  // Check for newly unlocked achievements
+  useEffect(() => {
+    if (!loading && achievements.length > 0) {
+      const newlyUnlocked = achievements.find(
+        a => a.unlocked && a.dateUnlocked && 
+        new Date(a.dateUnlocked).getTime() > (Date.now() - 1000 * 10) // Unlocked in last 10 seconds
+      );
+      
+      if (newlyUnlocked && !showAchievement) {
+        setCurrentAchievement(newlyUnlocked);
+        setShowAchievement(true);
+      }
+    }
+  }, [achievements, loading]);
   
   return (
     <>

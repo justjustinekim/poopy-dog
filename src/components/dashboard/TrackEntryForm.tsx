@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import PhotoUpload from "@/components/PhotoUpload";
@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import PoopEntryForm from "./PoopEntryForm";
 import FormActions from "./FormActions";
 import { usePoopEntryForm } from "@/hooks/usePoopEntryForm";
+import { useAchievements } from "@/hooks/useAchievements";
 
 interface TrackEntryFormProps {
   selectedDogId: string;
@@ -31,6 +32,7 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
 }) => {
   const { user } = useAuth();
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const { refreshAchievements } = useAchievements();
   
   const {
     formData,
@@ -135,6 +137,11 @@ const TrackEntryForm: React.FC<TrackEntryFormProps> = ({
       }
       
       onSubmit(newPoopEntry);
+      
+      // Refresh achievements to check for newly unlocked ones
+      setTimeout(() => {
+        refreshAchievements();
+      }, 1000);
       
       toast.success("Entry saved successfully!");
     } catch (error) {

@@ -86,6 +86,12 @@ const AchievementPopup: React.FC<AchievementPopupProps> = ({ achievement, onClos
               Penalty: -{achievement.penaltyPoints} points
             </p>
           )}
+          
+          {!isNegative && (
+            <p className="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
+              +50 experience points!
+            </p>
+          )}
         </div>
       </div>
     </div>

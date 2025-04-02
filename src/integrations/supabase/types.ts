@@ -9,6 +9,99 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          achievement_type: string
+          category: string | null
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          is_negative: boolean | null
+          max_progress: number | null
+          penalty_points: number | null
+          title: string
+          trigger_condition: string | null
+          trigger_value: number | null
+          updated_at: string
+        }
+        Insert: {
+          achievement_type: string
+          category?: string | null
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          is_negative?: boolean | null
+          max_progress?: number | null
+          penalty_points?: number | null
+          title: string
+          trigger_condition?: string | null
+          trigger_value?: number | null
+          updated_at?: string
+        }
+        Update: {
+          achievement_type?: string
+          category?: string | null
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          is_negative?: boolean | null
+          max_progress?: number | null
+          penalty_points?: number | null
+          title?: string
+          trigger_condition?: string | null
+          trigger_value?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      challenges: {
+        Row: {
+          challenge_type: string
+          condition: string
+          condition_value: number
+          created_at: string
+          description: string
+          end_date: string
+          icon: string
+          id: string
+          points: number
+          start_date: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          challenge_type: string
+          condition: string
+          condition_value: number
+          created_at?: string
+          description: string
+          end_date: string
+          icon: string
+          id?: string
+          points: number
+          start_date: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          challenge_type?: string
+          condition?: string
+          condition_value?: number
+          created_at?: string
+          description?: string
+          end_date?: string
+          icon?: string
+          id?: string
+          points?: number
+          start_date?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       poop_entries: {
         Row: {
           color: string
@@ -48,12 +141,105 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          created_at: string
+          id: string
+          progress: number | null
+          unlocked: boolean | null
+          unlocked_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          created_at?: string
+          id?: string
+          progress?: number | null
+          unlocked?: boolean | null
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          created_at?: string
+          id?: string
+          progress?: number | null
+          unlocked?: boolean | null
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_challenges: {
+        Row: {
+          challenge_id: string
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          progress: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          progress?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          progress?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenges_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_daily_challenges: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      generate_monthly_challenges: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      generate_weekly_challenges: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
