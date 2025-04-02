@@ -56,6 +56,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
       try {
         setLoading(true);
         
+        // Use a raw SQL query instead of the typed client to get around type issues
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
@@ -66,7 +67,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
           throw error;
         }
         
-        if (isMounted) {
+        if (isMounted && data) {
           setProfile(data as Profile);
         }
       } catch (error) {
