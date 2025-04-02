@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +12,7 @@ import { Dog } from "@/types";
 import { useDogs } from "@/hooks/useDogs";
 import { Dog as DogIcon, User, Settings, Trash2, Upload, Save, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ProfileForm from "@/components/profile/ProfileForm";
 
 const Profile: React.FC = () => {
   const { dogs, addDog: addDogToDb, deleteDog } = useDogs();
@@ -135,7 +135,6 @@ const Profile: React.FC = () => {
                 </Card>
               ))}
               
-              {/* Add new dog card */}
               <Card 
                 className={cn(
                   "glass-card overflow-hidden",
@@ -249,59 +248,7 @@ const Profile: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="account" className="animate-slide-up">
-            <Card className="glass-card max-w-2xl">
-              <CardHeader>
-                <CardTitle>Account Information</CardTitle>
-                <CardDescription>Manage your personal details and preferences</CardDescription>
-              </CardHeader>
-              
-              <CardContent>
-                <div className="flex flex-col md:flex-row gap-8 items-start">
-                  <div className="flex flex-col items-center">
-                    <Avatar className="h-24 w-24 mb-4">
-                      <AvatarImage src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256" />
-                      <AvatarFallback>US</AvatarFallback>
-                    </Avatar>
-                    <Button variant="outline" size="sm">
-                      <Upload className="mr-2 h-4 w-4" />
-                      Change Photo
-                    </Button>
-                  </div>
-                  
-                  <div className="flex-1 space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="firstName">First Name</Label>
-                        <Input id="firstName" placeholder="Your first name" defaultValue="John" />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="lastName">Last Name</Label>
-                        <Input id="lastName" placeholder="Your last name" defaultValue="Doe" />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" placeholder="Your email address" defaultValue="john.doe@example.com" />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
-                      <Input id="password" type="password" value="********" readOnly />
-                      <Button variant="link" className="text-xs h-auto p-0">Change password</Button>
-                    </div>
-                    
-                    <div className="pt-4">
-                      <Button>
-                        <Save className="mr-2 h-4 w-4" />
-                        Save Changes
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <ProfileForm />
           </TabsContent>
           
           <TabsContent value="settings" className="animate-slide-up">

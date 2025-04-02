@@ -1,6 +1,4 @@
 
-// This file also needs to be updated to use the dynamic redirect URL
-
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { SupabaseClient, User, Session } from '@supabase/supabase-js';
 import { toast } from "sonner";
@@ -10,7 +8,7 @@ type AuthContextType = {
   user: User | null;
   session: Session | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, options?: { data?: any }) => Promise<void>;
   signOut: () => Promise<void>;
   loading: boolean;
 };
@@ -78,14 +76,15 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, supabase }) => {
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, options?: { data?: any }) => {
     try {
       setLoading(true);
       const { error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
-          emailRedirectTo: getRedirectUrl()
+          emailRedirectTo: getRedirectUrl(),
+          data: options?.data
         }
       });
       if (error) throw error;

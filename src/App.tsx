@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -17,6 +18,7 @@ import Onboarding from "./pages/Onboarding";
 import Log from "./pages/Log";
 import { Achievement } from "./types";
 import AuthProvider from "./contexts/AuthContext";
+import ProfileProvider from "./contexts/ProfileContext";
 import { supabase } from "@/integrations/supabase/client";
 import AchievementPopup from "./components/AchievementPopup";
 import { useAuth } from "./contexts/AuthContext";
@@ -143,11 +145,13 @@ const App = () => {
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider supabase={supabase as any}>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner position="top-right" closeButton />
-            <AppRoutes />
-          </TooltipProvider>
+          <ProfileProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner position="top-right" closeButton />
+              <AppRoutes />
+            </TooltipProvider>
+          </ProfileProvider>
         </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>
