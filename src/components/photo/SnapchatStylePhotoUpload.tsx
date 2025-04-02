@@ -9,6 +9,8 @@ interface SnapchatStylePhotoUploadProps {
   fileInputRef: React.RefObject<HTMLInputElement>;
   capturePhoto: () => void;
   clearPreview: () => void;
+  cameraError: string | null;
+  activateCamera: () => void;
 }
 
 const SnapchatStylePhotoUpload: React.FC<SnapchatStylePhotoUploadProps> = ({
@@ -18,6 +20,8 @@ const SnapchatStylePhotoUpload: React.FC<SnapchatStylePhotoUploadProps> = ({
   fileInputRef,
   capturePhoto,
   clearPreview,
+  cameraError,
+  activateCamera
 }) => {
   return (
     <div className="relative h-full">
@@ -104,7 +108,17 @@ const SnapchatStylePhotoUpload: React.FC<SnapchatStylePhotoUploadProps> = ({
         <div className="absolute inset-0 flex items-center justify-center bg-black/90">
           <div className="text-center p-6">
             <Camera className="h-12 w-12 mx-auto mb-4 text-white" />
-            <p className="text-white text-lg mb-6">Camera access required</p>
+            <p className="text-white text-lg mb-2">
+              {cameraError || "Camera access required"}
+            </p>
+            {cameraError && (
+              <button 
+                onClick={activateCamera}
+                className="bg-white text-black rounded-full px-6 py-3 font-medium mb-4"
+              >
+                Try Again
+              </button>
+            )}
             <button
               onClick={() => fileInputRef.current?.click()}
               className="bg-white text-black rounded-full px-6 py-3 font-medium"

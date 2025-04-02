@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Camera, Upload, X, ImageIcon, Check } from "lucide-react";
+import { Camera, Upload, X, ImageIcon, Check, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface StandardPhotoUploadProps {
@@ -13,6 +13,7 @@ interface StandardPhotoUploadProps {
   clearPreview: () => void;
   reactivateCamera: () => void;
   fileInputRef: React.RefObject<HTMLInputElement>;
+  cameraError: string | null;
 }
 
 const StandardPhotoUpload: React.FC<StandardPhotoUploadProps> = ({
@@ -24,6 +25,7 @@ const StandardPhotoUpload: React.FC<StandardPhotoUploadProps> = ({
   clearPreview,
   reactivateCamera,
   fileInputRef,
+  cameraError
 }) => {
   return (
     <>
@@ -34,6 +36,13 @@ const StandardPhotoUpload: React.FC<StandardPhotoUploadProps> = ({
           <p className="text-sm text-gray-500 mb-6">
             Take a clear photo of your dog's poop for accurate analysis
           </p>
+          
+          {cameraError && (
+            <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-md flex items-start">
+              <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+              <p className="text-sm">{cameraError}</p>
+            </div>
+          )}
           
           <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
             <Button 

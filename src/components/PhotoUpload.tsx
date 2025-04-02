@@ -18,6 +18,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
     isLoading,
     isSuccess,
     isCameraActive,
+    cameraError,
     fileInputRef,
     videoRef,
     handleFileChange,
@@ -56,6 +57,8 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
             fileInputRef={fileInputRef}
             capturePhoto={capturePhoto}
             clearPreview={clearPreview}
+            cameraError={cameraError}
+            activateCamera={activateCamera}
           />
         )}
         
@@ -82,6 +85,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
         clearPreview={clearPreview}
         reactivateCamera={reactivateCamera}
         fileInputRef={fileInputRef}
+        cameraError={cameraError}
       />
 
       {isCameraActive && (
