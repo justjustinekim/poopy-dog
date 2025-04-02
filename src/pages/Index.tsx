@@ -47,57 +47,16 @@ const Index: React.FC = () => {
           </p>
         </div>
         
-        {/* Middle section with cute dog illustration */}
+        {/* Middle section with puppy image */}
         <div className="flex-1 flex items-center justify-center relative mb-6">
-          <div className="w-64 h-64 sm:w-80 sm:h-80 relative">
-            {/* Cute dog illustration - updated to look more like a Golden Retriever */}
+          <div className="w-72 h-72 sm:w-96 sm:h-96 relative">
+            {/* Puppy image with poop */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-full h-full flex items-center justify-center">
-                <svg viewBox="0 0 200 200" className="w-full h-full">
-                  {/* Dog body - golden retriever style */}
-                  <ellipse cx="100" cy="110" rx="70" ry="65" className="fill-[#F9D7A2]" />
-                  
-                  {/* Dog ears - floppy golden retriever style */}
-                  <ellipse cx="55" cy="65" rx="28" ry="32" className="fill-[#F0C171] transform -rotate-15" />
-                  <ellipse cx="145" cy="65" rx="28" ry="32" className="fill-[#F0C171] transform rotate-15" />
-                  
-                  {/* Dog head */}
-                  <circle cx="100" cy="80" r="48" className="fill-[#F9D7A2]" />
-                  
-                  {/* Dog snout */}
-                  <ellipse cx="100" cy="98" rx="28" ry="22" className="fill-[#F5E2B8]" />
-                  <ellipse cx="100" cy="105" rx="16" ry="10" className="fill-[#8B5A2B]" />
-                  
-                  {/* Dog tongue */}
-                  <ellipse cx="100" cy="110" rx="8" ry="4" className="fill-[#FF9999]" />
-                  
-                  {/* Dog eyes */}
-                  <circle cx="82" cy="75" r="5" className="fill-[#4A4A4A]" />
-                  <circle cx="118" cy="75" r="5" className="fill-[#4A4A4A]" />
-                  
-                  {/* Dog eyes shine */}
-                  <circle cx="84" cy="73" r="2" className="fill-white" />
-                  <circle cx="120" cy="73" r="2" className="fill-white" />
-                  
-                  {/* Dog eyebrows */}
-                  <path d="M76,68 Q82,66 88,68" stroke="#A87D42" strokeWidth="1.5" fill="none" />
-                  <path d="M112,68 Q118,66 124,68" stroke="#A87D42" strokeWidth="1.5" fill="none" />
-                  
-                  {/* Dog smile */}
-                  <path d="M88,95 Q100,102 112,95" stroke="#4A4A4A" strokeWidth="2" fill="none" />
-                  
-                  {/* Dog blush */}
-                  <circle cx="75" cy="90" r="8" className="fill-[#FFA6A6] opacity-40" />
-                  <circle cx="125" cy="90" r="8" className="fill-[#FFA6A6] opacity-40" />
-                  
-                  {/* Darker fur patches */}
-                  <ellipse cx="130" cy="125" rx="25" ry="20" className="fill-[#E8B05F]" />
-                  <ellipse cx="70" cy="125" rx="20" ry="15" className="fill-[#E8B05F]" />
-                  
-                  {/* Tail */}
-                  <path d="M35,100 Q25,80 35,60" stroke="#F0C171" strokeWidth="12" fill="none" strokeLinecap="round" />
-                </svg>
-              </div>
+              <img 
+                src="/public/lovable-uploads/cd27b7ca-bdf1-4c2c-88e6-e8f78a5bb6e1.png" 
+                alt="Cute cartoon puppy with poop" 
+                className="w-full h-full object-contain"
+              />
             </div>
             
             {/* Floating poop emoji decorations */}
@@ -109,11 +68,6 @@ const Index: React.FC = () => {
             <div className="absolute top-12 -left-6 animate-float delay-700">
               <div className="w-8 h-8 bg-brown-200 rounded-full flex items-center justify-center">
                 <span role="img" aria-label="poop" className="text-lg">💩</span>
-              </div>
-            </div>
-            <div className="absolute bottom-8 -right-8 animate-float">
-              <div className="w-12 h-12 bg-brown-400 rounded-full flex items-center justify-center">
-                <span role="img" aria-label="poop" className="text-2xl">💩</span>
               </div>
             </div>
             
