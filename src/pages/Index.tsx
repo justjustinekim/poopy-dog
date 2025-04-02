@@ -65,7 +65,7 @@ const Index: React.FC = () => {
                 <span role="img" aria-label="poop" className="text-2xl">💩</span>
                 {/* Score bubble */}
                 <div className="absolute -top-2 -right-2 bg-yellow-400 text-primary text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-white dark:border-gray-800 animate-pulse">
-                  +5
+                  +1
                 </div>
               </div>
             </div>
@@ -110,9 +110,11 @@ const Index: React.FC = () => {
               Get started
             </Button>
             
-            {/* Paw print on top right corner of button */}
-            <div className="absolute -top-3 -right-2 z-10 transform rotate-12 animate-float">
-              <PawPrint size={32} className="text-primary fill-primary/20" />
+            {/* Paw print stamp */}
+            <div className="absolute -top-3 -right-2 z-10">
+              <div className="bg-white dark:bg-white rounded-full w-9 h-9 flex items-center justify-center shadow-md transform rotate-12 animate-float">
+                <PawPrint size={28} className="text-black fill-black/20" />
+              </div>
             </div>
           </div>
           
