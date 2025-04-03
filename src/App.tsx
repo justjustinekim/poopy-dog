@@ -16,6 +16,7 @@ import Chat from "./pages/Chat";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Log from "./pages/Log";
+import LogEntry from "./pages/LogEntry"; // Add import for new page
 import { Achievement } from "./types";
 import AuthProvider from "./contexts/AuthContext";
 import ProfileProvider from "./contexts/ProfileContext";
@@ -124,6 +125,7 @@ const AppRoutes = () => {
         <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
         <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
         <Route path="/log" element={<ProtectedRoute><Log /></ProtectedRoute>} />
+        <Route path="/log-entry" element={<ProtectedRoute><LogEntry /></ProtectedRoute>} />
         <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
         <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
