@@ -1,4 +1,6 @@
 
+# This is the config file for your Supabase Edge functions
+
 project_id = "innpsmqpjsopnsoropfy"
 
 [functions.env]

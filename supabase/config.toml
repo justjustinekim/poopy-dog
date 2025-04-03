@@ -120,4 +120,3 @@ enabled = true
 [functions]
 [functions.analyze-poop]
 verify_jwt = true
-
