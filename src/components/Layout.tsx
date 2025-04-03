@@ -21,7 +21,7 @@ const Layout: React.FC<LayoutProps> = ({
   const isMobile = useIsMobile();
   
   return (
-    <div className="min-h-screen flex flex-col bg-[#d6f7eb] dark:bg-gray-900">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       {!hideHeader && <Header />}
       <main className={cn(
         "flex-1 flex flex-col",
@@ -37,7 +37,7 @@ const Layout: React.FC<LayoutProps> = ({
         </div>
       </main>
       <footer className={cn(
-        "py-8 px-4 mt-16 border-t border-gray-100 dark:border-gray-800 bg-[#c4f1df] dark:bg-gray-800",
+        "py-8 px-4 mt-16 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800",
         isMobile && "mb-16" // Add margin at the bottom for mobile to accommodate the tab bar
       )}>
         <div className="max-w-7xl mx-auto">

@@ -53,7 +53,7 @@ const Log = () => {
 
   return (
     <Layout>
-      <div className="w-full h-full flex flex-col items-center">
+      <div className="w-full h-full flex flex-col items-center bg-white dark:bg-gray-900">
         <div className="w-full h-[calc(100vh-6rem)] max-w-md mx-auto">
           <PhotoUpload 
             onPhotoCapture={handlePhotoCapture} 

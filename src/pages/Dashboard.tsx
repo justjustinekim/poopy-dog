@@ -95,42 +95,44 @@ const Dashboard = () => {
   };
   
   if (dogsLoading || entriesLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <div className="flex justify-center items-center h-screen bg-white dark:bg-gray-900">Loading...</div>;
   }
   
   return (
-    <Container>
-      <AuthCheck />
-      
-      <div className="my-8">
-        <h1 className="text-3xl font-bold mb-6">Gut Health Dashboard</h1>
+    <div className="bg-white dark:bg-gray-900 min-h-screen">
+      <Container>
+        <AuthCheck />
         
-        {selectedDog && (
-          <DogSelector 
-            dogs={dogs}
-            selectedDogId={selectedDog.id}
-            onDogChange={handleDogChange}
-            onAddDog={handleAddDog}
-          />
-        )}
-        
-        {selectedDog && (
-          <DashboardTabs 
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            selectedDog={selectedDog}
-            entries={entries}
-            healthInsights={healthInsights}
-            onEntrySubmit={handleEntrySubmit}
-            onDateSelect={handleDateSelect}
-            photoUrl={photoUrl}
-            newEntry={newEntry}
-            onChatWithAI={handleChatWithAI}
-            dogInfo={selectedDog}
-          />
-        )}
-      </div>
-    </Container>
+        <div className="my-8">
+          <h1 className="text-3xl font-bold mb-6">Gut Health Dashboard</h1>
+          
+          {selectedDog && (
+            <DogSelector 
+              dogs={dogs}
+              selectedDogId={selectedDog.id}
+              onDogChange={handleDogChange}
+              onAddDog={handleAddDog}
+            />
+          )}
+          
+          {selectedDog && (
+            <DashboardTabs 
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              selectedDog={selectedDog}
+              entries={entries}
+              healthInsights={healthInsights}
+              onEntrySubmit={handleEntrySubmit}
+              onDateSelect={handleDateSelect}
+              photoUrl={photoUrl}
+              newEntry={newEntry}
+              onChatWithAI={handleChatWithAI}
+              dogInfo={selectedDog}
+            />
+          )}
+        </div>
+      </Container>
+    </div>
   );
 };
 

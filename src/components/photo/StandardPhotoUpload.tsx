@@ -42,7 +42,7 @@ const StandardPhotoUpload: React.FC<StandardPhotoUploadProps> = ({
   return (
     <>
       {!previewUrl && (
-        <div className="glass-card p-8 flex flex-col items-center justify-center text-center">
+        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-8 flex flex-col items-center justify-center text-center shadow-sm">
           <ImageIcon className="h-12 w-12 text-gray-400 mb-4" />
           <h3 className="text-lg font-medium mb-1">Capture a photo</h3>
           <p className="text-sm text-gray-500 mb-6">
@@ -50,7 +50,7 @@ const StandardPhotoUpload: React.FC<StandardPhotoUploadProps> = ({
           </p>
           
           {cameraError && (
-            <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-md flex items-start">
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-md flex items-start">
               <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
               <p className="text-sm">{cameraError}</p>
             </div>
@@ -80,7 +80,7 @@ const StandardPhotoUpload: React.FC<StandardPhotoUploadProps> = ({
       )}
 
       {previewUrl && (
-        <div className="glass-card p-4">
+        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-4 shadow-sm">
           <div className="relative rounded-lg overflow-hidden aspect-video">
             <img 
               src={previewUrl} 
