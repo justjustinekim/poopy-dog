@@ -35,11 +35,18 @@ export async function fetchProfileWithFallback(userId: string) {
     if (!existingProfile) {
       console.log('No profile found, creating one for user:', userId);
       
-      // Important change: Use auth.uid() to verify current user ID
-      const { data: newProfile, error: createError } = await supabase.rpc('create_profile_for_user');
+      // Fix TypeScript error by using a typed explicit function call
+      // Cast the response type to handle the TypeScript limitation
+      const { data: newProfile, error: createError } = await supabase.functions.invoke(
+        'create-profile', // We'll use an edge function instead of RPC
+        {
+          method: 'POST',
+          body: { userId }
+        }
+      ) as unknown as { data: Profile | null, error: Error | null };
       
       if (createError) {
-        console.error('Error creating profile with RPC:', createError);
+        console.error('Error creating profile with edge function:', createError);
         console.log('Falling back to direct insert with auth.uid() check...');
         
         // Fallback method: This should work because of our RLS policy
@@ -64,11 +71,11 @@ export async function fetchProfileWithFallback(userId: string) {
       }
       
       if (!newProfile) {
-        console.error('Failed to create profile - no data returned from RPC');
-        throw new Error('Failed to create profile with RPC');
+        console.error('Failed to create profile - no data returned from edge function');
+        throw new Error('Failed to create profile with edge function');
       }
       
-      console.log('Successfully created new profile with RPC:', newProfile);
+      console.log('Successfully created new profile with edge function:', newProfile);
       return { data: newProfile, error: null };
     }
     
