@@ -46,7 +46,8 @@ export const useCamera = ({
     fileInputRef,
     handleFileChange,
     capturePhoto,
-    clearPreview
+    clearPreview,
+    setPreviewUrl
   } = usePhotoCapture({
     initialPhotoUrl,
     onPhotoCapture,
@@ -69,7 +70,7 @@ export const useCamera = ({
   }, [snapchatStyle, isCameraActive, previewUrl, checkCameraPermissions, activateCamera]);
 
   const reactivateCamera = () => {
-    setPreviewUrl(null);
+    clearPreview();
     activateCamera();
   };
 

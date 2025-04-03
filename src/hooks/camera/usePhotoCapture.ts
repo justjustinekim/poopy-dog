@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export interface UsePhotoCaptureReturn {
   previewUrl: string | null;
@@ -9,6 +9,7 @@ export interface UsePhotoCaptureReturn {
   handleFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   capturePhoto: () => void;
   clearPreview: () => void;
+  setPreviewUrl: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export interface UsePhotoCaptureProps {
@@ -115,6 +116,7 @@ export const usePhotoCapture = ({
     fileInputRef,
     handleFileChange,
     capturePhoto,
-    clearPreview
+    clearPreview,
+    setPreviewUrl
   };
 };
