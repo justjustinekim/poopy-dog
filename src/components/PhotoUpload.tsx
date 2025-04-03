@@ -1,7 +1,7 @@
 
 import React, { useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { useCamera } from "@/hooks/useCamera";
+import { useCamera } from "@/hooks/camera";
 import StandardPhotoUpload from "./photo/StandardPhotoUpload";
 import SnapchatStylePhotoUpload from "./photo/SnapchatStylePhotoUpload";
 import CameraView from "./photo/CameraView";
