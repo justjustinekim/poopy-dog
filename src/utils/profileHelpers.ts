@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/contexts/ProfileContext';
 
@@ -14,44 +13,54 @@ function isProfile(data: any): data is Profile {
   );
 }
 
-// Fallback function to get a profile when the RPC function isn't available
+// Fetch profile with better error handling
 export async function fetchProfileWithFallback(userId: string) {
   try {
-    // Better error handling by using maybeSingle() instead of single()
-    const { data, error } = await supabase
+    console.log('Fetching profile for user:', userId);
+    
+    // Use maybeSingle() instead of single() to handle the case where no profile exists
+    const { data: existingProfile, error: fetchError } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .maybeSingle();
-      
-    if (error) {
-      console.error('Error fetching profile with standard query:', error);
-      throw error;
+    
+    if (fetchError) {
+      console.error('Error fetching profile with standard query:', fetchError);
+      throw fetchError;
     }
     
     // If no profile exists, create one
-    if (!data) {
-      console.log('No profile found, creating one:', userId);
+    if (!existingProfile) {
+      console.log('No profile found, creating one for user:', userId);
+      
       const { data: newProfile, error: createError } = await supabase
         .from('profiles')
-        .insert({ id: userId })
-        .select('*')
+        .insert([{ id: userId }])
+        .select()
         .maybeSingle();
-        
+      
       if (createError) {
         console.error('Error creating profile:', createError);
         throw createError;
       }
       
+      if (!newProfile) {
+        throw new Error('Failed to create profile');
+      }
+      
       return { data: newProfile, error: null };
     }
     
-    // Verify the data is a Profile before returning it
-    if (isProfile(data)) {
-      return { data, error: null };
+    // Verify the data matches the Profile structure
+    if (isProfile(existingProfile)) {
+      return { data: existingProfile, error: null };
     } else {
-      console.error('Data returned does not match Profile structure:', data);
-      return { data: null, error: new Error('Invalid profile data structure') };
+      console.error('Invalid profile data structure:', existingProfile);
+      return { 
+        data: null, 
+        error: new Error('Invalid profile data structure') 
+      };
     }
   } catch (error) {
     console.error('Error in profile fallback:', error);

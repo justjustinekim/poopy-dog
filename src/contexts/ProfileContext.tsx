@@ -56,21 +56,25 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
       
       try {
         setLoading(true);
+        console.log('Fetching profile for user:', user.id);
         
         // Use our fallback mechanism that handles both RPC and direct queries
         const { data, error } = await fetchProfileWithFallback(user.id);
         
         if (error) {
+          console.error('Error fetching profile:', error);
           throw error;
         }
         
         if (isMounted && data) {
           setProfile(data);
+          setError(null);
         }
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error('Error in fetchProfile:', error);
         if (isMounted) {
           setError(error as Error);
+          setProfile(null);
         }
       } finally {
         if (isMounted) {
