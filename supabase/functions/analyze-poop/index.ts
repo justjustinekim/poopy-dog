@@ -16,6 +16,12 @@ serve(async (req) => {
   }
 
   try {
+    // Log API key status (masked for security)
+    console.log('OpenAI API Key status check:');
+    console.log('API Key exists:', !!openAIApiKey);
+    console.log('API Key first 5 chars:', openAIApiKey ? openAIApiKey.substring(0, 5) + '...' : 'none');
+    console.log('API Key length:', openAIApiKey ? openAIApiKey.length : 0);
+    
     const { imageUrl, imageBase64, dogInfo } = await req.json();
     
     // Check if we have either imageUrl or imageBase64

@@ -16,6 +16,12 @@ serve(async (req) => {
   }
 
   try {
+    // Log API key status (masked for security)
+    console.log('OpenAI API Key status check in analyze-poop-chat:');
+    console.log('API Key exists:', !!openAIApiKey);
+    console.log('API Key first 5 chars:', openAIApiKey ? openAIApiKey.substring(0, 5) + '...' : 'none');
+    console.log('API Key length:', openAIApiKey ? openAIApiKey.length : 0);
+    
     const { message, imageBase64, dogInfo, conversation } = await req.json();
     
     console.log("Received chat request. Has image:", !!imageBase64);
@@ -73,6 +79,7 @@ ${dogInfo ? `Information about the dog: ${JSON.stringify(dogInfo)}` : ''}`;
     }
 
     // Call OpenAI API
+    console.log('Calling OpenAI API...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
