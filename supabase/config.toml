@@ -57,11 +57,6 @@ double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
 enable_confirmations = false
 
-# Uncomment to customize email template
-# [auth.email.template.invite]
-# subject = "You have been invited"
-# content_path = "./supabase/templates/invite.html"
-
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.
 enable_signup = true
@@ -88,9 +83,6 @@ client_id = ""
 secret = ""
 # The `redirect_uri` should follow the pattern `https://<project-ref>.supabase.co/auth/v1/callback`
 redirect_uri = ""
-# Automatically create a user account on successful sign-in.
-[auth.external.apple.auto_sign_up]
-enabled = true
 
 [auth.external.github]
 enabled = false
@@ -98,9 +90,6 @@ client_id = ""
 secret = ""
 # The `redirect_uri` should follow the pattern `https://<project-ref>.supabase.co/auth/v1/callback`
 redirect_uri = ""
-# Automatically create a user account on successful sign-in.
-[auth.external.github.auto_sign_up]
-enabled = true
 
 [auth.external.google]
 enabled = false
@@ -108,13 +97,6 @@ client_id = ""
 secret = ""
 # The `redirect_uri` should follow the pattern `https://<project-ref>.supabase.co/auth/v1/callback`
 redirect_uri = ""
-# Automatically create a user account on successful sign-in.
-[auth.external.google.auto_sign_up]
-enabled = true
-[auth.external.google.user_mapping]
-user_id = "id"
-email = "email"
-full_name = "name"
 
 [analytics]
 enabled = false
@@ -139,13 +121,9 @@ file_size_limit = "50MiB"
 [realtime]
 enabled = true
 
-# Enable or disable Realtime Webhooks.
-# We strongly suggest to use the DB webhooks instead of Realtime for production workloads.
-webhooks_enabled = false
-
 [functions]
 [functions.analyze-poop]
 verify_jwt = true
 
-[functions.env_variables]
+[functions.env]
 OPENAI_API_KEY = "your-key-will-be-set-via-ui"

@@ -1,5 +1,5 @@
 
 project_id = "innpsmqpjsopnsoropfy"
 
-[functions.env_variables]
+[functions.env]
 OPENAI_API_KEY = "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"

@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import { useAchievements } from "@/hooks/useAchievements";
 
@@ -68,8 +67,8 @@ const LogEntry = () => {
         
         if (data) {
           setFormData({
-            consistency: data.consistency || 'normal',
-            color: data.color || 'brown',
+            consistency: (data.consistency || 'normal') as PoopConsistency,
+            color: (data.color || 'brown') as PoopColor,
             notes: data.notes || '',
             location: data.location || '',
             date: data.date || new Date().toISOString(),
@@ -95,10 +94,22 @@ const LogEntry = () => {
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    if (name === 'consistency') {
+      setFormData(prev => ({
+        ...prev,
+        consistency: value as PoopConsistency
+      }));
+    } else if (name === 'color') {
+      setFormData(prev => ({
+        ...prev,
+        color: value as PoopColor
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
