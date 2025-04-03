@@ -6,16 +6,33 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { PoopColor, PoopConsistency } from "@/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { format } from "date-fns";
+import { useAchievements } from "@/hooks/useAchievements";
 
 const LogEntry = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { refreshAchievements } = useAchievements();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [entryId, setEntryId] = useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(true);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [healthInsights, setHealthInsights] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [formData, setFormData] = useState({
+    consistency: 'normal' as PoopConsistency,
+    color: 'brown' as PoopColor,
+    notes: '',
+    location: '',
+    date: new Date().toISOString(),
+  });
 
   useEffect(() => {
     if (!user) {
@@ -38,39 +55,72 @@ const LogEntry = () => {
     setImageUrl(imageUrlParam);
     setEntryId(entryIdParam);
 
-    // Call the Supabase Edge Function to analyze the image
-    const analyzeImage = async () => {
-      setIsAnalyzing(true);
+    // Fetch the existing entry data
+    const fetchEntryData = async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('analyze-poop', {
-          body: { imageUrl: imageUrlParam },
-        });
-
+        const { data, error } = await supabase
+          .from('poop_entries')
+          .select('*')
+          .eq('id', entryIdParam)
+          .single();
+          
         if (error) throw error;
         
-        setHealthInsights(data.analysis);
+        if (data) {
+          setFormData({
+            consistency: data.consistency || 'normal',
+            color: data.color || 'brown',
+            notes: data.notes || '',
+            location: data.location || '',
+            date: data.date || new Date().toISOString(),
+          });
+          
+          setHealthInsights(data.notes);
+        }
       } catch (error) {
-        console.error("Error analyzing image:", error);
-        toast.error("Failed to analyze image");
-        setHealthInsights("Unable to analyze the image. Please try again later.");
-      } finally {
-        setIsAnalyzing(false);
+        console.error("Error fetching entry data:", error);
+        toast.error("Failed to load entry data");
       }
     };
 
-    analyzeImage();
+    fetchEntryData();
   }, [location, navigate, user]);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      date: new Date(e.target.value).toISOString()
+    }));
+  };
+
   const handleFinalizeEntry = async () => {
-    if (!entryId || !healthInsights || !user) return;
+    if (!entryId || !user) return;
 
     setIsUpdating(true);
     try {
       const { error } = await supabase
         .from('poop_entries')
         .update({ 
-          notes: healthInsights,
-          // We could also update consistency and color based on AI analysis
+          notes: formData.notes,
+          consistency: formData.consistency,
+          color: formData.color,
+          location: formData.location,
+          date: formData.date
         })
         .eq('id', entryId)
         .eq('user_id', user.id);
@@ -78,7 +128,12 @@ const LogEntry = () => {
       if (error) throw error;
 
       toast.success("Entry finalized successfully!");
-      navigate("/social");
+      
+      // Refresh achievements to check for newly unlocked ones
+      refreshAchievements();
+      
+      // Navigate to dashboard with calendar tab active
+      navigate("/dashboard?tab=calendar");
     } catch (error) {
       console.error("Error finalizing entry:", error);
       toast.error("Failed to finalize entry");
@@ -108,25 +163,110 @@ const LogEntry = () => {
               {imageUrl && <img src={imageUrl} alt="Dog poop" className="w-full h-full object-cover" />}
             </div>
             
-            <div className="bg-gray-50 dark:bg-gray-200 rounded-lg p-4 mb-4">
-              <h3 className="font-medium mb-2">Health Insights</h3>
-              
-              {isAnalyzing ? (
-                <div className="flex flex-col items-center py-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
-                  <p className="mt-2 text-sm text-gray-500">Analyzing poop...</p>
+            <Card className="mb-4">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Health Insights</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isAnalyzing ? (
+                  <div className="flex flex-col items-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+                    <p className="mt-2 text-sm text-gray-500">Analyzing poop...</p>
+                  </div>
+                ) : (
+                  <p className="text-sm">{healthInsights || "No analysis available"}</p>
+                )}
+              </CardContent>
+            </Card>
+            
+            <Card className="mb-4">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Entry Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="date">Date and Time</Label>
+                    <Input 
+                      id="date" 
+                      type="datetime-local" 
+                      value={format(new Date(formData.date), "yyyy-MM-dd'T'HH:mm")}
+                      onChange={handleDateChange}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="consistency">Consistency</Label>
+                    <Select 
+                      value={formData.consistency} 
+                      onValueChange={(value) => handleSelectChange("consistency", value)}
+                    >
+                      <SelectTrigger id="consistency">
+                        <SelectValue placeholder="Select consistency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="normal">Normal</SelectItem>
+                        <SelectItem value="soft">Soft</SelectItem>
+                        <SelectItem value="liquid">Liquid</SelectItem>
+                        <SelectItem value="solid">Solid</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="color">Color</Label>
+                    <Select 
+                      value={formData.color} 
+                      onValueChange={(value) => handleSelectChange("color", value)}
+                    >
+                      <SelectTrigger id="color">
+                        <SelectValue placeholder="Select color" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="brown">Brown</SelectItem>
+                        <SelectItem value="green">Green</SelectItem>
+                        <SelectItem value="yellow">Yellow</SelectItem>
+                        <SelectItem value="red">Red</SelectItem>
+                        <SelectItem value="black">Black</SelectItem>
+                        <SelectItem value="white">White</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location (optional)</Label>
+                    <Input 
+                      id="location" 
+                      name="location" 
+                      value={formData.location} 
+                      onChange={handleInputChange} 
+                      placeholder="Where was the sample found?"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea 
+                      id="notes" 
+                      name="notes" 
+                      value={formData.notes} 
+                      onChange={handleInputChange} 
+                      placeholder="Any additional observations or notes"
+                      rows={3}
+                    />
+                  </div>
                 </div>
-              ) : (
-                <p className="text-sm">{healthInsights}</p>
-              )}
-            </div>
+              </CardContent>
+            </Card>
             
             <Button 
               onClick={handleFinalizeEntry} 
               disabled={isAnalyzing || isUpdating} 
               className="w-full bg-green-500 hover:bg-green-600"
             >
-              {isUpdating ? "Finalizing..." : "Finalize Entry"}
+              {isUpdating ? "Finalizing..." : "Save Entry"}
             </Button>
           </div>
         </div>

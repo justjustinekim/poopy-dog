@@ -35,21 +35,21 @@ export const useAchievements = () => {
   const loading = achievementsLoading || challengesLoading || statsLoading;
 
   useEffect(() => {
-    // Only notify about achievements if user is logged in
+    // Only notify about achievements if user is logged in and we have actual achievements
     if (user && !achievementsLoading && achievements.length > 0) {
       notifyNewAchievements(achievements);
     }
   }, [achievements, achievementsLoading, user]);
 
   return {
-    achievements,
-    challenges,
+    achievements: user ? achievements : [],
+    challenges: user ? challenges : [],
     loading,
-    streak,
-    totalPenaltyPoints,
-    level,
-    experience,
-    nextLevelExp,
+    streak: user ? streak : 0,
+    totalPenaltyPoints: user ? totalPenaltyPoints : 0,
+    level: user ? level : 1,
+    experience: user ? experience : 0,
+    nextLevelExp: user ? nextLevelExp : 100,
     refreshAchievements,
     refreshChallenges
   };

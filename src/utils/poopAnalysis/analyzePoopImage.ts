@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { fileToBase64 } from "./fileUtils";
 import { getColorForPoopColor } from "./colorUtils";
 
-// Real AI image analysis function using OpenAI
+// Real AI image analysis function using OpenAI via Supabase Edge Function
 export async function analyzePoopImage(imageFile: File, dogInfo?: any): Promise<{
   isPoop: boolean;
   confidence: number;
