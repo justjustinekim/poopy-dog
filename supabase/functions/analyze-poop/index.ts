@@ -58,6 +58,11 @@ serve(async (req) => {
     3. Key observations about gut health
     4. Brief recommendation`;
 
+    // Ensure the image data has the proper data URL prefix if it's base64
+    const imageData = imageBase64 
+      ? (imageBase64.startsWith('data:image/') ? imageBase64 : `data:image/jpeg;base64,${imageBase64}`)
+      : imageUrl;
+
     // Call OpenAI API to analyze the image
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -82,7 +87,7 @@ serve(async (req) => {
               { 
                 type: 'image_url', 
                 image_url: { 
-                  url: imageBase64 ? imageBase64 : imageUrl 
+                  url: imageData
                 } 
               }
             ]

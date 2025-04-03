@@ -68,7 +68,9 @@ ${dogInfo ? `Information about the dog: ${JSON.stringify(dogInfo)}` : ''}`;
               { 
                 type: 'image_url', 
                 image_url: {
-                  url: `data:image/jpeg;base64,${imageBase64}`
+                  url: imageBase64.startsWith('data:image/') 
+                    ? imageBase64 
+                    : `data:image/jpeg;base64,${imageBase64}`
                 }
               }
             ]
