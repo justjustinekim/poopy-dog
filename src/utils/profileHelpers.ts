@@ -35,24 +35,40 @@ export async function fetchProfileWithFallback(userId: string) {
     if (!existingProfile) {
       console.log('No profile found, creating one for user:', userId);
       
-      // Create a new profile with the user ID
-      const { data: newProfile, error: createError } = await supabase
-        .from('profiles')
-        .insert([{ id: userId }])
-        .select()
-        .maybeSingle();
+      // Important change: Use auth.uid() to verify current user ID
+      const { data: newProfile, error: createError } = await supabase.rpc('create_profile_for_user');
       
       if (createError) {
-        console.error('Error creating profile:', createError);
-        throw createError;
+        console.error('Error creating profile with RPC:', createError);
+        console.log('Falling back to direct insert with auth.uid() check...');
+        
+        // Fallback method: This should work because of our RLS policy
+        const { data: fallbackProfile, error: fallbackError } = await supabase
+          .from('profiles')
+          .insert({ id: userId })
+          .select()
+          .single();
+        
+        if (fallbackError) {
+          console.error('Error in fallback profile creation:', fallbackError);
+          throw fallbackError;
+        }
+        
+        if (!fallbackProfile) {
+          console.error('Failed to create profile - no data returned from fallback');
+          throw new Error('Failed to create profile with fallback method');
+        }
+        
+        console.log('Successfully created new profile with fallback:', fallbackProfile);
+        return { data: fallbackProfile, error: null };
       }
       
       if (!newProfile) {
-        console.error('Failed to create profile - no data returned');
-        throw new Error('Failed to create profile');
+        console.error('Failed to create profile - no data returned from RPC');
+        throw new Error('Failed to create profile with RPC');
       }
       
-      console.log('Successfully created new profile:', newProfile);
+      console.log('Successfully created new profile with RPC:', newProfile);
       return { data: newProfile, error: null };
     }
     
