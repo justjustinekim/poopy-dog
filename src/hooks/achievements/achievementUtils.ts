@@ -1,3 +1,4 @@
+
 import { Achievement, Challenge } from "@/types";
 import { AchievementRow, UserAchievementRow, ChallengeRow, UserChallengeRow } from "@/types/supabase";
 import { toast } from "sonner";
@@ -80,8 +81,14 @@ export const getCurrentStreak = (achievements: Achievement[]): number => {
 
 /**
  * Checks for newly unlocked achievements and displays toast notifications
+ * Will only notify if there are actual achievements to show and user is authenticated
  */
 export const notifyNewAchievements = (achievements: Achievement[]): boolean => {
+  // Skip notification if no achievements or empty array
+  if (!achievements || achievements.length === 0) {
+    return false;
+  }
+  
   const newlyUnlocked = achievements.filter(
     a => a.unlocked && !a.isNegative && a.dateUnlocked && 
     new Date(a.dateUnlocked).getTime() > (Date.now() - 1000 * 10) // Unlocked in last 10 seconds

@@ -62,45 +62,49 @@ const AppRoutes = () => {
   const { achievements, loading } = useAchievements();
   
   useEffect(() => {
-    const hasSeenDemo = localStorage.getItem('hasSeenAchievementDemo');
-    const hasSeenNegativeDemo = localStorage.getItem('hasSeenNegativeAchievementDemo');
-    
-    // Only show demos if no real achievements are unlocked
-    if (!hasSeenDemo && (!achievements.length || loading)) {
-      setTimeout(() => {
-        setCurrentAchievement({
-          id: "welcome",
-          title: "Welcome to PoopyDog",
-          description: "You've taken the first step to better dog health!",
-          icon: "🐶",
-          unlocked: true,
-          achievementType: "standard"
-        });
-        setShowAchievement(true);
-        localStorage.setItem('hasSeenAchievementDemo', 'true');
-      }, 2000);
-    } 
-    // Show negative achievement demo after welcome
-    else if (!hasSeenNegativeDemo && (!achievements.length || loading)) {
-      setTimeout(() => {
-        setCurrentAchievement({
-          id: "streak-breaker",
-          title: "Streak Breaker",
-          description: "You've missed tracking for 3 days in a row after having a streak.",
-          icon: "💔",
-          isNegative: true,
-          unlocked: true,
-          penaltyPoints: 50,
-          achievementType: "standard"
-        });
-        setShowAchievement(true);
-        localStorage.setItem('hasSeenNegativeAchievementDemo', 'true');
-      }, 3000);
+    // Only show achievement demos if the user is logged in
+    if (user) {
+      const hasSeenDemo = localStorage.getItem('hasSeenAchievementDemo');
+      const hasSeenNegativeDemo = localStorage.getItem('hasSeenNegativeAchievementDemo');
+      
+      // Only show demos if no real achievements are unlocked
+      if (!hasSeenDemo && (!achievements.length || loading)) {
+        setTimeout(() => {
+          setCurrentAchievement({
+            id: "welcome",
+            title: "Welcome to PoopyDog",
+            description: "You've taken the first step to better dog health!",
+            icon: "🐶",
+            unlocked: true,
+            achievementType: "standard"
+          });
+          setShowAchievement(true);
+          localStorage.setItem('hasSeenAchievementDemo', 'true');
+        }, 2000);
+      } 
+      // Show negative achievement demo after welcome
+      else if (!hasSeenNegativeDemo && (!achievements.length || loading)) {
+        setTimeout(() => {
+          setCurrentAchievement({
+            id: "streak-breaker",
+            title: "Streak Breaker",
+            description: "You've missed tracking for 3 days in a row after having a streak.",
+            icon: "💔",
+            isNegative: true,
+            unlocked: true,
+            penaltyPoints: 50,
+            achievementType: "standard"
+          });
+          setShowAchievement(true);
+          localStorage.setItem('hasSeenNegativeAchievementDemo', 'true');
+        }, 3000);
+      }
     }
-  }, [achievements, loading]);
+  }, [achievements, loading, user]);
   
   useEffect(() => {
-    if (!loading && achievements.length > 0) {
+    // Only check for new achievements if user is logged in
+    if (user && !loading && achievements.length > 0) {
       const newlyUnlocked = achievements.find(
         a => a.unlocked && a.dateUnlocked && 
         new Date(a.dateUnlocked).getTime() > (Date.now() - 1000 * 10)
@@ -111,7 +115,7 @@ const AppRoutes = () => {
         setShowAchievement(true);
       }
     }
-  }, [achievements, loading]);
+  }, [achievements, loading, user]);
   
   return (
     <>
@@ -132,7 +136,8 @@ const AppRoutes = () => {
       </Routes>
       <AppNav />
       
-      {showAchievement && currentAchievement && (
+      {/* Only show achievement popups if user is authenticated */}
+      {user && showAchievement && currentAchievement && (
         <AchievementPopup 
           achievement={currentAchievement}
           onClose={() => setShowAchievement(false)}

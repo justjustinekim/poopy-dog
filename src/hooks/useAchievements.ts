@@ -4,11 +4,13 @@ import { useUserAchievements } from "./achievements/useUserAchievements";
 import { useUserChallenges } from "./achievements/useUserChallenges";
 import { usePlayerStats } from "./achievements/usePlayerStats";
 import { notifyNewAchievements } from "./achievements/achievementUtils";
+import { useAuth } from "@/contexts/AuthContext";
 
 /**
  * Main hook to access user achievements, challenges, and stats
  */
 export const useAchievements = () => {
+  const { user } = useAuth();
   const { 
     achievements, 
     loading: achievementsLoading, 
@@ -33,10 +35,11 @@ export const useAchievements = () => {
   const loading = achievementsLoading || challengesLoading || statsLoading;
 
   useEffect(() => {
-    if (!achievementsLoading && achievements.length > 0) {
+    // Only notify about achievements if user is logged in
+    if (user && !achievementsLoading && achievements.length > 0) {
       notifyNewAchievements(achievements);
     }
-  }, [achievements, achievementsLoading]);
+  }, [achievements, achievementsLoading, user]);
 
   return {
     achievements,
