@@ -32,6 +32,8 @@ serve(async (req) => {
       );
     }
 
+    console.log('Calling OpenAI API with image URL:', imageUrl);
+
     // Call OpenAI API to analyze the image
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -69,6 +71,7 @@ serve(async (req) => {
     }
 
     const analysis = data.choices?.[0]?.message?.content || 'Unable to analyze the image.';
+    console.log('Analysis result:', analysis.substring(0, 100) + '...');
 
     return new Response(
       JSON.stringify({ analysis }),
