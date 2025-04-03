@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { PoopEntry, PoopConsistency, PoopColor, HealthInsight } from "@/types";
-import { analyzePoopImage } from "@/utils/imageAnalysis";
+import { analyzePoopImage } from "@/utils/poopAnalysis";
 import { toast } from "sonner";
 
 interface UsePoopEntryFormProps {
@@ -80,7 +80,11 @@ export const usePoopEntryForm = ({
     // Automatically analyze the photo with AI
     try {
       setIsAnalyzing(true);
+      console.log("Starting analysis of captured photo...");
+      console.log("Dog info:", dogInfo);
+      
       const result = await analyzePoopImage(file, dogInfo);
+      console.log("Analysis result:", result);
       setAiAnalysisResult(result);
       
       // Update form data with AI analysis results

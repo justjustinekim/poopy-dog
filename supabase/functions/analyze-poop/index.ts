@@ -22,7 +22,13 @@ serve(async (req) => {
     console.log('API Key first 5 chars:', openAIApiKey ? openAIApiKey.substring(0, 5) + '...' : 'none');
     console.log('API Key length:', openAIApiKey ? openAIApiKey.length : 0);
     
-    const { imageUrl, imageBase64, dogInfo } = await req.json();
+    const requestData = await req.json();
+    const { imageUrl, imageBase64, dogInfo } = requestData;
+    
+    console.log("Received request with keys:", Object.keys(requestData));
+    console.log("Image base64 present:", !!imageBase64);
+    console.log("Image URL present:", !!imageUrl);
+    console.log("Dog info present:", !!dogInfo);
     
     // Check if we have either imageUrl or imageBase64
     if (!imageUrl && !imageBase64) {
@@ -62,87 +68,98 @@ serve(async (req) => {
     const imageData = imageBase64 
       ? (imageBase64.startsWith('data:image/') ? imageBase64 : `data:image/jpeg;base64,${imageBase64}`)
       : imageUrl;
+      
+    console.log("Image data type:", typeof imageData);
+    console.log("Image data starts with:", imageData?.substring(0, 30) + "...");
 
     // Call OpenAI API to analyze the image
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          {
-            role: 'system',
-            content: systemPrompt
-          },
-          {
-            role: 'user',
-            content: [
-              { 
-                type: 'text', 
-                text: 'Analyze this dog poop image and provide health insights about the dog\'s gut ecosystem.'
-              },
-              { 
-                type: 'image_url', 
-                image_url: { 
-                  url: imageData
-                } 
-              }
-            ]
-          }
-        ],
-        max_tokens: 500
-      }),
-    });
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'system',
+              content: systemPrompt
+            },
+            {
+              role: 'user',
+              content: [
+                { 
+                  type: 'text', 
+                  text: 'Analyze this dog poop image and provide health insights about the dog\'s gut ecosystem.'
+                },
+                { 
+                  type: 'image_url', 
+                  image_url: { 
+                    url: imageData
+                  } 
+                }
+              ]
+            }
+          ],
+          max_tokens: 500
+        }),
+      });
 
-    const data = await response.json();
-    
-    if (data.error) {
-      console.error('OpenAI API error:', data.error);
+      const data = await response.json();
+      
+      if (data.error) {
+        console.error('OpenAI API error:', data.error);
+        return new Response(
+          JSON.stringify({ error: `OpenAI API error: ${data.error.message}` }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const analysis = data.choices?.[0]?.message?.content || 'Unable to analyze the image.';
+      console.log('Analysis result:', analysis.substring(0, 100) + '...');
+      
+      // Extract color and consistency information if we can
+      let color = 'brown'; // Default color
+      let consistency = 'normal'; // Default consistency
+      
+      // Simple extraction based on common keywords
+      if (analysis.toLowerCase().includes('green')) color = 'green';
+      else if (analysis.toLowerCase().includes('yellow')) color = 'yellow';
+      else if (analysis.toLowerCase().includes('red') || analysis.toLowerCase().includes('blood')) color = 'red';
+      else if (analysis.toLowerCase().includes('black')) color = 'black';
+      else if (analysis.toLowerCase().includes('white')) color = 'white';
+      
+      if (analysis.toLowerCase().includes('soft')) consistency = 'soft';
+      else if (analysis.toLowerCase().includes('liquid') || analysis.toLowerCase().includes('diarrhea')) consistency = 'liquid';
+      else if (analysis.toLowerCase().includes('solid') || analysis.toLowerCase().includes('hard')) consistency = 'solid';
+      
+      // Generate health insights from the analysis
+      const insights = [{
+        title: "AI Analysis",
+        description: analysis,
+        severity: analysis.toLowerCase().includes('concern') ? "medium" : "low",
+        recommendation: "Review the analysis and consider consulting with your vet if issues persist."
+      }];
+
       return new Response(
-        JSON.stringify({ error: `OpenAI API error: ${data.error.message}` }),
+        JSON.stringify({ 
+          analysis,
+          color,
+          consistency, 
+          confidence: 0.8,
+          insights
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } catch (openAIError) {
+      console.error('Error calling OpenAI API:', openAIError);
+      return new Response(
+        JSON.stringify({ error: `Error calling OpenAI API: ${openAIError.message}` }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    const analysis = data.choices?.[0]?.message?.content || 'Unable to analyze the image.';
-    console.log('Analysis result:', analysis.substring(0, 100) + '...');
-    
-    // Extract color and consistency information if we can
-    let color = 'brown'; // Default color
-    let consistency = 'normal'; // Default consistency
-    
-    // Simple extraction based on common keywords
-    if (analysis.toLowerCase().includes('green')) color = 'green';
-    else if (analysis.toLowerCase().includes('yellow')) color = 'yellow';
-    else if (analysis.toLowerCase().includes('red') || analysis.toLowerCase().includes('blood')) color = 'red';
-    else if (analysis.toLowerCase().includes('black')) color = 'black';
-    else if (analysis.toLowerCase().includes('white')) color = 'white';
-    
-    if (analysis.toLowerCase().includes('soft')) consistency = 'soft';
-    else if (analysis.toLowerCase().includes('liquid') || analysis.toLowerCase().includes('diarrhea')) consistency = 'liquid';
-    else if (analysis.toLowerCase().includes('solid') || analysis.toLowerCase().includes('hard')) consistency = 'solid';
-    
-    // Generate health insights from the analysis
-    const insights = [{
-      title: "AI Analysis",
-      description: analysis,
-      severity: analysis.toLowerCase().includes('concern') ? "medium" : "low",
-      recommendation: "Review the analysis and consider consulting with your vet if issues persist."
-    }];
-
-    return new Response(
-      JSON.stringify({ 
-        analysis,
-        color,
-        consistency, 
-        confidence: 0.8,
-        insights
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
   } catch (error) {
     console.error('Error in analyze-poop function:', error);
     return new Response(

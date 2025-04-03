@@ -22,9 +22,13 @@ serve(async (req) => {
     console.log('API Key first 5 chars:', openAIApiKey ? openAIApiKey.substring(0, 5) + '...' : 'none');
     console.log('API Key length:', openAIApiKey ? openAIApiKey.length : 0);
     
-    const { message, imageBase64, dogInfo, conversation } = await req.json();
+    const requestData = await req.json();
+    const { message, imageBase64, dogInfo, conversation } = requestData;
     
-    console.log("Received chat request. Has image:", !!imageBase64);
+    console.log("Received chat request with keys:", Object.keys(requestData));
+    console.log("Has image:", !!imageBase64);
+    console.log("Has dog info:", !!dogInfo);
+    console.log("Has conversation history:", !!conversation && Array.isArray(conversation));
     
     // Prepare system prompt for dog health assistant
     const systemPrompt = `You are a veterinary health assistant specialized in dog health with expertise in stool analysis.
@@ -58,19 +62,24 @@ ${dogInfo ? `Information about the dog: ${JSON.stringify(dogInfo)}` : ''}`;
     
     // Add image if available
     if (imageBase64) {
+      // Format the image data
+      const formattedImageData = imageBase64.startsWith('data:image/') 
+        ? imageBase64 
+        : `data:image/jpeg;base64,${imageBase64}`;
+        
+      console.log("Image data starts with:", formattedImageData.substring(0, 30) + "...");
+      
       // Find the last user message to add the image
       for (let i = messages.length - 1; i >= 0; i--) {
         if (messages[i].role === 'user') {
           messages[i] = {
             role: 'user',
             content: [
-              { type: 'text', text: messages[i].content },
+              { type: 'text', text: typeof messages[i].content === 'string' ? messages[i].content : "Analyze this dog poop image" },
               { 
                 type: 'image_url', 
                 image_url: {
-                  url: imageBase64.startsWith('data:image/') 
-                    ? imageBase64 
-                    : `data:image/jpeg;base64,${imageBase64}`
+                  url: formattedImageData
                 }
               }
             ]
@@ -82,33 +91,44 @@ ${dogInfo ? `Information about the dog: ${JSON.stringify(dogInfo)}` : ''}`;
 
     // Call OpenAI API
     console.log('Calling OpenAI API...');
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages,
-        temperature: 0.7,
-      }),
-    });
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages,
+          temperature: 0.7,
+        }),
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("OpenAI API error:", errorData);
-      throw new Error(`OpenAI API error: ${JSON.stringify(errorData)}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("OpenAI API error:", errorData);
+        throw new Error(`OpenAI API error: ${JSON.stringify(errorData)}`);
+      }
+
+      const data = await response.json();
+      console.log("OpenAI response received");
+      
+      return new Response(JSON.stringify({ 
+        response: data.choices[0].message.content
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } catch (openAIError) {
+      console.error('Error calling OpenAI API:', openAIError);
+      return new Response(JSON.stringify({ 
+        error: `Error calling OpenAI API: ${openAIError.message}`,
+        response: "I'm having trouble analyzing this right now. Please try again later."
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
-
-    const data = await response.json();
-    console.log("OpenAI response received");
-    
-    return new Response(JSON.stringify({ 
-      response: data.choices[0].message.content
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
   } catch (error) {
     console.error('Error in chat function:', error);
     return new Response(JSON.stringify({ 

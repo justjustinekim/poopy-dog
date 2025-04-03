@@ -18,6 +18,10 @@ export async function analyzePoopImage(imageFile: File, dogInfo?: any): Promise<
     const imageBase64 = await fileToBase64(imageFile);
     
     console.log("Calling OpenAI analysis function...");
+    // Add detailed logging
+    console.log("Image base64 string length:", imageBase64.length);
+    console.log("Dog info:", JSON.stringify(dogInfo));
+    
     const { data, error } = await supabase.functions.invoke('analyze-poop', {
       body: { 
         imageBase64: `data:image/jpeg;base64,${imageBase64}`,
@@ -31,6 +35,7 @@ export async function analyzePoopImage(imageFile: File, dogInfo?: any): Promise<
     }
     
     if (!data) {
+      console.error("No data returned from analysis");
       throw new Error("No data returned from analysis");
     }
     

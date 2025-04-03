@@ -17,15 +17,33 @@ function isProfile(data: any): data is Profile {
 // Fallback function to get a profile when the RPC function isn't available
 export async function fetchProfileWithFallback(userId: string) {
   try {
-    // Use type assertions to handle 'profiles' table not being in type definitions
+    // Better error handling by using maybeSingle() instead of single()
     const { data, error } = await supabase
-      .from('profiles' as any)
+      .from('profiles')
       .select('*')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
       
     if (error) {
+      console.error('Error fetching profile with standard query:', error);
       throw error;
+    }
+    
+    // If no profile exists, create one
+    if (!data) {
+      console.log('No profile found, creating one:', userId);
+      const { data: newProfile, error: createError } = await supabase
+        .from('profiles')
+        .insert({ id: userId })
+        .select('*')
+        .maybeSingle();
+        
+      if (createError) {
+        console.error('Error creating profile:', createError);
+        throw createError;
+      }
+      
+      return { data: newProfile, error: null };
     }
     
     // Verify the data is a Profile before returning it
@@ -44,13 +62,13 @@ export async function fetchProfileWithFallback(userId: string) {
 // Fallback function to update a profile when the RPC function isn't available
 export async function updateProfileWithFallback(userId: string, updates: Partial<Profile>) {
   try {
-    // Use type assertions to handle 'profiles' table not being in type definitions
     const { error } = await supabase
-      .from('profiles' as any)
+      .from('profiles')
       .update(updates)
       .eq('id', userId);
       
     if (error) {
+      console.error('Error updating profile:', error);
       throw error;
     }
     
