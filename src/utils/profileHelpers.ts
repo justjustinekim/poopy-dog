@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/contexts/ProfileContext';
 
@@ -34,6 +35,7 @@ export async function fetchProfileWithFallback(userId: string) {
     if (!existingProfile) {
       console.log('No profile found, creating one for user:', userId);
       
+      // Create a new profile with the user ID
       const { data: newProfile, error: createError } = await supabase
         .from('profiles')
         .insert([{ id: userId }])
@@ -46,11 +48,15 @@ export async function fetchProfileWithFallback(userId: string) {
       }
       
       if (!newProfile) {
+        console.error('Failed to create profile - no data returned');
         throw new Error('Failed to create profile');
       }
       
+      console.log('Successfully created new profile:', newProfile);
       return { data: newProfile, error: null };
     }
+    
+    console.log('Found existing profile:', existingProfile);
     
     // Verify the data matches the Profile structure
     if (isProfile(existingProfile)) {
@@ -71,6 +77,8 @@ export async function fetchProfileWithFallback(userId: string) {
 // Fallback function to update a profile when the RPC function isn't available
 export async function updateProfileWithFallback(userId: string, updates: Partial<Profile>) {
   try {
+    console.log('Updating profile for user:', userId, 'with updates:', updates);
+    
     const { error } = await supabase
       .from('profiles')
       .update(updates)
@@ -81,6 +89,7 @@ export async function updateProfileWithFallback(userId: string, updates: Partial
       throw error;
     }
     
+    console.log('Profile updated successfully');
     return { error: null };
   } catch (error) {
     console.error('Error in profile update fallback:', error);

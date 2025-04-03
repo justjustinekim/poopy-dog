@@ -40,6 +40,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [fetchAttempted, setFetchAttempted] = useState(false);
 
   // Fetch profile when user changes
   useEffect(() => {
@@ -48,8 +49,11 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
     const fetchProfile = async () => {
       if (!user) {
         if (isMounted) {
+          // Clear profile when user logs out
           setProfile(null);
+          setError(null);
           setLoading(false);
+          setFetchAttempted(false);
         }
         return;
       }
@@ -67,8 +71,13 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
         }
         
         if (isMounted && data) {
+          console.log('Profile fetched successfully:', data);
           setProfile(data);
           setError(null);
+        } else if (isMounted) {
+          console.warn('No profile data returned for user:', user.id);
+          setProfile(null);
+          setError(new Error('No profile data returned'));
         }
       } catch (error) {
         console.error('Error in fetchProfile:', error);
@@ -79,6 +88,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
       } finally {
         if (isMounted) {
           setLoading(false);
+          setFetchAttempted(true);
         }
       }
     };
@@ -99,6 +109,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
     
     try {
       setLoading(true);
+      console.log('Updating profile with:', updates);
       
       // Use our fallback mechanism
       const { error: updateError } = await updateProfileWithFallback(user.id, updates);
@@ -119,7 +130,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
     }
   };
 
-  // Upload avatar function - No changes needed here
+  // Upload avatar function
   const uploadAvatar = async (file: File): Promise<string | null> => {
     if (!user) {
       toast.error('You must be logged in to upload an avatar');
@@ -127,6 +138,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
     }
     
     try {
+      console.log('Uploading avatar for user:', user.id);
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       
@@ -139,6 +151,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
         });
         
       if (uploadError) {
+        console.error('Error uploading file:', uploadError);
         throw uploadError;
       }
       
@@ -148,6 +161,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
         .getPublicUrl(fileName);
       
       const avatarUrl = data.publicUrl;
+      console.log('Avatar uploaded successfully, URL:', avatarUrl);
       
       // Update profile
       await updateProfile({ avatar_url: avatarUrl });
@@ -159,6 +173,17 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
       return null;
     }
   };
+
+  // Add debug effect to log profile state changes
+  useEffect(() => {
+    console.log('ProfileContext state updated:', {
+      profile,
+      loading,
+      error,
+      fetchAttempted,
+      userExists: !!user
+    });
+  }, [profile, loading, error, fetchAttempted, user]);
 
   const value = {
     profile,
