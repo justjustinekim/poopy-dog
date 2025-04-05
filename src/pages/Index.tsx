@@ -1,3 +1,4 @@
+
 // Updated landing page with cute dog graphic as main element and playful UI elements
 import React from "react";
 import { Sparkles, PawPrint } from "lucide-react";
@@ -6,10 +7,12 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Container } from "@/components/ui/Container";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   
   const handleGetStarted = () => {
     if (user) {
@@ -48,36 +51,40 @@ const Index: React.FC = () => {
           </p>
         </div>
         
-        {/* Middle section with puppy image */}
+        {/* Middle section with puppy image - improved for mobile */}
         <div className="flex-1 flex items-center justify-center relative mb-6">
-          <div className="w-72 h-72 sm:w-96 sm:h-96 relative">
-            {/* Puppy image with poop */}
+          <div className={`relative ${isMobile ? 'w-64 h-64' : 'w-72 h-72 sm:w-96 sm:h-96'}`}>
+            {/* Puppy image with poop - fixed path */}
             <div className="absolute inset-0 flex items-center justify-center">
               <img 
-                src="/public/lovable-uploads/6efeee09-4adc-467d-8637-8973c5cef9fa.png" 
+                src="/favicon.ico" 
                 alt="Cute cartoon puppy with poop" 
                 className="w-full h-full object-contain"
+                onError={(e) => {
+                  console.error("Image failed to load, trying alternate path");
+                  e.currentTarget.src = "/lovable-uploads/6efeee09-4adc-467d-8637-8973c5cef9fa.png";
+                }}
               />
             </div>
             
-            {/* Floating poop emoji decorations - now 30% bigger */}
-            <div className="absolute -top-6 -right-4 animate-float delay-300">
-              <div className="w-13 h-13 bg-brown-300 rounded-full flex items-center justify-center scale-130">
-                <span role="img" aria-label="poop" className="text-2xl">💩</span>
+            {/* Floating poop emoji decorations - adjusted for mobile */}
+            <div className={`absolute ${isMobile ? '-top-4 -right-2' : '-top-6 -right-4'} animate-float delay-300`}>
+              <div className={`${isMobile ? 'w-10 h-10' : 'w-13 h-13'} bg-brown-300 rounded-full flex items-center justify-center scale-130`}>
+                <span role="img" aria-label="poop" className={isMobile ? "text-xl" : "text-2xl"}>💩</span>
                 {/* Score bubble */}
                 <div className="absolute -top-2 -right-2 bg-yellow-400 text-primary text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-white dark:border-gray-800 animate-pulse">
                   +1
                 </div>
               </div>
             </div>
-            <div className="absolute top-12 -left-6 animate-float delay-700">
-              <div className="w-10 h-10 bg-brown-200 rounded-full flex items-center justify-center scale-130">
-                <span role="img" aria-label="poop" className="text-xl">💩</span>
+            <div className={`absolute ${isMobile ? 'top-8 -left-4' : 'top-12 -left-6'} animate-float delay-700`}>
+              <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} bg-brown-200 rounded-full flex items-center justify-center scale-130`}>
+                <span role="img" aria-label="poop" className={isMobile ? "text-lg" : "text-xl"}>💩</span>
               </div>
             </div>
             
-            {/* Chart illustration */}
-            <div className="absolute -bottom-4 -left-4 bg-white dark:bg-gray-800 p-2 rounded-lg shadow-md transform rotate-3">
+            {/* Chart illustration - adjusted for mobile */}
+            <div className={`absolute ${isMobile ? '-bottom-2 -left-2' : '-bottom-4 -left-4'} bg-white dark:bg-gray-800 p-2 rounded-lg shadow-md transform rotate-3`}>
               <div className="flex items-end h-16 gap-1">
                 <div className="w-3 bg-primary h-5 rounded-t"></div>
                 <div className="w-3 bg-primary h-8 rounded-t"></div>
@@ -87,8 +94,8 @@ const Index: React.FC = () => {
               </div>
             </div>
             
-            {/* Thought bubble with heart */}
-            <div className="absolute -top-4 -left-4">
+            {/* Thought bubble with heart - adjusted for mobile */}
+            <div className={`absolute ${isMobile ? '-top-2 -left-2' : '-top-4 -left-4'}`}>
               <div className="relative">
                 <div className="bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm">
                   <span role="img" aria-label="heart" className="text-red-500 text-xl">❤️</span>
