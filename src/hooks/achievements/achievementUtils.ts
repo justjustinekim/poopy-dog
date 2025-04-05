@@ -3,6 +3,10 @@ import { Achievement, Challenge } from "@/types";
 import { AchievementRow, UserAchievementRow, ChallengeRow, UserChallengeRow } from "@/types/supabase";
 import { toast } from "sonner";
 
+// Track which achievements have been notified recently to prevent duplicates
+const recentlyNotifiedAchievements = new Set<string>();
+const NOTIFICATION_COOLDOWN_MS = 60000; // 1 minute cooldown
+
 /**
  * Maps database achievement records to the application Achievement type
  */
@@ -82,6 +86,7 @@ export const getCurrentStreak = (achievements: Achievement[]): number => {
 /**
  * Checks for newly unlocked achievements and displays toast notifications
  * Will only notify if there are actual achievements to show and user is authenticated
+ * Implements deduplication to prevent notification spam
  */
 export const notifyNewAchievements = (achievements: Achievement[]): boolean => {
   // Skip notification if no achievements or empty array
@@ -89,29 +94,69 @@ export const notifyNewAchievements = (achievements: Achievement[]): boolean => {
     return false;
   }
   
+  // Only notify about achievements unlocked in the last 10 seconds that haven't been recently notified
   const newlyUnlocked = achievements.filter(
     a => a.unlocked && !a.isNegative && a.dateUnlocked && 
-    new Date(a.dateUnlocked).getTime() > (Date.now() - 1000 * 10) // Unlocked in last 10 seconds
+    new Date(a.dateUnlocked).getTime() > (Date.now() - 1000 * 10) && // Unlocked in last 10 seconds
+    !recentlyNotifiedAchievements.has(a.id) // Not recently notified
   );
   
   const newlyNegative = achievements.filter(
     a => a.unlocked && a.isNegative && a.dateUnlocked && 
-    new Date(a.dateUnlocked).getTime() > (Date.now() - 1000 * 10) // Unlocked in last 10 seconds
+    new Date(a.dateUnlocked).getTime() > (Date.now() - 1000 * 10) && // Unlocked in last 10 seconds
+    !recentlyNotifiedAchievements.has(a.id) // Not recently notified
   );
   
-  // Show toast for newly unlocked achievements
-  newlyUnlocked.forEach(achievement => {
-    toast.success(`Achievement Unlocked: ${achievement.title}`, {
-      description: `${achievement.description} (+50 Poop Coins!)`
-    });
-  });
+  // Show at most one toast for positive achievements and one for negative
+  // to prevent notification spam
+  const positiveAchievement = newlyUnlocked.length > 0 ? newlyUnlocked[0] : null;
+  const negativeAchievement = newlyNegative.length > 0 ? newlyNegative[0] : null;
   
-  // Show toast for newly triggered negative achievements
-  newlyNegative.forEach(achievement => {
-    toast.error(`Setback Occurred: ${achievement.title}`, {
-      description: `${achievement.description} (+1 Stink Badge)`
-    });
-  });
+  if (positiveAchievement) {
+    // Add to recently notified set and set timeout to remove it
+    recentlyNotifiedAchievements.add(positiveAchievement.id);
+    setTimeout(() => {
+      recentlyNotifiedAchievements.delete(positiveAchievement.id);
+    }, NOTIFICATION_COOLDOWN_MS);
+    
+    // Show consolidated notification if there are multiple achievements
+    if (newlyUnlocked.length > 1) {
+      toast.success(`${newlyUnlocked.length} Achievements Unlocked!`, {
+        description: `Including: ${positiveAchievement.title} (+50 Poop Coins)`,
+        duration: 4000,
+        dismissible: true
+      });
+    } else {
+      toast.success(`Achievement Unlocked: ${positiveAchievement.title}`, {
+        description: `${positiveAchievement.description} (+50 Poop Coins)`,
+        duration: 4000,
+        dismissible: true
+      });
+    }
+  }
+  
+  if (negativeAchievement) {
+    // Add to recently notified set and set timeout to remove it
+    recentlyNotifiedAchievements.add(negativeAchievement.id);
+    setTimeout(() => {
+      recentlyNotifiedAchievements.delete(negativeAchievement.id);
+    }, NOTIFICATION_COOLDOWN_MS);
+    
+    // Show consolidated notification if there are multiple negative achievements
+    if (newlyNegative.length > 1) {
+      toast.error(`${newlyNegative.length} Setbacks Occurred`, {
+        description: `Including: ${negativeAchievement.title} (+1 Stink Badge)`,
+        duration: 4000,
+        dismissible: true
+      });
+    } else {
+      toast.error(`Setback Occurred: ${negativeAchievement.title}`, {
+        description: `${negativeAchievement.description} (+1 Stink Badge)`,
+        duration: 4000,
+        dismissible: true
+      });
+    }
+  }
   
   return newlyUnlocked.length > 0 || newlyNegative.length > 0;
 };
