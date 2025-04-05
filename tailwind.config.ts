@@ -137,6 +137,10 @@ export default {
 				'float': {
 					'0%, 100%': { transform: 'translateY(0)' },
 					'50%': { transform: 'translateY(-10px)' }
+				},
+				'wiggle': {
+					'0%, 100%': { transform: 'rotate(-10deg)' },
+					'50%': { transform: 'rotate(10deg)' }
 				}
 			},
 			animation: {
@@ -147,7 +151,8 @@ export default {
 				'slide-up': 'slide-up 0.5s ease-out',
 				'slide-down': 'slide-down 0.5s ease-out',
 				'scale-in': 'scale-in 0.3s ease-out',
-				'float': 'float 6s ease-in-out infinite'
+				'float': 'float 6s ease-in-out infinite',
+				'wiggle': 'wiggle 1s ease-in-out infinite'
 			}
 		}
 	},

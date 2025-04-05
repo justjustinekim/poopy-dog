@@ -54,15 +54,15 @@ const Index: React.FC = () => {
         {/* Middle section with puppy image - improved for mobile */}
         <div className="flex-1 flex items-center justify-center relative mb-6">
           <div className={`relative ${isMobile ? 'w-64 h-64' : 'w-72 h-72 sm:w-96 sm:h-96'}`}>
-            {/* Puppy image with heart silhouette - using the correct image */}
+            {/* Puppy image with transparent background */}
             <div className="absolute inset-0 flex items-center justify-center">
               <img 
-                src="/lovable-uploads/9f98a8c4-1d2c-413f-8c21-c4c72f3b2e1b.png" 
-                alt="Cute cartoon puppy with heart" 
+                src="/lovable-uploads/02b09b30-8b9b-4333-a5fd-392e5f40c417.png" 
+                alt="Cute cartoon puppy with poop" 
                 className="w-full h-full object-contain"
                 onError={(e) => {
                   console.error("Image failed to load, trying alternate path");
-                  e.currentTarget.src = "/lovable-uploads/6efeee09-4adc-467d-8637-8973c5cef9fa.png";
+                  e.currentTarget.src = "/lovable-uploads/9f98a8c4-1d2c-413f-8c21-c4c72f3b2e1b.png";
                 }}
               />
             </div>
@@ -94,15 +94,9 @@ const Index: React.FC = () => {
               </div>
             </div>
             
-            {/* Thought bubble with heart - adjusted for mobile */}
-            <div className={`absolute ${isMobile ? '-top-2 -left-2' : '-top-4 -left-4'}`}>
-              <div className="relative">
-                <div className="bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm">
-                  <span role="img" aria-label="heart" className="text-red-500 text-xl">❤️</span>
-                </div>
-                <div className="absolute bottom-0 right-1 w-3 h-3 bg-white dark:bg-gray-800 rounded-full transform translate-x-1/2 translate-y-1/2"></div>
-                <div className="absolute bottom-2 right-3 w-2 h-2 bg-white dark:bg-gray-800 rounded-full transform translate-x-1/2 translate-y-1/2"></div>
-              </div>
+            {/* Animated wagging tail effect */}
+            <div className="absolute bottom-1/4 -left-2 transform -translate-y-1/2">
+              <div className="w-3 h-3 bg-transparent origin-bottom-right animate-[wiggle_1s_ease-in-out_infinite]"></div>
             </div>
           </div>
         </div>
