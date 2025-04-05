@@ -54,11 +54,11 @@ const Index: React.FC = () => {
         {/* Middle section with puppy image - improved for mobile */}
         <div className="flex-1 flex items-center justify-center relative mb-6">
           <div className={`relative ${isMobile ? 'w-64 h-64' : 'w-72 h-72 sm:w-96 sm:h-96'}`}>
-            {/* Puppy image with poop - fixed path */}
+            {/* Puppy image with heart silhouette - using the correct image */}
             <div className="absolute inset-0 flex items-center justify-center">
               <img 
-                src="/favicon.ico" 
-                alt="Cute cartoon puppy with poop" 
+                src="/lovable-uploads/9f98a8c4-1d2c-413f-8c21-c4c72f3b2e1b.png" 
+                alt="Cute cartoon puppy with heart" 
                 className="w-full h-full object-contain"
                 onError={(e) => {
                   console.error("Image failed to load, trying alternate path");
